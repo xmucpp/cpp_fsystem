@@ -1,0 +1,6 @@
+CONNECTPASSWORD = '@ucFkv&YK2N2KdjY'
+CONNECTCOMFIRM = 'COMFIRM'
+CONSOLEPASSWORD = 'ppYOE%#u5yHpzi#H'
+CONNECTSUCCESS = 'Connection established'
+ORDER = ';'
+IPPORT = '#'
