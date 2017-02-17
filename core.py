@@ -3,20 +3,52 @@ import commands
 import select
 import time
 import json
+import redis
+import threading
+import TmallPageScraper
 from code import *
 
+redis = redis.Redis()
 HOST = ''
 PORT = 9813
 serverlist = {}
 console = {}
 unidentified = {}
+worker = {}
+workerstate = {}
+worktable = {'TMALL': ''}
+crawlerstatis = {'TMALL': 0}
 
 OUTTIME = 300
 BUFFER = ''
+SENTBUFFER = 1024
+
+
+def savesend(buffer,target):
+    try:
+        target.send('{};{}'.format(len(buffer), SENTBUFFER))
+        if target.recv(1024) == 'Ready':
+            target.sendall(buffer)
+            return "Send Success"
+    except Exception as e:
+        return "Send rejected:{}".format(e)
+
+
+def saverecv(target):
+    try:
+        BUFFER = target.recv(1024)
+        target.send("Ready")
+        BUFFER = target.recv(BUFFER.split(ORDER)[1]+10)
+        return "Recv Success"
+    except Exception as e:
+        return "Recv error:{}".format(e)
+
+
+'''-----------------------------------------'''
 
 
 def system(order):
-    if len(order) > 2:
+    if len(order) != 2:
         return "wrong arguments number\n"
 
     status, results = commands.getstatusoutput(order[1])
@@ -52,23 +84,76 @@ def connect(order):
         return BUFFER
 
 
+def shutdown():
+    if workerstate.values().count('Running'):
+        return "Please kill all running work before shut down the server!"
+    ordertoclose = True
+    return "Server is shutting down."
+
+
 def info(order):
+    if len(order) != 1:
+        return "wrong arguments number"
+
     infodata = 'Connected Server:{}\n'.format(len(serverlist))
     for (fileno, server) in serverlist.items():
         peername = server.getpeername()
         infodata += "%-4d      %-12s     %-5d     \n" % (fileno, peername[0], peername[1])
-    infodata += '\n\n\nConnected Console:{}\n'.format(len(console))
+    infodata += '\nConnected Console:{}\n'.format(len(console))
     for (fileno, con) in console.items():
         peername = con.getpeername()
         infodata += "%-4d      %-12s     %-5d     \n" % (fileno, peername[0], peername[1])
-    infodata += '\n\n\nUnidentified Request:{}\n'.format(len(unidentified))
+    infodata += '\nUnidentified Request:{}\n'.format(len(unidentified))
     for (fileno, uni) in unidentified.items():
         peername = uni[1].getpeername()
         infodata += "%-4d      %-12s     %-5d     %-5.0f\n" % (fileno, peername[0], peername[1], time.time()-uni[0])
+    infodata += '\n---Current worker:{}\n'.format(workerstate.values().count('Running'))
+    for work in worker.keys():
+        infodata += "%-8s      %-8s     %-40s     %-8d\n" % (work, workerstate[work], worktable[work], crawlerstatis[work])
     return infodata
 
 
-server_operation = {'SYSTEM': system, 'CONNECT': connect, 'INFO': info}
+def statistics(order):
+    if len(order) != 1:
+        return "wrong arguments number"
+
+    infodata =  '\nConnected Server:{}\n'.format(len(serverlist))
+    infodata += '\nConnected Console:{}\n'.format(len(console))
+    infodata += '\nUnidentified Request:{}\n'.format(len(unidentified))
+    infodata += '\nCurrent worker:{}\n'.format(workerstate.values().count('Running'))
+    return infodata
+
+
+
+def tmall():
+    workerstate['TMALL'] = 'Running'
+    try:
+        while redis.exists('TMALL'):
+            try:
+                worktable['TMALL'] = redis.blpop('TMALL')
+            except Exception as e:
+                print e
+            TmallPageScraper.parse(worktable['TMALL'])
+            crawlerstatis['TMALL'] += 1
+    finally:
+        workerstate['TMALL'] = 'stop'
+
+
+crawlerlist = {'TMALL': tmall}
+
+
+def crawler(order):
+    if len(order) != 2 or order[1] not in crawlerlist:
+        return "wrong arguments"
+
+    if order[1] in worker.keys():
+        return "Crawler is already running!"
+    worker[order[1]] = threading.Thread(target=crawlerlist[order[1]])
+    worker[order[1]].start()
+    return "Crawler started!"
+
+server_operation = {'SYSTEM': system, 'CONNECT': connect, 'INFO': info, 'STATISTICS': statistics, 'CRAWLER': crawler,
+                    'SHUTDOWN': shutdown}
 
 
 def serverorder(message):
@@ -87,7 +172,10 @@ Local = lambda x: x.insert(1, '-1')
 operation = {
     'SYSTEM': Collective,
     'CONNECT': Allin,
-    'INFO': Local,
+    'INFO': Collective,
+    'STATISTICS': Local,
+    'CRAWLER': Collective,
+    'SHUTDOWN': Collective
 }
 
 
@@ -129,6 +217,8 @@ def consoleorder(message):
 
 '''-----------------------------------------'''
 
+ordertoclose = False
+
 
 def main():
     self = socket.socket()
@@ -139,6 +229,8 @@ def main():
     epoll.register(self.fileno(), select.EPOLLIN)
     print "--------------------------------\n       SYSTEM STARTED"
     while True:
+        if ordertoclose:
+            break
         events = epoll.poll(5)
         for fileno , event in events:
 
@@ -196,6 +288,15 @@ def main():
                 cli.send("auto disconnect\n")
                 unidentified.pop(cli.fileno())
                 cli.close()
+
+    for (fileno, server) in serverlist.items():
+        server.close()
+    for (fileno, con) in console.items():
+        con.close()
+    for (fileno, uni) in unidentified.items():
+        uni[1].close()
+    self.close()
+    return 0
 
 
 if __name__ == "__main__":
