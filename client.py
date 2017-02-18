@@ -7,19 +7,21 @@ def communicate(server):
     epoll = select.epoll()
     epoll.register(server.fileno(), select.EPOLLHUP)
     user_input = ''
+    usrinput = raw_input('-->')
     while user_input != 'exit':
-        usrinput = raw_input('-->')
         events = epoll.poll(1)
         if events:
             break
         server.send(usrinput)
         message = server.recv(1024)
         print message
+        usrinput = raw_input('-->')
     server.close()
 
 
 def main():
     print "---------------------------\n      Initializing....\n"
+    user_input = ''
     while user_input != 'n':
         server = socket.socket()
         try:
