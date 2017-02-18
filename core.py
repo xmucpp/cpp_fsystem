@@ -95,7 +95,9 @@ def main():
                 gv.unidentified.pop(cli.fileno())
                 cli.close()
 
+    print "Server is shutting down......"
     for (fileno, server) in gv.serverlist.items():
+        print fileno
         server.close()
     for (fileno, con) in gv.console.items():
         con.close()
