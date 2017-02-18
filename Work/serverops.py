@@ -118,7 +118,7 @@ def crawler(order):
 
 arguments_number = {'SYSTEM': 2, 'CONNECT': 3, 'INFO': 1,
                     'STATISTICS': 1, 'CRAWLER': 2,
-                    'SHUTDOWN': 1}
+                    'SHUTDOWN': 1, 'UPDATE': 1}
 server_operation = {'SYSTEM': system, 'CONNECT': connect, 'INFO': info,
                     'STATISTICS': statistics, 'CRAWLER': crawler,
                     'SHUTDOWN': shutdown, 'UPDATE': update}
