@@ -1,15 +1,19 @@
 import socket
 import readline
+import select
 
 
 def communicate(server):
+    epoll = select.epoll()
+    epoll.register(server.fileno(), select.EPOLLHUP)
     user_input = ''
     while user_input != 'exit':
         usrinput = raw_input('-->')
+        events = epoll(1)
+        if events:
+            break
         server.send(usrinput)
         message = server.recv(1024)
-        if message == '':
-            break
         print message
     server.close()
 
