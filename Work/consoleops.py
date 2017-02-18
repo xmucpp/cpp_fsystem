@@ -42,7 +42,7 @@ operation = {
     'SYSTEM': Collective,
     'CONNECT': Allin,
     'INFO': Collective,
-    'STATISTICS': Local,
+    'STATISTICS': Allin,
     'CRAWLER': Collective,
     'SHUTDOWN': Collective,
     'HELP': 0
