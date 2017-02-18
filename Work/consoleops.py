@@ -24,7 +24,7 @@ def collective(order):
     results = ''
     for target in target_list:
         try:
-            print '-----------------------------------'
+            results += '-----------------------------------\n'
             if target == -1:
                 results += 'local(-1):  {}\n'.format(serverops.server_order(message))
             else:
