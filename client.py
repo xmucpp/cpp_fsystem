@@ -20,7 +20,7 @@ def communicate(server):
 
 def main():
     print "---------------------------\n      Initializing....\n"
-    while True:
+    while user_input != 'n':
         server = socket.socket()
         try:
             server.connect(('127.0.0.1', 9813))
@@ -37,7 +37,7 @@ def main():
                 print "Connection refused."
         except Exception as e:
             print e
-            input("Wanna retry?")
+            user_input = raw_input("Wanna retry? n to exit")
     print 'Console terminated.'
 
 if __name__ == '__main__':
