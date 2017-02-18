@@ -1,7 +1,11 @@
 import redis
 import time
 import os
+import socket
 
+# ------timeout
+timeout = 20
+socket.setdefaulttimeout(timeout)
 # ------redis
 redis = redis.Redis()
 # ------self
