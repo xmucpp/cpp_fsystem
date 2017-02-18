@@ -2,7 +2,10 @@ import redis
 import time
 import os
 import socket
+import select
 
+# ------epoll
+epoll = select.epoll()
 # ------timeout
 timeout = 20
 socket.setdefaulttimeout(timeout)

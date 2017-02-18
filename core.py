@@ -27,8 +27,7 @@ def main():
     self.bind((gv.HOST, gv.PORT))
     self.listen(10)
 
-    epoll = select.epoll()
-    epoll.register(self.fileno(), select.EPOLLIN)
+    gv.epoll.register(self.fileno(), select.EPOLLIN)
     print "--------------------------------\n       SYSTEM STARTED"
 
     while True:
@@ -37,13 +36,12 @@ def main():
         if gv.order_to_update:
             reloading()
 
-        events = epoll.poll(20)
-        print events
+        events = gv.epoll.poll(20)
         for fileno, event in events:
             if fileno == self.fileno():
                 con, conaddr = self.accept()
                 print conaddr, "Incoming Connection"
-                epoll.register(con.fileno(), select.EPOLLIN)
+                gv.epoll.register(con.fileno(), select.EPOLLIN)
                 gv.unidentified[con.fileno()] = [time.time(), con]
 
             elif fileno in gv.unidentified:
@@ -60,7 +58,7 @@ def main():
                     print '{}: {}----console connected'.format(fileno, gv.console[fileno].getpeername())
                 elif gv.BUFFER == '':
                     print '{}: {}----unidentified disconnected'.format(fileno, gv.unidentified[fileno][1].getpeername())
-                    epoll.modify(fileno, 0)
+                    gv.epoll.modify(fileno, 0)
                     gv.unidentified.pop(fileno)
                 else:
                     gv.unidentified[fileno][1].send("WRONG PASSWORD!")
@@ -71,7 +69,7 @@ def main():
                 gv.BUFFER = gv.console[fileno].recv(1024)
                 print "message from console {}:\n{}".format(fileno, gv.BUFFER)
                 if gv.BUFFER == '':
-                    epoll.modify(fileno, 0)
+                    gv.epoll.modify(fileno, 0)
                     gv.console.pop(fileno)
                 else:
                     gv.console[fileno].sendall(consoleops.console_order(gv.BUFFER))
@@ -80,7 +78,7 @@ def main():
                 gv.BUFFER = gv.serverlist[fileno].recv(1024)
                 print "message from server{}:\n{}".format(fileno, gv.BUFFER)
                 if gv.BUFFER == '':
-                    epoll.modify(fileno, 0)
+                    gv.epoll.modify(fileno, 0)
                     gv.serverlist.pop(fileno)
                 else:
                     gv.serverlist[fileno].sendall(serverops.server_order(gv.BUFFER))
@@ -97,7 +95,6 @@ def main():
 
     print "Server is shutting down......"
     for (fileno, server) in gv.serverlist.items():
-        print fileno
         server.close()
     for (fileno, con) in gv.console.items():
         con.close()

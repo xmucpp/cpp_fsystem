@@ -2,6 +2,7 @@ import commands
 import threading
 import socket
 import time
+import select
 import globalvar as gv
 import Crawler.TmallPageScraper as TmallPageScraper
 
@@ -35,8 +36,10 @@ def connect(order):
     gv.BUFFER = so.recv(1024)
     if gv.BUFFER == gv.CONNECTCOMFIRM:
         gv.serverlist[so.fileno()] = so
+        gv.epoll.register(so.fileno(), select.EPOLLIN)
         return gv.CONNECTSUCCESS
     else:
+        so.close()
         return gv.BUFFER
 
 
