@@ -45,6 +45,7 @@ operation = {
     'STATISTICS': Allin,
     'CRAWLER': Collective,
     'SHUTDOWN': Collective,
+    'UPDATE': Collective,
     'HELP': 0
 }
 
@@ -55,6 +56,7 @@ help_list = '--------Caution: ALL server are standed by its fileno\n' \
             'STATISTICS                         ----Pandect of all servers\n' \
             'CRAWLER;server;crawlername         ----Start some Crawler on server\n' \
             'SHUTDOWN;server                    ----Shutdown server\n' \
+            'UPDATE;server                      ----update from git without stop server\n' \
             'HELP                               ----Ask for this page\n'
 
 
