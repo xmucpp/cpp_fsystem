@@ -22,6 +22,7 @@ worker = {}
 workerstate = {}
 worktable = {'TMALL': ''}
 crawlerstatis = {'TMALL': 0}
+missionglist = {'TMALL': 0}
 # -------constant
 OUTTIME = 300
 BUFFER = ''
