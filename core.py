@@ -1,10 +1,11 @@
+# git clone https://github.com/sinnfashen/New_web
 import socket
 import select
 import time
 import commands
 
-import work.serverops as serverops
-import work.consoleops as consoleops
+import Work.serverops as serverops
+import Work.consoleops as consoleops
 import globalvar as gv
 
 
