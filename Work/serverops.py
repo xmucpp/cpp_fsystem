@@ -6,10 +6,12 @@ import select
 import datetime
 import globalvar as gv
 import Crawler.TmallPageScraper as TmallPageScraper
+import Crawler.JDPageScraper as JDPageScraper
 
 
 def reloading():
-    pass
+    import Crawler.JDPageScraper as JDPageScraper
+
 
 def system(order):
     status, results = commands.getstatusoutput(order[1])
@@ -105,7 +107,8 @@ def worker(target_web):
         gv.workerstate[target_web] = 'Stopped'
 
 
-crawler_list = {'TMALL': TmallPageScraper}
+crawler_list = {'TMALL': TmallPageScraper,
+                'JD': JDPageScraper}
 
 
 def crawler(order):
