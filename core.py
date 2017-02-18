@@ -37,7 +37,8 @@ def main():
         if gv.order_to_update:
             reloading()
 
-        events = epoll.poll(5)
+        events = epoll.poll(20)
+        print events
         for fileno, event in events:
             if fileno == self.fileno():
                 con, conaddr = self.accept()
