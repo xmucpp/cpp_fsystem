@@ -45,18 +45,18 @@ def main():
                 gv.unidentified[con.fileno()] = [time.time(), con]
 
             elif fileno in gv.unidentified:
-                gv.BUFFER = gv.unidentified[fileno][1].recv(1024)
-                if gv.BUFFER == gv.CONNECTPASSWORD:
+                message = gv.unidentified[fileno][1].recv(1024)
+                if message == gv.CONNECTPASSWORD:
                     gv.serverlist[fileno] = gv.unidentified[fileno][1]
                     gv.unidentified.pop(fileno)
                     gv.serverlist[fileno].send(gv.CONNECTCOMFIRM)
                     print '{}: {}----server connected'.format(fileno, gv.serverlist[fileno].getpeername())
-                elif gv.BUFFER == gv.CONSOLEPASSWORD:
+                elif message == gv.CONSOLEPASSWORD:
                     gv.console[fileno] = gv.unidentified[fileno][1]
                     gv.unidentified.pop(fileno)
                     gv.console[fileno].send(gv.CONNECTCOMFIRM)
                     print '{}: {}----console connected'.format(fileno, gv.console[fileno].getpeername())
-                elif gv.BUFFER == '':
+                elif message == '':
                     print '{}: {}----unidentified disconnected'.format(fileno, gv.unidentified[fileno][1].getpeername())
                     gv.epoll.modify(fileno, 0)
                     gv.unidentified.pop(fileno)
@@ -66,22 +66,22 @@ def main():
                         .format(fileno, gv.unidentified[fileno][1].getpeername())
 
             elif fileno in gv.console:
-                gv.BUFFER = gv.console[fileno].recv(1024)
-                print "message from console {}:\n{}".format(fileno, gv.BUFFER)
-                if gv.BUFFER == '':
+                message = gv.console[fileno].recv(1024)
+                print "message from console {}:\n{}".format(fileno, message)
+                if message == '':
                     gv.epoll.modify(fileno, 0)
                     gv.console.pop(fileno)
                 else:
-                    gv.console[fileno].sendall(consoleops.console_order(gv.BUFFER))
+                    gv.console[fileno].sendall(consoleops.console_order(message))
 
             elif fileno in gv.serverlist:
-                gv.BUFFER = gv.serverlist[fileno].recv(1024)
-                print "message from server{}:\n{}".format(fileno, gv.BUFFER)
-                if gv.BUFFER == '':
+                message = gv.serverlist[fileno].recv(1024)
+                print "message from server{}:\n{}".format(fileno, message)
+                if message == '':
                     gv.epoll.modify(fileno, 0)
                     gv.serverlist.pop(fileno)
                 else:
-                    gv.serverlist[fileno].sendall(serverops.server_order(gv.BUFFER))
+                    gv.serverlist[fileno].sendall(serverops.server_order(message))
 
             else:
                 print "what?"

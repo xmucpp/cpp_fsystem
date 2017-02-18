@@ -36,14 +36,14 @@ def connect(order):
     except Exception as e:
         return 'IP Error!\n{}'.format(e)
     so.send(gv.CONNECTPASSWORD)
-    gv.BUFFER = so.recv(1024)
-    if gv.BUFFER == gv.CONNECTCOMFIRM:
+    message = so.recv(1024)
+    if message == gv.CONNECTCOMFIRM:
         gv.serverlist[so.fileno()] = so
         gv.epoll.register(so.fileno(), select.EPOLLIN)
         return gv.CONNECTSUCCESS
     else:
         so.close()
-        return gv.BUFFER
+        return message
 
 
 def shutdown(order):
