@@ -1,18 +1,36 @@
 import socket
 import readline
-print "---------------------------\n      Initializing...."
-server = socket.socket()
-server.connect(('127.0.0.1', 9813))
-usrinput = ''
-server.send('ppYOE%#u5yHpzi#H')
-BUFFER = server.recv(1024)
-if(BUFFER == 'COMFIRM'):
-    print "Connection established"
-    while usrinput != 'exit':
+
+
+def communicate(server):
+    user_input = ''
+    while user_input != 'exit':
         usrinput = raw_input('-->')
         server.send(usrinput)
-        BUFFER = server.recv(1024)
-        print BUFFER
-else:
-    print "Connection refused"
-print 'console terminated.'
+        message = server.recv(1024)
+        if message == '':
+            break
+        print message
+    server.close()
+
+
+def main():
+    print "---------------------------\n      Initializing....\n"
+    while True:
+        server = socket.socket()
+        server.connect(('127.0.0.1', 9813))
+        user_input = raw_input("Please input the password to server(exit to close):")
+        server.send(user_input)
+        if user_input == 'exit':
+            break
+        message = server.recv(1024)
+        if message == 'COMFIRM':
+            print "Connection established."
+            communicate(server)
+            print "Disconnected."
+        else:
+            print "Connection refused."
+    print 'Console terminated.'
+
+if __name__ == '__main__':
+    main()
