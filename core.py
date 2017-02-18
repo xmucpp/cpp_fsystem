@@ -1,21 +1,23 @@
 import socket
 import select
 import time
+import commands
 
 import work.serverops as serverops
 import work.consoleops as consoleops
 import globalvar as gv
 
 
-def update():
+def reloading():
     try:
-        serverops.server_order('SYSTEM;scp ')
         reload(serverops)
         serverops.reloading()
         reload(consoleops)
         consoleops.reloading()
     except Exception as e:
-        print 'update error!{}'.format(e)
+        print 'Reload after update error!{}'.format(e)
+    finally:
+        gv.order_to_update = False
 
 
 def main():
@@ -32,7 +34,7 @@ def main():
         if gv.order_to_close:
             break
         if gv.order_to_update:
-            update()
+            reloading()
 
         events = epoll.poll(5)
         for fileno, event in events:

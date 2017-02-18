@@ -47,6 +47,15 @@ def shutdown(order):
     return "Server is shutting down."
 
 
+def update(order):
+    status, results = commands.getstatusoutput('git pull')
+    if status == 0:
+        gv.order_to_update = True
+        return results
+    else:
+        return 'Update failed...\n{}  {}'.format(status, results)
+
+
 def info(order):
     info_data = 'Connected Server:{}\n'.format(len(gv.serverlist))
     for (fileno, server) in gv.serverlist.items():
@@ -112,7 +121,7 @@ arguments_number = {'SYSTEM': 2, 'CONNECT': 3, 'INFO': 1,
                     'SHUTDOWN': 1}
 server_operation = {'SYSTEM': system, 'CONNECT': connect, 'INFO': info,
                     'STATISTICS': statistics, 'CRAWLER': crawler,
-                    'SHUTDOWN': shutdown}
+                    'SHUTDOWN': shutdown, 'UPDATE': update}
 
 
 def server_order(message):
