@@ -9,7 +9,7 @@ def communicate(server):
     user_input = ''
     while user_input != 'exit':
         usrinput = raw_input('-->')
-        events = epoll(1)
+        events = epoll.poll(1)
         if events:
             break
         server.send(usrinput)
