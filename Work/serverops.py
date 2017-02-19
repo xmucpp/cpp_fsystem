@@ -97,14 +97,14 @@ def worker(target_web):
         while gv.redis.exists(target_web):
             try:
                 gv.worktable[target_web] = gv.redis.blpop(target_web)[1]
-                gv.redis.lpush('{}{}'.format(gv.BACKUP, target_web), gv.worktable[target_web])
                 crawler_list[target_web].parse(gv.worktable[target_web])
                 gv.crawlerstatis[target_web] += 1
-            except Exception as e:
+            except Exception, e:
                 print e
     except Exception as e:
         print e
     finally:
+        print "{} worker out".format(target_web)
         gv.workerstate[target_web] = 'Stopped'
 
 
