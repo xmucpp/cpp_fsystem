@@ -11,7 +11,7 @@ import Crawler.FakeScraper as FakeScraper
 
 
 def reloading():
-
+    pass
 
 
 
