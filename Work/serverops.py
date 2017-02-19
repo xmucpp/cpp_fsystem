@@ -124,7 +124,7 @@ def crawler(order):
     if order[1] in gv.worker.keys():
         return "Crawler {} is already running!".format(order[1])
 
-    gv.worker[order[1]] = threading.Thread(target=worker, args=order[1])
+    gv.worker[order[1]] = threading.Thread(target=worker, args=[order[1]])
     gv.worker[order[1]].start()
     return "Crawler started!"
 
