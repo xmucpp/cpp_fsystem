@@ -2,7 +2,7 @@
 import socket
 import select
 import time
-import commands
+import hashlib
 
 import Work.serverops as serverops
 import Work.consoleops as consoleops
@@ -19,6 +19,10 @@ def reloading():
         print 'Reload after update error!{}'.format(e)
     finally:
         gv.order_to_update = False
+
+
+def encry(password):
+    return hashlib.md5(password).hexdigest()
 
 
 def main():
@@ -46,12 +50,12 @@ def main():
 
             elif fileno in gv.unidentified:
                 message = gv.unidentified[fileno][1].recv(1024)
-                if message == gv.CONNECTPASSWORD:
+                if encry(message) == gv.CONNECTPASSWORD:
                     gv.serverlist[fileno] = gv.unidentified[fileno][1]
                     gv.unidentified.pop(fileno)
                     gv.serverlist[fileno].send(gv.CONNECTCOMFIRM)
                     print '{}: {}----server connected'.format(fileno, gv.serverlist[fileno].getpeername())
-                elif message == gv.CONSOLEPASSWORD:
+                elif encry(message) == gv.CONSOLEPASSWORD:
                     gv.console[fileno] = gv.unidentified[fileno][1]
                     gv.unidentified.pop(fileno)
                     gv.console[fileno].send(gv.CONNECTCOMFIRM)

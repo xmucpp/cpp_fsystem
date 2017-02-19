@@ -10,7 +10,8 @@ epoll = select.epoll()
 timeout = 20
 socket.setdefaulttimeout(timeout)
 # ------redis
-redis = redis.Redis()
+RedisServer = '123.207.93.47'
+redis = redis.Redis(RedisServer)
 # ------self
 HOST = ''
 PORT = 9813
@@ -28,9 +29,9 @@ OUTTIME = 300
 BUFFER = ''
 SENTBUFFER = 1024
 # -------code
-CONNECTPASSWORD = '@ucFkv&YK2N2KdjY'
+CONNECTPASSWORD = '53454283b08400215b300d0ba0f67cdc'
 CONNECTCOMFIRM = 'COMFIRM'
-CONSOLEPASSWORD = 'ppYOE%#u5yHpzi#H'
+CONSOLEPASSWORD = '4b313d3d672bb419d01dbd6572976709'
 CONNECTSUCCESS = 'Connection established'
 BACKUP = 'B-'
 ORDER = ';'
