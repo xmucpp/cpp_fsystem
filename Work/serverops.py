@@ -7,10 +7,12 @@ import datetime
 import globalvar as gv
 import Crawler.TmallPageScraper as TmallPageScraper
 import Crawler.JDPageScraper as JDPageScraper
+import Crawler.FakeScraper as FakeScraper
 
 
 def reloading():
-    import Crawler.JDPageScraper as JDPageScraper
+
+
 
 
 def system(order):
@@ -96,6 +98,9 @@ def worker(target_web):
         while gv.redis.exists(target_web):
             try:
                 gv.worktable[target_web] = gv.redis.blpop(target_web)
+                gv.redis.lpush('{}{}'.format(gv.BACKUP, target_web), gv.worktable[target_web])
+                crawler_list[target_web].parse(gv.worktable[target_web])
+                gv.crawlerstatis[target_web] += 1
             except Exception as e:
                 print e
             gv.redis.lpush('{}{}'.format(gv.BACKUP, target_web), gv.worktable)
@@ -108,7 +113,8 @@ def worker(target_web):
 
 
 crawler_list = {'TMALL': TmallPageScraper,
-                'JD': JDPageScraper}
+                'JD': JDPageScraper,
+                'FAKE': FakeScraper}
 
 
 def crawler(order):
@@ -185,6 +191,8 @@ def server_order(message):
         order = [message]
     else:
         order = message.split(gv.ORDER)
+    if order[0] not in server_operation.keys():
+        return "what are you talking about?"
     if len(order) != arguments_number[order[0]]:
         return "wrong arguments"
     return server_operation[order[0]](order)

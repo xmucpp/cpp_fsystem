@@ -53,12 +53,13 @@ operation = {
 
 help_list = '--------Caution: ALL server are standed by its fileno\n' \
             'SYSTEM;server;order                ----System order\n' \
-            'CONNECT;IP;PORT                    ----Connect new server\n' \
+            'CONNECT;ip;port                    ----Connect new server\n' \
             'INFO;server                        ----Detail information of server\n' \
             'STATISTICS                         ----Pandect of all servers\n' \
             'CRAWLER;server;crawlername         ----Start some Crawler on server\n' \
             'SHUTDOWN;server                    ----Shutdown server\n' \
             'UPDATE;server                      ----update from git without stop server\n' \
+            'MISSION;server;crawler;order;hour;min--Set crawler in order at hour:min every day\n' \
             'HELP                               ----Ask for this page\n'
 
 
