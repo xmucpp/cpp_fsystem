@@ -17,6 +17,9 @@ def communicate(server):
         print message
         usrinput = raw_input('-->')
     server.close()
+    if user_input == 'exit':
+        return 1
+    return 0
 
 
 def main():
@@ -33,7 +36,8 @@ def main():
             message = server.recv(1024)
             if message == 'COMFIRM':
                 print "Connection established."
-                communicate(server)
+                if(communicate(server)):
+                    break
                 print "Disconnected."
             else:
                 print "Connection refused."
