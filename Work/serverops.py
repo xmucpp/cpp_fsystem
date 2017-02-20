@@ -48,7 +48,7 @@ def connect(order):
 
 
 def shutdown(order):
-    if gv.workerstate.values().count('Running'):
+    if [i.state for i in gv.worker.values()].count('Running'):
         return "Please kill all running work before shut down the server!"
     gv.order_to_close = True
     return "Server is shutting down."
