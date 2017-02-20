@@ -166,8 +166,7 @@ def mission(order):
         if order[1] in gv.mission_list.keys() and gv.mission_list[order[1]].state == 'Settled':
             return "Mission has already settled"
         gv.mission_list[order[1]] = gv.Mission('Settled', order[3], order[4], threading.Event())
-        t = threading.Thread(target=waiter, args=[order])
-        t.run()
+        threading.Thread(target=waiter, args=[order]).start()
         return "Successfully settled"
     elif order[2].upper() == 'CANCEL':
         if order[1] not in gv.mission_list.keys() or not gv.mission_list[order[1]].state == 'Unsettled':

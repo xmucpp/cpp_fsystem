@@ -63,6 +63,7 @@ help_list = '--------Caution: All servers are specified by its fileno\n' \
             'SHUTDOWN;server                            ----Shutdown specified server\n' \
             'UPDATE;server                              ----Self-update from git\n' \
             'MISSION;server;crawler;order;hour;min      ----Time crawler to automatically run at hour:min every day\n' \
+            'CANCEL;server;crawler                      ----Cancel a running crawler\n' \
             'HELP                                       ----Ask for the current page\n'
 
 
