@@ -53,16 +53,17 @@ operation = {
     'HELP': 0
 }
 
-help_list = '--------Caution: ALL server are standed by its fileno\n' \
-            'SYSTEM;server;order                ----System order\n' \
-            'CONNECT;ip;port                    ----Connect new server\n' \
-            'INFO;server                        ----Detail information of server\n' \
-            'STATISTICS                         ----Pandect of all servers\n' \
-            'CRAWLER;server;crawlername         ----Start some Crawler on server\n' \
-            'SHUTDOWN;server                    ----Shutdown server\n' \
-            'UPDATE;server                      ----update from git without stop server\n' \
-            'MISSION;server;crawler;order;hour;min--Set crawler in order at hour:min every day\n' \
-            'HELP                               ----Ask for this page\n'
+help_list = '--------Caution: All servers are specified by its fileno\n' \
+            '--------Lowercase part needs to be replaced.' \
+            'SYSTEM;server;order                        ----Execute System(linux) order on specified server\n' \
+            'CONNECT;ip;port                            ----Connect to specified new server\n' \
+            'INFO;server                                ----Obtain detailed information of specified server\n' \
+            'STATISTICS                                 ----Obtain briefings of all servers\n' \
+            'CRAWLER;server;crawlername                 ----Start selected Crawler on specified server\n' \
+            'SHUTDOWN;server                            ----Shutdown specified server\n' \
+            'UPDATE;server                              ----Self-update from git\n' \
+            'MISSION;server;crawler;order;hour;min      ----Time crawler to automatically run at hour:min every day\n' \
+            'HELP                                       ----Ask for the current page\n'
 
 
 def console_order(message):
