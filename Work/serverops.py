@@ -104,7 +104,7 @@ def work(worker_name):
                 break
             try:
                 gv.worker[worker_name].table = gv.redis.blpop(worker_name)[1]
-                gv.redis.lpush('{}{}'.format(gv.BACKUP, worker_name, gv.worker[worker_name].table))
+                gv.redis.lpush('{}{}'.format(gv.BACKUP, worker_name), gv.worker[worker_name].table)
 
                 if not crawler_list[worker_name].parse(gv.worker[worker_name].table):
                     gv.crawlerstatis[worker_name] += 1
@@ -116,7 +116,7 @@ def work(worker_name):
         print e
     finally:
         gv.worker[worker_name].event.clear()
-        print "{} worker out".format(gv.worker[worker_name].target)
+        print "{} worker out".format(worker_name)
         gv.worker[worker_name].state = 'Stopped'
 
 
