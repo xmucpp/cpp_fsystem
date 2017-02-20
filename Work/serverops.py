@@ -82,7 +82,7 @@ def info(order):
                     (work, gv.worker[work].state, gv.worker[work].table, gv.crawlerstatis[work])
     info_data += '\n---Current mission:{}\n'.format(len(gv.mission_list))
     for mission in gv.mission_list.keys():
-        info_data += "%-8s      %-8s     %-2d:%-2d\n" %\
+        info_data += "%-8s      %-8s     %-2s:%-2s\n" %\
                      (mission, gv.mission_list[mission].state, gv.mission_list[mission].hour, gv.mission_list[mission].minute)
     return info_data
 
