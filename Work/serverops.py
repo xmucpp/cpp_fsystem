@@ -122,7 +122,8 @@ def work(worker_name):
 
 crawler_list = {'TMALL': TmallPageScraper,
                 'JD': JDPageScraper,
-                'FAKE': FakeScraper}
+                'FAKE': FakeScraper,
+                }
 
 
 def crawler(order):
@@ -169,7 +170,7 @@ def mission(order):
         threading.Thread(target=waiter, args=[order]).start()
         return "Successfully settled"
     elif order[2].upper() == 'CANCEL':
-        if order[1] not in gv.mission_list.keys() or not gv.mission_list[order[1]].state == 'Unsettled':
+        if order[1] not in gv.mission_list.keys() or gv.mission_list[order[1]].state == 'Unsettled':
             return "Mission isn't running"
         gv.mission_list[order[1]].event.set()
         return "Successfully canceled"
