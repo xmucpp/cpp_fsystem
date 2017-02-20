@@ -23,14 +23,21 @@ worker = {}
 
 
 class Worker:
-    def __init__(self, target, event, table, state):
-        self.target = target
+    def __init__(self, event, table, state):
         self.event = event
         self.table = table
         self.state = state
 
-crawlerstatis = {'TMALL': 0,'FAKE': 0}
-missionglist = {'TMALL': 0, 'FAKE': 0}
+crawlerstatis = {'TMALL': 0, 'FAKE': 0}
+
+
+class Mission:
+    def __init__(self, state, hour, minute, event):
+        self.state = state
+        self.hour = hour
+        self.minute = minute
+        self.event = event
+mission_list = {}
 # -------constant
 OUTTIME = 300
 BUFFER = ''

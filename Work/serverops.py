@@ -141,13 +141,15 @@ def deltatime(hour, min, sec=0):
 def waiter(order):
     timetowake = deltatime(int(order[3]), int(order[4]))
     while True:
-        gv.missionglist[order[1]].wait(timetowake)
-        if gv.missionglist[order[1]].isSet():
+        gv.mission_list[order[1]].event.wait(timetowake)
+        if gv.mission_list[order[1]].event.isSet():
+            break
+        else:
             crawler(order)
             time.sleep(66)
             timetowake = deltatime(int(order[3]), int(order[4]))
-        else:
-            break
+    gv.mission_list[order[1]].event.clear()
+    gv.mission_list[order[1]].state = 'Unsettled'
     return
 
 
@@ -156,29 +158,20 @@ def mission(order):
         return "No such cralwer!\n" \
                "Current cralwer:{}".format(str(crawler_list[1:-1]))
     if order[2].upper() == 'SET':
-        if order[1] in gv.missionglist and gv.missionglist[order[1]].isSet():
+        if order[1] in gv.mission_list.keys() and gv.mission_list[order[1]].state == 'Settled':
             return "Mission has already settled"
-        gv.missionglist[order[1]] = threading.Event()
-        t = threading.Thread(waiter(order))
+        gv.mission_list[order[1]] = gv.Mission('Settled', order[3], order[4], threading.Event())
+        t = threading.Thread(target=waiter, args=[order])
         t.run()
         return "Successfully settled"
     elif order[2].upper() == 'CANCEL':
-        if order[1] not in gv.missionglist or not gv.missionglist[order[1]].isSet():
+        if order[1] not in gv.mission_list.keys() or not gv.mission_list[order[1]].state == 'Unsettled':
             return "Mission isn't running"
-        gv.missionglist[order[1]] = threading.Event()
-        t = threading.Thread(waiter(order))
-        t.run()
+        gv.mission_list[order[1]].event.set()
         return "Successfully canceled"
-    elif order[2].upper() == 'CHANGE':
-        if order[1] not in gv.missionglist or not gv.missionglist[order[1]].isSet():
-            return "Mission isn't running"
-        gv.missionglist[order[1]] = threading.Event()
-        t = threading.Thread(waiter(order))
-        t.run()
-        return "Successfully settled"
     else:
         return "No such order!\n" \
-               "you can set, cancel, change a mission."
+               "you can set, cancel a mission."
 
 
 def cancel(order):
