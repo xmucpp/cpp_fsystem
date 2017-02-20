@@ -91,23 +91,23 @@ def statistics(order):
     info_data = '\nConnected Server:{}'.format(len(gv.serverlist))
     info_data += '\nConnected Console:{}'.format(len(gv.console))
     info_data += '\nUnidentified Request:{}'.format(len(gv.unidentified))
-    info_data += '\nCurrent worker:{}\n'.format(len(gv.worker))
-    info_data += '\n---Current mission:{}\n'.format(len(gv.mission_list))
+    info_data += '\nCurrent worker:{}'.format(len(gv.worker))
+    info_data += '\nCurrent mission:{}\n'.format(len(gv.mission_list))
     return info_data
 
 
 def work(worker_name):
     gv.worker[worker_name].state = 'Running'
     try:
-        while gv.redis.exists(gv.worker[worker_name].target):
+        while gv.redis.exists(worker_name):
             if gv.worker[worker_name].event.isSet():
                 break
             try:
-                gv.worker[worker_name].table = gv.redis.blpop(gv.worker[worker_name].target)[1]
-                gv.redis.lpush('{}{}'.format(gv.BACKUP, gv.worker[worker_name].target), gv.worker[worker_name].table)
+                gv.worker[worker_name].table = gv.redis.blpop(worker_name)[1]
+                gv.redis.lpush('{}{}'.format(gv.BACKUP, worker_name, gv.worker[worker_name].table))
 
-                if not crawler_list[gv.worker[worker_name].target].parse(gv.worker[worker_name].table):
-                    gv.crawlerstatis[gv.worker[worker_name].target] += 1
+                if not crawler_list[worker_name].parse(gv.worker[worker_name].table):
+                    gv.crawlerstatis[worker_name] += 1
                 else:
                     print gv.worker[worker_name].table
             except Exception, e:
@@ -132,7 +132,7 @@ def crawler(order):
     if order[1] in gv.worker.keys() and gv.worker[order[1]].state == 'Running':
         return "Crawler {} is already running!".format(order[1])
     if order[1] not in gv.worker.keys():
-        gv.worker[order[1]] = gv.Worker(order[1], threading.Event(), '------', 'Stopped')
+        gv.worker[order[1]] = gv.Worker(threading.Event(), '------', 'Stopped')
     threading.Thread(target=work, args=[order[1]]).start()
     return "Crawler started!"
 
