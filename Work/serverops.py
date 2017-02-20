@@ -36,7 +36,7 @@ def connect(order):
         so.connect((order[1], order[2]))
     except Exception as e:
         return 'IP Error!\n{}'.format(e)
-    so.send(gv.CONNECTPASSWORD)
+    so.send(order[3])
     message = so.recv(1024)
     if message == gv.CONNECTCOMFIRM:
         gv.serverlist[so.fileno()] = so
@@ -185,7 +185,7 @@ def cancel(order):
     return "Successfully canceled"
 
 
-arguments_number = {'SYSTEM': 2, 'CONNECT': 3, 'INFO': 1,
+arguments_number = {'SYSTEM': 2, 'CONNECT': 4, 'INFO': 1,
                     'STATISTICS': 1, 'CRAWLER': 2,
                     'SHUTDOWN': 1, 'UPDATE': 1, 'MISSION': 5, 'CANCEL': 2}
 server_operation = {'SYSTEM': system, 'CONNECT': connect, 'INFO': info,
