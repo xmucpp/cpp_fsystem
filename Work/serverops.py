@@ -76,10 +76,10 @@ def info(order):
     for (fileno, uni) in gv.unidentified.items():
         peername = uni[1].getpeername()
         info_data += "%-4d      %-12s     %-5d     %-5.0f\n" % (fileno, peername[0], peername[1], time.time()-uni[0])
-    info_data += '\n---Current worker:{}\n'.format(gv.workerstate.values().count('Running'))
+    info_data += '\n---Current worker:{}\n'.format(len(gv.worker))
     for work in gv.worker.keys():
         info_data += "%-8s      %-8s     %-40s     %-8d\n" % \
-                    (work, gv.workerstate[work], gv.worktable[work], gv.crawlerstatis[work])
+                    (work, gv.worker[work].state, gv.worker[work].table, gv.crawlerstatis[gv.worker[work].target])
     return info_data
 
 
@@ -87,7 +87,7 @@ def statistics(order):
     info_data = '\nConnected Server:{}'.format(len(gv.serverlist))
     info_data += '\nConnected Console:{}'.format(len(gv.console))
     info_data += '\nUnidentified Request:{}'.format(len(gv.unidentified))
-    info_data += '\nCurrent worker:{}\n'.format(gv.workerstate.values().count('Running'))
+    info_data += '\nCurrent worker:{}\n'.format(len(gv.worker))
     return info_data
 
 
