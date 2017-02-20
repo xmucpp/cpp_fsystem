@@ -6,16 +6,15 @@ import select
 def communicate(server):
     epoll = select.epoll()
     epoll.register(server.fileno(), select.EPOLLHUP)
-    user_input = ''
-    usrinput = raw_input('-->')
+    user_input = raw_input('-->')
     while user_input != 'exit':
         events = epoll.poll(1)
         if events:
             break
-        server.send(usrinput)
+        server.send(user_input)
         message = server.recv(1024)
         print message
-        usrinput = raw_input('-->')
+        user_input = raw_input('-->')
     server.close()
     if user_input == 'exit':
         return 1
