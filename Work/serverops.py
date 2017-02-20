@@ -80,6 +80,10 @@ def info(order):
     for work in gv.worker.keys():
         info_data += "%-8s      %-8s     %-40s     %-8d\n" % \
                     (work, gv.worker[work].state, gv.worker[work].table, gv.crawlerstatis[gv.worker[work].target])
+    info_data += '\n---Current mission:{}\n'.format(len(gv.mission_list))
+    for mission in gv.mission_list.keys():
+        info_data += "%-8s      %-8s     %-2d:%-2d\n" %\
+                     (mission, gv.mission_list[mission].state, gv.mission_list[mission].hour, gv.mission_list[mission].minute)
     return info_data
 
 
@@ -88,6 +92,7 @@ def statistics(order):
     info_data += '\nConnected Console:{}'.format(len(gv.console))
     info_data += '\nUnidentified Request:{}'.format(len(gv.unidentified))
     info_data += '\nCurrent worker:{}\n'.format(len(gv.worker))
+    info_data += '\n---Current mission:{}\n'.format(len(gv.mission_list))
     return info_data
 
 
