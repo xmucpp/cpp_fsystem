@@ -48,6 +48,8 @@ operation = {
     'CRAWLER': Collective,
     'SHUTDOWN': Collective,
     'UPDATE': Collective,
+    'CANCEL': Collective,
+    'MISSION': Collective,
     'HELP': 0
 }
 

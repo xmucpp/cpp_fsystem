@@ -20,8 +20,15 @@ serverlist = {}
 console = {}
 unidentified = {}
 worker = {}
-workerstate = {}
-worktable = {'TMALL': ''}
+
+
+class Worker:
+    def __init__(self, target, event, table, state):
+        self.target = target
+        self.event = event
+        self.table = table
+        self.state = state
+
 crawlerstatis = {'TMALL': 0,'FAKE': 0}
 missionglist = {'TMALL': 0, 'FAKE': 0}
 # -------constant

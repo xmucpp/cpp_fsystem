@@ -91,22 +91,28 @@ def statistics(order):
     return info_data
 
 
-def worker(target_web):
-    gv.workerstate[target_web] = 'Running'
+def work(worker_name):
+    gv.worker[worker_name].state = 'Running'
     try:
-        while gv.redis.exists(target_web):
+        while gv.redis.exists(gv.worker[worker_name].target):
+            if gv.worker[worker_name].event.isSet():
+                break
             try:
-                gv.worktable[target_web] = gv.redis.blpop(target_web)[1]
-                gv.redis.lpush('{}{}'.format(gv.BACKUP, target_web), gv.worktable[target_web])
-                crawler_list[target_web].parse(gv.worktable[target_web])
-                gv.crawlerstatis[target_web] += 1
+                gv.worker[worker_name].table = gv.redis.blpop(gv.worker[worker_name].target)[1]
+                gv.redis.lpush('{}{}'.format(gv.BACKUP, gv.worker[worker_name].target), gv.worker[worker_name].table)
+
+                if not crawler_list[gv.worker[worker_name].target].parse(gv.worker[worker_name].table):
+                    gv.crawlerstatis[gv.worker[worker_name].target] += 1
+                else:
+                    print gv.worker[worker_name].table
             except Exception, e:
                 print e
     except Exception as e:
         print e
     finally:
-        print "{} worker out".format(target_web)
-        gv.workerstate[target_web] = 'Stopped'
+        gv.worker[worker_name].event.clear()
+        print "{} worker out".format(gv.worker[worker_name].target)
+        gv.worker[worker_name].state = 'Stopped'
 
 
 crawler_list = {'TMALL': TmallPageScraper,
@@ -118,11 +124,11 @@ def crawler(order):
     if order[1] not in crawler_list.keys():
         return "No such cralwer!\n" \
                "Current cralwer:{}".format(str(crawler_list[1:-1]))
-    if order[1] in gv.worker.keys():
+    if order[1] in gv.worker.keys() and gv.worker[order[1]].state == 'Running':
         return "Crawler {} is already running!".format(order[1])
-
-    gv.worker[order[1]] = threading.Thread(target=worker, args=[order[1]])
-    gv.worker[order[1]].start()
+    if order[1] not in gv.worker.keys():
+        gv.worker[order[1]] = gv.Worker(order[1], threading.Event(), '------', 'Stopped')
+    threading.Thread(target=work, args=[order[1]]).start()
     return "Crawler started!"
 
 
@@ -175,12 +181,19 @@ def mission(order):
                "you can set, cancel, change a mission."
 
 
+def cancel(order):
+    if order[1] not in crawler_list or gv.worker[order[1]].state != "Running":
+        return "not cancelable"
+    gv.worker[order[1]].event.set()
+    return "Successfully canceled"
+
+
 arguments_number = {'SYSTEM': 2, 'CONNECT': 3, 'INFO': 1,
                     'STATISTICS': 1, 'CRAWLER': 2,
-                    'SHUTDOWN': 1, 'UPDATE': 1, 'MISSION': 5}
+                    'SHUTDOWN': 1, 'UPDATE': 1, 'MISSION': 5, 'CANCEL': 2}
 server_operation = {'SYSTEM': system, 'CONNECT': connect, 'INFO': info,
                     'STATISTICS': statistics, 'CRAWLER': crawler,
-                    'SHUTDOWN': shutdown, 'UPDATE': update, 'MISSION': mission}
+                    'SHUTDOWN': shutdown, 'UPDATE': update, 'MISSION': mission, 'CANCEL': cancel}
 
 
 def server_order(message):
