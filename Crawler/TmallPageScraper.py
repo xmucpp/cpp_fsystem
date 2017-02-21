@@ -95,7 +95,7 @@ def write_csv(data_list, page, category_name):
 
     # check or create a daily dictionary
     try:
-        file_dict = os.path.join(PATH, 'Data', '{}{}'.format('TmallData_', PRESENT_DAY))
+        file_dict = os.path.join(PATH, 'Data', 'TmallData', '{}{}'.format('TmallData_', PRESENT_DAY))
     except TypeError:
         file_dict = ''.join(['../TmallData_', PRESENT_DAY])
     try:

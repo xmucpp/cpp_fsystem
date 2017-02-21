@@ -155,7 +155,7 @@ def write_csv(data_list, url, paras):
 
     # check or create a daily dictionary
     try:
-        file_dict = os.path.join(PATH, 'Data', '{}{}'.format('JDData_', PRESENT_DAY))
+        file_dict = os.path.join(PATH, 'Data', 'JDData', '{}{}'.format('JDData_', PRESENT_DAY))
     except TypeError:
         file_dict = ''.join(['../JDData_', PRESENT_DAY])
     try:
