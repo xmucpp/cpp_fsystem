@@ -10,7 +10,8 @@ import time
 
 import Work.consoleops as consoleops
 import Work.serverops as serverops
-from Work import globalvar as gv
+import Work.globalvar as gv
+import config as cf
 from Work.log import Logger
 
 
@@ -32,9 +33,9 @@ def encry(password):
 
 def main():
     logger = Logger('core', 'DEBUG')
+    self = socket.socket()
     try:
-        self = socket.socket()
-        self.bind((gv.HOST, gv.PORT))
+        self.bind((cf.HOST, cf.PORT))
         self.listen(10)
 
         gv.epoll.register(self.fileno(), select.EPOLLIN)
@@ -51,20 +52,20 @@ def main():
                 if fileno == self.fileno():
                     con, conaddr = self.accept()
                     logger.info(conaddr, "Incoming Connection")
-                    gv.gv.epoll.register(con.fileno(), select.EPOLLIN)
+                    gv.epoll.register(con.fileno(), select.EPOLLIN)
                     gv.unidentified[con.fileno()] = [time.time(), con]
 
                 elif fileno in gv.unidentified:
                     message = gv.unidentified[fileno][1].recv(1024)
-                    if encry(message) == gv.CONNECTPASSWORD:
+                    if encry(message) == cf.CONNECTPASSWORD:
                         gv.serverlist[fileno] = gv.unidentified[fileno][1]
                         gv.unidentified.pop(fileno)
-                        gv.serverlist[fileno].send(gv.CONNECTCOMFIRM)
+                        gv.serverlist[fileno].send(cf.CONNECTCOMFIRM)
                         logger.info('{}: {}----server connected'.format(fileno, gv.serverlist[fileno].getpeername()))
-                    elif encry(message) == gv.CONSOLEPASSWORD:
+                    elif encry(message) == cf.CONSOLEPASSWORD:
                         gv.console[fileno] = gv.unidentified[fileno][1]
                         gv.unidentified.pop(fileno)
-                        gv.console[fileno].send(gv.CONNECTCOMFIRM)
+                        gv.console[fileno].send(cf.CONNECTCOMFIRM)
                         logger.info('{}: {}----console connected'.format(fileno, gv.console[fileno].getpeername()))
                     elif message == '':
                         logger.info('{}: {}----unidentified disconnected'.format(fileno, gv.unidentified[fileno][1].getpeername()))
@@ -97,7 +98,7 @@ def main():
                     logger.critical("what?")
 
             for (fileno, uni) in gv.unidentified.items():
-                if time.time() - uni[0] >= gv.OUTTIME:
+                if time.time() - uni[0] >= cf.OUTTIME:
                     cli = uni[1]
                     cli.send("auto disconnect\n")
                     gv.unidentified.pop(cli.fileno())
