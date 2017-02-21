@@ -12,9 +12,11 @@ import time
 import Crawler.FakeScraper as FakeScraper
 import Crawler.JDPageScraper as JDPageScraper
 import Crawler.TmallPageScraper as TmallPageScraper
+import Crawler.Refresher as Refresher
 from Work import globalvar as gv
 import config as cf
 from Work.log import Logger
+
 
 logger = Logger('serverops', 'DEBUG')
 def reloading():
@@ -104,6 +106,9 @@ def statistics(order):
 
 
 def work(worker_name):
+    if worker_name == 'REFRESHER':
+        cf.PRESENT_DAY = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
+        return
     gv.worker[worker_name].state = 'Running'
     try:
         while gv.redis.exists(worker_name):
@@ -130,6 +135,7 @@ def work(worker_name):
 crawler_list = {'TMALL': TmallPageScraper,
                 'JD': JDPageScraper,
                 'FAKE': FakeScraper,
+                'REFRESHER': Refresher
                 }
 
 
