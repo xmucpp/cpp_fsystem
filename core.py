@@ -15,6 +15,7 @@ import config as cf
 from Work.log import Logger
 
 
+logger = Logger('core', 'DEBUG')
 def reloading():
     try:
         reload(serverops)
@@ -22,7 +23,7 @@ def reloading():
         reload(consoleops)
         consoleops.reloading()
     except Exception as e:
-        print 'Reload after update error!{}'.format(e)
+        logger.error('Reload after update error!{}'.format(e))
     finally:
         gv.order_to_update = False
 
@@ -32,7 +33,6 @@ def encry(password):
 
 
 def main():
-    logger = Logger('core', 'DEBUG')
     self = socket.socket()
     try:
         self.bind((cf.HOST, cf.PORT))
