@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# @Author: FSOL
+# @File  : consoleops.py
+
 import globalvar as gv
 import json
 import serverops

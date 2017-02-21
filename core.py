@@ -1,4 +1,8 @@
 # git clone https://github.com/sinnfashen/New_web
+# -*- coding: utf-8 -*-
+# @Author: FSOL
+# @File  : core.py
+
 import socket
 import select
 import time

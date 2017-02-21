@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# @Author: FSOL
+# @File  : ltransportf.py
 
 def savesend(buffer,target):
     try:

@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# @Author: FSOL
+# @File  : globalvar.py
+
 import redis
 import time
 import os

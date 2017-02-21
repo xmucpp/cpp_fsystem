@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# @Author: FSOL
+# @File  : serverops.py
+
 import commands
 import threading
 import socket

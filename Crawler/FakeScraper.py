@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# @Author: FSOL
+# @File  : FakeScraper.py
+
 import time
 
 

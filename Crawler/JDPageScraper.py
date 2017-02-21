@@ -7,12 +7,18 @@ import csv
 import time
 import random
 import re
+import math
 import requests
 import json
 
 from bs4 import BeautifulSoup
 
-from globalvar import PRESENT_DAY, PATH, USER_AGENTS
+from config import join_paras
+from config import PRESENT_DAY, PATH
+from settings import crawler_logger as logger
+#from pymongo import MongoClient
+from ProxiesPool.headers import USER_AGENTS, PROXIES
+
 
 PRESENT_TIME = str(time.strftime('%H-%M-%S', time.localtime(time.time())))
 
@@ -31,6 +37,7 @@ def get_html(url):
 
     """
     user_agent = random.choice(USER_AGENTS)
+    proxy = re.sub('\n', '', random.choice(PROXIES))
     headers = {
         'Accept': 'text/html',
         'Accept-Encoding': 'gzip,deflate,sdch',
@@ -40,25 +47,26 @@ def get_html(url):
         'Host': 'search.jd.com',
         'Referer': 'http://www.jd.com/',
         'user-agent': user_agent,
+        'http': proxy,
     }
 
     try:
         r = requests.get(url, headers)
         if r.status_code == 302:
-            print('this server be banned by JD')
+            logger.error('this server be banned by JD')
             time.sleep(30)
             return None
         else:
             return r.content
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout, requests.exceptions.MissingSchema):
-        print('{} {}'.format(url.encode('utf-8'), 'Connect Error'))
+        logger.error('{} {}'.format(url.encode('utf-8'), 'Connect Error'))
         return None
 
 
 def parse_html(html, url, page_num, cate, sort):
 
     if not html:
-        print('not get html')
+        logger.error('not get html')
         return None
     data_list = []
     try:
@@ -78,14 +86,14 @@ def parse_html(html, url, page_num, cate, sort):
             try:
                 data['goodsName'] = div.em.text.encode('utf-8')
             except Exception, e:
-                print('{} {} {}'.format(url, e, 'goods name is None'))
+                logger.warning('{} {} {}'.format(url, e, 'goods name is None'))
                 data['goodsName'] = None
 
             try:
                 data['ID'] = re.search(r'\d+', div.a['href']).group()
                 IDs.append(data['ID'])
             except Exception, e:
-                print('{} {} {}'.format(url, e, 'id is None'))
+                logger.warning('{} {} {}'.format(url, e, 'id is None'))
                 data['ID'] = None
             data_list.append(data)
         for ID in IDs:
@@ -98,7 +106,7 @@ def parse_html(html, url, page_num, cate, sort):
                                                 str(IDcomment)[1:-1].replace(' ', '').replace('L', '')))
             comments = json.loads(jscomments.decode('gbk').encode('utf8'))['CommentsCount']
         except Exception, e:
-            print('{} {}'.format(url, 'js error'))
+            logger.error('{} {}'.format(url, 'js error'))
         for i in range(0, div_gls.__len__()):
             try:
                 if prices[i]['id'][2:] == data_list[i]['ID']:
@@ -106,7 +114,7 @@ def parse_html(html, url, page_num, cate, sort):
                 else:
                     raise KeyError
             except Exception, e:
-                print('{} {} {}'.format(url, 'price is None', e))
+                logger.warning('{} {} {}'.format(url, 'price is None', e))
                 data_list[i]['price'] = None
 
             try:
@@ -124,10 +132,10 @@ def parse_html(html, url, page_num, cate, sort):
                 else:
                     raise KeyError
             except Exception, e:
-                print('{} {} {}'.format(url, e, 'comments num is None'))
+                logger.warning('{} {} {}'.format(url, e, 'comments num is None'))
                 data_list[i]['commentsNum'] = data_list[i]['goodRate'] = data_list[i]['generalRate'] = data_list[i]['poorRate'] = data_list[i]['averangeScore'] = None
     except AttributeError, e:
-        print('{} {} {}'.format(url, 'parse error', e))
+        logger.error('{} {} {}'.format(url, 'parse error', e))
         return None
     return data_list
 
@@ -148,7 +156,7 @@ def write_csv(data_list, url, paras):
     """
 
     if not data_list:
-        print('{} {}'.format(url, 'data list is None'))
+        logger.error('{} {}'.format(url, 'data list is None'))
         return None
 
     # check or create a daily dictionary
@@ -232,7 +240,7 @@ def parse(url):
 if __name__ == '__main__':
     categoryName = u'list.jd.com/list.html?cat=1315,1343,9718'
     urlParameter = {}
-    for n in structure(categoryName, **urlParameter):
+    for n in structure_1(categoryName, **urlParameter):
         print n
         p, c1, c2, c3, s = split_url(n)
 

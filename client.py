@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# @Author: FSOL
+# @File  : client.py
+
 import socket
 import readline
 import select
