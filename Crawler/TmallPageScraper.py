@@ -56,32 +56,32 @@ def get_item(json_data):
             item['goodsID'] = None
 
         try:
-            item['goodsName'] = i['title']
+            item['goodsName'] = i['title'].encode('utf8')
         except KeyError:
             item['goodsName'] = None
 
         try:
-            item['shopID'] = i['shop_id']
+            item['shopID'] = i['shop_id'].encode('utf8')
         except KeyError:
             item['shopID'] = None
 
         try:
-            item['shopName'] = i['shop_name']
+            item['shopName'] = i['shop_name'].encode('utf8')
         except KeyError:
             item['shopName'] = None
 
         try:
-            item['sales'] = i['sold']
+            item['sales'] = i['sold'].encode('utf8')
         except KeyError:
             item['sales'] = None
 
         try:
-            item['price'] = i['price']
+            item['price'] = i['price'].encode('utf8')
         except KeyError:
             item['price'] = None
 
         try:
-            item['comments'] = i['comment_num']
+            item['comments'] = i['comment_num'].encode('utf8')
         except KeyError:
             item['comments'] = None
         data_list.append(item)
@@ -106,10 +106,10 @@ def write_csv(data_list, page, category_name):
 
     # create a file and its name for a certain page
 
-    file_name = ''.join(
+    '''file_name = ''.join(
         [file_dict, '/', 'tmallPrice', '_', PRESENT_DAY, '_', PRESENT_TIME, '_', category_name,
-         '_', str(page)])
-
+         '_', str(page)])'''
+    file_name = "C:\Users\\54926\Documents\\testfile"
     with codecs.open(file_name, 'wb') as f:
         fieldnames = ['goodsID', 'goodsName', 'shopName', 'shopID', 'sales', 'price',
                       'comments', ]
@@ -138,4 +138,4 @@ def parse(fake_url):
     
 
 if __name__ == '__main__':
-    parse('https://list.tmall.com/m/search_items.htm?q=%CD%E0%D7%D3&page_no=1&*name*袜子')
+    parse('https://list.tmall.com/m/search_items.htm?q=%CD%E0%D7%D3&page_no=1&*name*\u889c\u5b50')
