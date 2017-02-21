@@ -51,7 +51,7 @@ def main():
             for fileno, event in events:
                 if fileno == self.fileno():
                     con, conaddr = self.accept()
-                    logger.info(' '.join(conaddr, "Incoming Connection"))
+                    logger.info(' '.join([conaddr, "Incoming Connection"]))
                     gv.epoll.register(con.fileno(), select.EPOLLIN)
                     gv.unidentified[con.fileno()] = [time.time(), con]
 
