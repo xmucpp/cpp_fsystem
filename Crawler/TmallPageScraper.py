@@ -37,12 +37,12 @@ def get_json(url):
         if r.status_code == 302:
             logger.error('this server be banned by Tmall')
             time.sleep(30)
-            return None
+            raise
         else:
             return r.content
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
         logger.error('{} {}'.format(url.encode('utf-8'), 'Connect Error'))
-        return None
+        raise
 
 
 def get_item(json_data):
@@ -124,12 +124,16 @@ def write_csv(data_list, page, category_name):
 
 
 def parse(fake_url):
-    url = fake_url.split('&*')[0]
-    page = url.split('no=')[1]
-    category_name = fake_url.split('*')[-1]
-    json_data = get_json(url)
-    data_list = get_item(json_data)
-    return write_csv(data_list, page, category_name)
+    try:
+        url = fake_url.split('&*')[0]
+        page = url.split('no=')[1]
+        category_name = fake_url.split('*')[-1]
+        json_data = get_json(url)
+        data_list = get_item(json_data)
+        write_csv(data_list, page, category_name)
+        return 0
+    except Exception:
+        return 1
     
 
 if __name__ == '__main__':

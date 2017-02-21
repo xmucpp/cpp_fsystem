@@ -48,12 +48,12 @@ def get_html(url):
         if r.status_code == 302:
             logger.error('this server be banned by JD')
             time.sleep(30)
-            return None
+            raise
         else:
             return r.content
-    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout, requests.exceptions.MissingSchema):
+    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout, requests.exceptions.MissingSchema) as e:
         logger.error('{} {}'.format(url.encode('utf-8'), 'Connect Error'))
-        return None
+        raise e
 
 
 def parse_html(html, url, page_num, cate, sort):
@@ -168,8 +168,7 @@ def write_csv(data_list, url, paras):
         page_num = data_list[0]['page']
         sort = data_list[0]['sort']
     except Exception:
-        raise e
-        return
+        raise
 
     # create a file and its name for a certain page
     file_name = ''.join(
@@ -224,11 +223,16 @@ def structure(category_name, page_num=2):
 
 
 def parse(url):
-    page_num, cat1, cat2, cat3, sort = split_url(url)
-    paras = '{},{},{}'.format(cat1, cat2, cat3)
-    html = get_html(url)
-    data_list = parse_html(html, url, page_num, cat3, sort)
-    return write_csv(data_list, url, paras)
+    try:
+        page_num, cat1, cat2, cat3, sort = split_url(url)
+        paras = '{},{},{}'.format(cat1, cat2, cat3)
+        html = get_html(url)
+        data_list = parse_html(html, url, page_num, cat3, sort)
+        write_csv(data_list, url, paras)
+        return 0
+    except Exception:
+        logger.error(logger.traceback())
+        return 1
 
 
 if __name__ == '__main__':
