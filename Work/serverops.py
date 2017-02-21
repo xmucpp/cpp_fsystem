@@ -3,17 +3,20 @@
 # @File  : serverops.py
 
 import commands
-import threading
-import socket
-import time
-import select
 import datetime
-import globalvar as gv
-import Crawler.TmallPageScraper as TmallPageScraper
-import Crawler.JDPageScraper as JDPageScraper
+import select
+import socket
+import threading
+import time
+
 import Crawler.FakeScraper as FakeScraper
+import Crawler.JDPageScraper as JDPageScraper
+import Crawler.TmallPageScraper as TmallPageScraper
+from Work import globalvar as gv
+import config as cf
+from Work.log import Logger
 
-
+logger = Logger('serverops', 'DEBUG')
 def reloading():
     pass
 
@@ -42,10 +45,10 @@ def connect(order):
         return 'IP Error!\n{}'.format(e)
     so.send(order[3])
     message = so.recv(1024)
-    if message == gv.CONNECTCOMFIRM:
+    if message == cf.CONNECTCOMFIRM:
         gv.serverlist[so.fileno()] = so
         gv.epoll.register(so.fileno(), select.EPOLLIN)
-        return gv.CONNECTSUCCESS
+        return cf.CONNECTSUCCESS
     else:
         so.close()
         return message
@@ -108,19 +111,19 @@ def work(worker_name):
                 break
             try:
                 gv.worker[worker_name].table = gv.redis.blpop(worker_name)[1]
-                gv.redis.lpush('{}{}'.format(gv.BACKUP, worker_name), gv.worker[worker_name].table)
+                gv.redis.lpush('{}{}'.format(cf.BACKUP, worker_name), gv.worker[worker_name].table)
 
                 if not crawler_list[worker_name].parse(gv.worker[worker_name].table):
                     gv.crawlerstatis[worker_name] += 1
                 else:
-                    print gv.worker[worker_name].table
+                    logger.warning(gv.worker[worker_name].table)
             except Exception, e:
-                print e
+                logger.error(logger.traceback())
     except Exception as e:
-        print e
+        logger.error(logger.traceback())
     finally:
         gv.worker[worker_name].event.clear()
-        print "{} worker out".format(worker_name)
+        logger.info("{} worker out".format(worker_name))
         gv.worker[worker_name].state = 'Stopped'
 
 
@@ -199,10 +202,10 @@ server_operation = {'SYSTEM': system, 'CONNECT': connect, 'INFO': info,
 
 
 def server_order(message):
-    if message.find(gv.ORDER) == -1:
+    if message.find(cf.ORDER) == -1:
         order = [message]
     else:
-        order = message.split(gv.ORDER)
+        order = message.split(cf.ORDER)
     if order[0] not in server_operation.keys():
         return "what are you talking about?"
     if len(order) != arguments_number[order[0]]:

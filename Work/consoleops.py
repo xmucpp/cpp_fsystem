@@ -2,9 +2,10 @@
 # @Author: FSOL
 # @File  : consoleops.py
 
-import globalvar as gv
 import json
+
 import serverops
+from Work import globalvar as gv
 
 
 def reloading():

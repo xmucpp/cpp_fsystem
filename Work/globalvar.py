@@ -2,24 +2,12 @@
 # @Author: FSOL
 # @File  : globalvar.py
 
-import redis
-import time
-import os
-import socket
 import select
+import redis
+from config import RedisServer
 
-# ------epoll
-epoll = select.epoll()
-# ------timeout
-timeout = 20
-socket.setdefaulttimeout(timeout)
-# ------redis
-RedisServer = '123.207.93.47'
 redis = redis.Redis(RedisServer)
-# ------self
-HOST = ''
-PORT = 9813
-# ------serverinfo---------
+epoll = select.epoll()
 serverlist = {}
 console = {}
 unidentified = {}
@@ -42,23 +30,8 @@ class Mission:
         self.minute = minute
         self.event = event
 mission_list = {}
-# -------constant
-OUTTIME = 300
-BUFFER = ''
-SENTBUFFER = 1024
-# -------code
-CONNECTPASSWORD = 'eb5e7c27b9b470a5eb676aa21d38546b'
-CONNECTCOMFIRM = 'COMFIRM'
-CONSOLEPASSWORD = '94464dc84e47eb0ced31e13ef1bc016f'
-CONNECTSUCCESS = 'Connection established'
-BACKUP = 'B-'
-ORDER = ';'
-IPPORT = '#'
-# -------tigger
 order_to_close = False
 order_to_update = False
-# -------time
-PRESENT_DAY = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
 
 USER_AGENTS = [
     'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.122 Safari/537.36 SE 2.X MetaSr 1.0'
@@ -85,6 +58,3 @@ USER_AGENTS = [
     'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)',
 
 ]
-
-PATH = os.path.abspath(os.path.dirname(__file__))
-ROOTPATH = '/home/ubuntu'

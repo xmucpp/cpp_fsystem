@@ -3,14 +3,15 @@
 # @Author: FSOL
 # @File  : core.py
 
-import socket
-import select
-import time
 import hashlib
+import select
+import socket
+import time
 
-import Work.serverops as serverops
 import Work.consoleops as consoleops
-import globalvar as gv
+import Work.serverops as serverops
+from Work import globalvar as gv
+from Work.log import Logger
 
 
 def reloading():
@@ -30,85 +31,89 @@ def encry(password):
 
 
 def main():
+    logger = Logger('core', 'DEBUG')
+    try:
+        self = socket.socket()
+        self.bind((gv.HOST, gv.PORT))
+        self.listen(10)
 
-    self = socket.socket()
-    self.bind((gv.HOST, gv.PORT))
-    self.listen(10)
+        gv.epoll.register(self.fileno(), select.EPOLLIN)
+        logger.info("--------------------------------\n       SYSTEM STARTED")
 
-    gv.epoll.register(self.fileno(), select.EPOLLIN)
-    print "--------------------------------\n       SYSTEM STARTED"
+        while True:
+            if gv.order_to_close:
+                break
+            if gv.order_to_update:
+                reloading()
 
-    while True:
-        if gv.order_to_close:
-            break
-        if gv.order_to_update:
-            reloading()
+            events = gv.epoll.poll(20)
+            for fileno, event in events:
+                if fileno == self.fileno():
+                    con, conaddr = self.accept()
+                    logger.info(conaddr, "Incoming Connection")
+                    gv.gv.epoll.register(con.fileno(), select.EPOLLIN)
+                    gv.unidentified[con.fileno()] = [time.time(), con]
 
-        events = gv.epoll.poll(20)
-        for fileno, event in events:
-            if fileno == self.fileno():
-                con, conaddr = self.accept()
-                print conaddr, "Incoming Connection"
-                gv.epoll.register(con.fileno(), select.EPOLLIN)
-                gv.unidentified[con.fileno()] = [time.time(), con]
+                elif fileno in gv.unidentified:
+                    message = gv.unidentified[fileno][1].recv(1024)
+                    if encry(message) == gv.CONNECTPASSWORD:
+                        gv.serverlist[fileno] = gv.unidentified[fileno][1]
+                        gv.unidentified.pop(fileno)
+                        gv.serverlist[fileno].send(gv.CONNECTCOMFIRM)
+                        logger.info('{}: {}----server connected'.format(fileno, gv.serverlist[fileno].getpeername()))
+                    elif encry(message) == gv.CONSOLEPASSWORD:
+                        gv.console[fileno] = gv.unidentified[fileno][1]
+                        gv.unidentified.pop(fileno)
+                        gv.console[fileno].send(gv.CONNECTCOMFIRM)
+                        logger.info('{}: {}----console connected'.format(fileno, gv.console[fileno].getpeername()))
+                    elif message == '':
+                        logger.info('{}: {}----unidentified disconnected'.format(fileno, gv.unidentified[fileno][1].getpeername()))
+                        gv.epoll.modify(fileno, 0)
+                        gv.unidentified.pop(fileno)
+                    else:
+                        gv.unidentified[fileno][1].send("WRONG PASSWORD!")
+                        logger.info('{}: {}----unidentified tried a wrong password' \
+                            .format(fileno, gv.unidentified[fileno][1].getpeername()))
 
-            elif fileno in gv.unidentified:
-                message = gv.unidentified[fileno][1].recv(1024)
-                if encry(message) == gv.CONNECTPASSWORD:
-                    gv.serverlist[fileno] = gv.unidentified[fileno][1]
-                    gv.unidentified.pop(fileno)
-                    gv.serverlist[fileno].send(gv.CONNECTCOMFIRM)
-                    print '{}: {}----server connected'.format(fileno, gv.serverlist[fileno].getpeername())
-                elif encry(message) == gv.CONSOLEPASSWORD:
-                    gv.console[fileno] = gv.unidentified[fileno][1]
-                    gv.unidentified.pop(fileno)
-                    gv.console[fileno].send(gv.CONNECTCOMFIRM)
-                    print '{}: {}----console connected'.format(fileno, gv.console[fileno].getpeername())
-                elif message == '':
-                    print '{}: {}----unidentified disconnected'.format(fileno, gv.unidentified[fileno][1].getpeername())
-                    gv.epoll.modify(fileno, 0)
-                    gv.unidentified.pop(fileno)
+                elif fileno in gv.console:
+                    message = gv.console[fileno].recv(1024)
+                    logger.info("message from console {}:\n{}".format(fileno, message))
+                    if message == '':
+                        gv.epoll.modify(fileno, 0)
+                        gv.console.pop(fileno)
+                    else:
+                        gv.console[fileno].sendall(consoleops.console_order(message))
+
+                elif fileno in gv.serverlist:
+                    message = gv.serverlist[fileno].recv(1024)
+                    logger.info("message from server{}:\n{}".format(fileno, message))
+                    if message == '':
+                        gv.epoll.modify(fileno, 0)
+                        gv.serverlist.pop(fileno)
+                    else:
+                        gv.serverlist[fileno].sendall(serverops.server_order(message))
+
                 else:
-                    gv.unidentified[fileno][1].send("WRONG PASSWORD!")
-                    print '{}: {}----unidentified tried a wrong password'\
-                        .format(fileno, gv.unidentified[fileno][1].getpeername())
+                    logger.critical("what?")
 
-            elif fileno in gv.console:
-                message = gv.console[fileno].recv(1024)
-                print "message from console {}:\n{}".format(fileno, message)
-                if message == '':
-                    gv.epoll.modify(fileno, 0)
-                    gv.console.pop(fileno)
-                else:
-                    gv.console[fileno].sendall(consoleops.console_order(message))
+            for (fileno, uni) in gv.unidentified.items():
+                if time.time() - uni[0] >= gv.OUTTIME:
+                    cli = uni[1]
+                    cli.send("auto disconnect\n")
+                    gv.unidentified.pop(cli.fileno())
+                    cli.close()
 
-            elif fileno in gv.serverlist:
-                message = gv.serverlist[fileno].recv(1024)
-                print "message from server{}:\n{}".format(fileno, message)
-                if message == '':
-                    gv.epoll.modify(fileno, 0)
-                    gv.serverlist.pop(fileno)
-                else:
-                    gv.serverlist[fileno].sendall(serverops.server_order(message))
-
-            else:
-                print "what?"
-
+    except Exception, e:
+        logger.error(logger.traceback())
+    finally:
+        logger.info("Server is shutting down......")
+        for (fileno, server) in gv.serverlist.items():
+            server.close()
+        for (fileno, con) in gv.console.items():
+            con.close()
         for (fileno, uni) in gv.unidentified.items():
-            if time.time() - uni[0] >= gv.OUTTIME:
-                cli = uni[1]
-                cli.send("auto disconnect\n")
-                gv.unidentified.pop(cli.fileno())
-                cli.close()
-
-    print "Server is shutting down......"
-    for (fileno, server) in gv.serverlist.items():
-        server.close()
-    for (fileno, con) in gv.console.items():
-        con.close()
-    for (fileno, uni) in gv.unidentified.items():
-        uni[1].close()
-    self.close()
+            uni[1].close()
+        self.close()
     return 0
 
 
