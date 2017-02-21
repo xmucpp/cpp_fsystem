@@ -133,6 +133,7 @@ def parse(fake_url):
         write_csv(data_list, page, category_name)
         return 0
     except Exception:
+        logger.error(logger.traceback())
         return 1
     
 
