@@ -221,7 +221,8 @@ def server_order(message):
     else:
         order = message.split(cf.ORDER)
     if order[0] not in server_operation.keys():
-        return "what are you talking about?"
+        logger.error('what are you talking about:{}'.format(order[0]))
+        return
     if len(order) != arguments_number[order[0]]:
         return "wrong arguments"
     return server_operation[order[0]](order)
