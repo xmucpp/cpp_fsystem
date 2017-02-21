@@ -106,10 +106,9 @@ def write_csv(data_list, page, category_name):
 
     # create a file and its name for a certain page
 
-    '''file_name = ''.join(
+    file_name = ''.join(
         [file_dict, '/', 'tmallPrice', '_', PRESENT_DAY, '_', PRESENT_TIME, '_', category_name,
-         '_', str(page)])'''
-    file_name = "C:\Users\\54926\Documents\\testfile"
+         '_', str(page)])
     with codecs.open(file_name, 'wb') as f:
         fieldnames = ['goodsID', 'goodsName', 'shopName', 'shopID', 'sales', 'price',
                       'comments', ]

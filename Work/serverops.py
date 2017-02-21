@@ -20,7 +20,7 @@ from Work.log import Logger
 
 logger = Logger('serverops', 'DEBUG')
 def reloading():
-    reload(TmallPageScraper)
+    pass
 
 
 def system(order):
