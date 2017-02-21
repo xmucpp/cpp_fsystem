@@ -108,6 +108,14 @@ def statistics(order):
 def work(worker_name):
     if worker_name == 'REFRESHER':
         cf.PRESENT_DAY = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
+        for title in crawler_list:
+            try:
+                if gv.redis.exists(title):
+                    logger.error("{} still have unfinished data!".format(title))
+                while gv.redis.exists('{}{}'.format(cf.BACKUP, title)):
+                    gv.redis.lpush(title,gv.redis.blpop(title))
+            except Exception:
+                logger.error(logger.traceback())
         return
     gv.worker[worker_name].state = 'Running'
     try:
