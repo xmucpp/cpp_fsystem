@@ -5,8 +5,8 @@
 import json
 
 import serverops
-from Work import globalvar as gv
-
+import Work.globalvar as gv
+import config as cf
 
 def reloading():
     pass
@@ -73,10 +73,10 @@ help_list = '--------Caution: All servers are specified by its fileno\n' \
 
 
 def console_order(message):
-    if message.find(gv.ORDER) == -1:
+    if message.find(cf.ORDER) == -1:
         order = [message]
     else:
-        order = message.split(gv.ORDER)
+        order = message.split(cf.ORDER)
     if order[0].upper() not in operation:
         return "No such service\n" \
                "Do you need 'HELP'?"

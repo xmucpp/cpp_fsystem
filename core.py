@@ -22,6 +22,7 @@ def reloading():
         serverops.reloading()
         reload(consoleops)
         consoleops.reloading()
+        reload(cf)
     except Exception as e:
         logger.error('Reload after update error!{}'.format(e))
     finally:

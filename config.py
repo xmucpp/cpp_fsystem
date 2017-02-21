@@ -3,7 +3,6 @@
 # @Author: FSOL
 # @File  : config.py
 
-import redis
 import socket
 import os
 import time
