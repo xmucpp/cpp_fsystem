@@ -7,20 +7,15 @@ import csv
 import time
 import random
 import re
-import math
 import requests
 import json
 
 from bs4 import BeautifulSoup
 
-from config import join_paras
 from config import PRESENT_DAY, PATH
-from settings import crawler_logger as logger
-#from pymongo import MongoClient
-from ProxiesPool.headers import USER_AGENTS, PROXIES
-
-
-PRESENT_TIME = str(time.strftime('%H-%M-%S', time.localtime(time.time())))
+from Work.globalvar import USER_AGENTS
+from Work.log import Logger
+logger = Logger('JD', 'DEBUG')
 
 
 # Unit Function
@@ -37,7 +32,6 @@ def get_html(url):
 
     """
     user_agent = random.choice(USER_AGENTS)
-    proxy = re.sub('\n', '', random.choice(PROXIES))
     headers = {
         'Accept': 'text/html',
         'Accept-Encoding': 'gzip,deflate,sdch',
@@ -47,7 +41,6 @@ def get_html(url):
         'Host': 'search.jd.com',
         'Referer': 'http://www.jd.com/',
         'user-agent': user_agent,
-        'http': proxy,
     }
 
     try:
@@ -64,7 +57,7 @@ def get_html(url):
 
 
 def parse_html(html, url, page_num, cate, sort):
-
+    PRESENT_TIME = str(time.strftime('%H-%M-%S', time.localtime(time.time())))
     if not html:
         logger.error('not get html')
         return None
@@ -155,6 +148,7 @@ def write_csv(data_list, url, paras):
           success with "True" and failure with "None"
     """
 
+    PRESENT_TIME = str(time.strftime('%H-%M-%S', time.localtime(time.time())))
     if not data_list:
         logger.error('{} {}'.format(url, 'data list is None'))
         return None
@@ -240,7 +234,7 @@ def parse(url):
 if __name__ == '__main__':
     categoryName = u'list.jd.com/list.html?cat=1315,1343,9718'
     urlParameter = {}
-    for n in structure_1(categoryName, **urlParameter):
+    for n in structure(categoryName, **urlParameter):
         print n
         p, c1, c2, c3, s = split_url(n)
 
