@@ -7,7 +7,7 @@ import os
 import time
 from logging import handlers
 
-from Work.globalvar import PATH
+from config import PATH
 
 LOG_FOLDER = os.path.join(PATH, 'Log')
 DATEFMT = '%Y-%m-%d %H:%M:%S'
