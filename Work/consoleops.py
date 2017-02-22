@@ -28,6 +28,7 @@ def collective(order):
     order.pop(1)
     message = ';'.join([str(e) for e in order])
     results = ''
+
     for target in target_list:
         try:
             results += '-----------------------------------\n'

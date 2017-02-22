@@ -40,7 +40,7 @@ def connect(order):
         return "port Error!{}".format(e)
 
     so = socket.socket()
-
+    so.settimeout(5)
     try:
         so.connect((order[1], order[2]))
     except Exception as e:
@@ -48,6 +48,7 @@ def connect(order):
     so.send(order[3])
     message = so.recv(1024)
     if message == cf.CONNECTCOMFIRM:
+        so.settimeout(cf.timeout)
         gv.serverlist[so.fileno()] = so
         gv.epoll.register(so.fileno(), select.EPOLLIN)
         return cf.CONNECTSUCCESS
