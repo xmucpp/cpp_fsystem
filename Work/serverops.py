@@ -112,8 +112,9 @@ def work(worker_name):
             try:
                 if gv.redis.exists(title):
                     logger.error("{} still have unfinished data!".format(title))
-                while gv.redis.exists('{}{}'.format(cf.BACKUP, title)):
-                    gv.redis.lpush(title,gv.redis.blpop(title))
+                btitle = '{}{}'.format(cf.BACKUP, title)
+                while gv.redis.exists(btitle):
+                    gv.redis.lpush(title, gv.redis.blpop(btitle))
             except Exception:
                 logger.error(logger.traceback())
         return
