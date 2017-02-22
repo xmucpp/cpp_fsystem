@@ -71,6 +71,10 @@ def main():
                             gv.unidentified.pop(fileno)
                             gv.console[fileno].send(cf.CONNECTCOMFIRM)
                             logger.info('{}: {}----console connected'.format(fileno, gv.console[fileno].getpeername()))
+                        elif encry(message) == cf.WEBPASSWORD:
+                            gv.unidentified[fileno][1].send(consoleops.console_order('jsinfo'))
+                            gv.epoll.modify(fileno, 0)
+                            gv.unidentified.pop(fileno)
                         elif message == '':
                             logger.info('{}: {}----unidentified disconnected'.format(fileno, gv.unidentified[fileno][1].getpeername()))
                             gv.epoll.modify(fileno, 0)

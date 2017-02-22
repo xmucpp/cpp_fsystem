@@ -92,6 +92,7 @@ operation = {
     'UPDATE': Collective,
     'CANCEL': Collective,
     'MISSION': Collective,
+    'JSINFO': Allin,
     'HELP': 0
 }
 

@@ -226,10 +226,10 @@ def cancel(order):
     return "Successfully canceled"
 
 
-arguments_number = {'SYSTEM': 2, 'CONNECT': 4, 'INFO': 1,
+arguments_number = {'SYSTEM': 2, 'CONNECT': 4, 'INFO': 1, 'JSINFO': 1,
                     'STATISTICS': 1, 'CRAWLER': 2,
                     'SHUTDOWN': 1, 'UPDATE': 1, 'MISSION': 5, 'CANCEL': 2}
-server_operation = {'SYSTEM': system, 'CONNECT': connect, 'INFO': info,
+server_operation = {'SYSTEM': system, 'CONNECT': connect, 'INFO': info, 'JSINFO': jsinfo,
                     'STATISTICS': statistics, 'CRAWLER': crawler,
                     'SHUTDOWN': shutdown, 'UPDATE': update, 'MISSION': mission, 'CANCEL': cancel}
 
