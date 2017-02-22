@@ -7,6 +7,10 @@ import json
 import serverops
 import Work.globalvar as gv
 import config as cf
+from Work.log import Logger
+
+logger = Logger('consoleops', 'DEBUG')
+
 
 def reloading():
     pass
@@ -28,7 +32,39 @@ def collective(order):
     order.pop(1)
     message = ';'.join([str(e) for e in order])
     results = ''
+    if order[0].upper() == 'JSINFO':
+        results = {'sl': len(gv.serverlist),
+                   'cl': len(gv.console),
+                   'ul': len(gv.unidentified),
+                   'wk': {cf.RedisServer: {work: {'s': gv.worker[work].state,
+                         't': gv.worker[work].table} for work in gv.worker.keys()}},
+                   'st': {work: gv.crawlerstatis[work] for work in gv.worker.keys()},
+                   'ms': {mission: {'s': gv.mission_list[mission].state,
+                         'h': gv.mission_list[mission].hour, 'm': gv.mission_list[mission].minute}
+                          for mission in gv.mission_list.keys()}
+                   }
+        for target in target_list:
+            try:
+                if target == -1:
+                    pass
 
+                else:
+                    gv.serverlist[target].send(message)
+                    temp = json.loads(gv.serverlist[target].recv(1024))
+                    if temp['sl'] != results['sl']:
+                        results['Wsl'][gv.serverlist[target].getpeername()[0]] = temp['sl']
+                    results['cl'] += temp['cl']
+                    results['ul'] += temp['ul']
+                    for work in temp['wk']:
+                        results['wk'][gv.serverlist[target].getpeername()[0]][work] = \
+                            {'s': temp['wk'][work]['s'], 't': temp['wk'][work]['t']}
+                        results['st'][work] += temp['wk'][work]['c']
+                    for mission in temp['ms']:
+                        if results['ms'][mission] != temp['ms'][mission]:
+                            results['Wms'][gv.serverlist[target].getpeername()[0]][mission] = temp['ms'][mission]
+            except Exception:
+                logger.error(logger.traceback())
+        return json.dumps(results)
     for target in target_list:
         try:
             results += '-----------------------------------\n'

@@ -8,6 +8,7 @@ import select
 import socket
 import threading
 import time
+import json
 
 import Crawler.FakeScraper as FakeScraper
 import Crawler.JDPageScraper as JDPageScraper
@@ -71,6 +72,19 @@ def update(order):
         return results
     else:
         return 'Update failed...\n{}  {}'.format(status, results)
+
+
+def jsinfo(order):
+    info_data = json.dumps({'sl': len(gv.serverlist),
+                 'cl': len(gv.console),
+                 'ul': len(gv.unidentified),
+                 'wk': {work: {'s': gv.worker[work].state,
+                         't': gv.worker[work].table, 'c': gv.crawlerstatis[work]} for work in gv.worker.keys()},
+                 'ms': {mission: {'s': gv.mission_list[mission].state,
+                         'h': gv.mission_list[mission].hour, 'm': gv.mission_list[mission].minute}
+                        for mission in gv.mission_list.keys()}
+                           })
+    return info_data
 
 
 def info(order):
@@ -147,11 +161,12 @@ def work(worker_name):
 crawler_list = {'TMALL': TmallPageScraper,
                 'JD': JDPageScraper,
                 'FAKE': FakeScraper,
-                'REFRESHER': Refresher
                 }
 
 
 def crawler(order):
+    if order[1] == "REFRESHER":
+        threading.Thread(target=work, args=[order[1]]).start()
     if order[1] not in crawler_list.keys():
         return "No such cralwer!\n" \
                "Current cralwer:{}".format(str(crawler_list[1:-1]))
@@ -185,7 +200,7 @@ def waiter(order):
 
 
 def mission(order):
-    if order[1] not in crawler_list:
+    if order[1] not in crawler_list and order[1] != "REFRESHER":
         return "No such cralwer!\n" \
                "Current cralwer:{}".format(str(crawler_list[1:-1]))
     if order[2].upper() == 'SET':
