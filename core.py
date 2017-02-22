@@ -59,25 +59,28 @@ def main():
                     gv.unidentified[con.fileno()] = [time.time(), con]
 
                 elif fileno in gv.unidentified:
-                    message = gv.unidentified[fileno][1].recv(1024)
-                    if encry(message) == cf.CONNECTPASSWORD:
-                        gv.serverlist[fileno] = gv.unidentified[fileno][1]
-                        gv.unidentified.pop(fileno)
-                        gv.serverlist[fileno].send(cf.CONNECTCOMFIRM)
-                        logger.info('{}: {}----server connected'.format(fileno, gv.serverlist[fileno].getpeername()))
-                    elif encry(message) == cf.CONSOLEPASSWORD:
-                        gv.console[fileno] = gv.unidentified[fileno][1]
-                        gv.unidentified.pop(fileno)
-                        gv.console[fileno].send(cf.CONNECTCOMFIRM)
-                        logger.info('{}: {}----console connected'.format(fileno, gv.console[fileno].getpeername()))
-                    elif message == '':
-                        logger.info('{}: {}----unidentified disconnected'.format(fileno, gv.unidentified[fileno][1].getpeername()))
-                        gv.epoll.modify(fileno, 0)
-                        gv.unidentified.pop(fileno)
-                    else:
-                        gv.unidentified[fileno][1].send("WRONG PASSWORD!")
-                        logger.info('{}: {}----unidentified tried a wrong password' \
-                            .format(fileno, gv.unidentified[fileno][1].getpeername()))
+                    try:
+                        message = gv.unidentified[fileno][1].recv(1024)
+                        if encry(message) == cf.CONNECTPASSWORD:
+                            gv.serverlist[fileno] = gv.unidentified[fileno][1]
+                            gv.unidentified.pop(fileno)
+                            gv.serverlist[fileno].send(cf.CONNECTCOMFIRM)
+                            logger.info('{}: {}----server connected'.format(fileno, gv.serverlist[fileno].getpeername()))
+                        elif encry(message) == cf.CONSOLEPASSWORD:
+                            gv.console[fileno] = gv.unidentified[fileno][1]
+                            gv.unidentified.pop(fileno)
+                            gv.console[fileno].send(cf.CONNECTCOMFIRM)
+                            logger.info('{}: {}----console connected'.format(fileno, gv.console[fileno].getpeername()))
+                        elif message == '':
+                            logger.info('{}: {}----unidentified disconnected'.format(fileno, gv.unidentified[fileno][1].getpeername()))
+                            gv.epoll.modify(fileno, 0)
+                            gv.unidentified.pop(fileno)
+                        else:
+                            gv.unidentified[fileno][1].send("WRONG PASSWORD!")
+                            logger.info('{}: {}----unidentified tried a wrong password' \
+                                .format(fileno, gv.unidentified[fileno][1].getpeername()))
+                    except Exception:
+                        logger.critical(logger.traceback())
 
                 elif fileno in gv.console:
                     message = gv.console[fileno].recv(1024)

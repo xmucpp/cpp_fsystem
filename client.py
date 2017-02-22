@@ -36,7 +36,7 @@ def main():
             server.send(user_input)
             if user_input == 'exit':
                 break
-            message = server.recv(1024)
+            message = server.recv(8192)
             if message == 'COMFIRM':
                 print "Connection established."
                 if(communicate(server)):

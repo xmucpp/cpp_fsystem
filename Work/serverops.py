@@ -106,6 +106,7 @@ def statistics(order):
 
 
 def work(worker_name):
+    logger.info('{}:worker start!'.format(worker_name))
     if worker_name == 'REFRESHER':
         cf.PRESENT_DAY = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
         for title in crawler_list:
@@ -117,6 +118,7 @@ def work(worker_name):
                     gv.redis.lpush(title, gv.redis.blpop(btitle))
             except Exception:
                 logger.error(logger.traceback())
+        logger.info("{} worker out".format(worker_name))
         return
     gv.worker[worker_name].state = 'Running'
     try:
