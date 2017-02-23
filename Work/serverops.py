@@ -124,6 +124,9 @@ def work(worker_name):
     logger.info('{}:worker start!'.format(worker_name))
     if worker_name == 'REFRESHER':
         cf.PRESENT_DAY = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
+        for work in gv.worker.keys():
+            logger.info('{} number:{}'.format(work,gv.crawlerstatis[work]))
+            gv.crawlerstatis[work] = 0
         for title in crawler_list:
             try:
                 if gv.redis.exists(title):
