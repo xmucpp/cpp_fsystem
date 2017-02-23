@@ -130,7 +130,7 @@ def work(worker_name):
                     logger.error("{} still have unfinished data!".format(title))
                 btitle = '{}{}'.format(cf.BACKUP, title)
                 while gv.redis.exists(btitle):
-                    gv.redis.lpush(title, gv.redis.blpop(btitle))
+                    gv.redis.lpush(title, gv.redis.blpop(btitle)[1])
             except Exception:
                 logger.error(logger.traceback())
         logger.info("{} worker out".format(worker_name))
@@ -167,6 +167,7 @@ crawler_list = {'TMALL': TmallPageScraper,
 def crawler(order):
     if order[1] == "REFRESHER":
         threading.Thread(target=work, args=[order[1]]).start()
+        return "REFRESHING!"
     if order[1] not in crawler_list.keys():
         return "No such cralwer!\n" \
                "Current cralwer:{}".format(str(crawler_list[1:-1]))
