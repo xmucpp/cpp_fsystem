@@ -9,7 +9,6 @@ import time
 
 # ------Socket timeout-----
 timeout = 20
-socket.setdefaulttimeout(timeout)
 # ------Redis main server--
 RedisServer = '123.207.93.47'
 # ------Local ip-----------

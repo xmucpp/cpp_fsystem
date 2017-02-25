@@ -135,6 +135,7 @@ def kill_out_time():
 
 
 def master_server():
+    socket.setdefaulttimeout(cf.timeout)
     self.bind((cf.HOST, cf.PORT))
     self.listen(10)
     gv.epoll.register(self.fileno(), select.EPOLLIN)
