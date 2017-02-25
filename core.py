@@ -7,6 +7,7 @@ import hashlib
 import select
 import socket
 import time
+import sys
 
 import Work.consoleops as consoleops
 import Work.serverops as serverops
@@ -148,8 +149,12 @@ def master_server():
 
 
 def slave_server():
-    self.connect(cf.master)
+    if len(sys.argv) == 2:
+        self.connect(cf.master)
+    else:
+        self.connect((sys.argv[2], int(sys.argv[3])))
     logger.info("--------------------------------\n          SLAVE SYSTEM STARTED")
+    self.send(sys.argv[4])
     while True:
         try:
             if gv.order_to_close:
@@ -168,7 +173,7 @@ def slave_server():
 
 def main():
     try:
-        if cf.master:
+        if len(sys.argv) != 1:
             slave_server()
         else:
             master_server()
