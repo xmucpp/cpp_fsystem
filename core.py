@@ -76,7 +76,7 @@ def main():
                             gv.epoll.modify(fileno, 0)
                             gv.unidentified.pop(fileno)
                         elif message == '':
-                            logger.info('{}: {}----unidentified disconnected'.format(fileno, gv.unidentified[fileno][1].getpeername()))
+                            logger.info('{}:----unidentified disconnected'.format(fileno))
                             gv.epoll.modify(fileno, 0)
                             gv.unidentified.pop(fileno)
                         else:
