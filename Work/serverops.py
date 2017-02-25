@@ -125,7 +125,7 @@ def work(worker_name):
     if worker_name == 'REFRESHER':
         cf.PRESENT_DAY = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
         for work in gv.worker.keys():
-            logger.info('{} number:{}'.format(work,gv.crawlerstatis[work]))
+            logger.info('{} number:{}'.format(work, gv.crawlerstatis[work]))
             gv.crawlerstatis[work] = 0
         for title in crawler_list:
             try:
@@ -140,12 +140,13 @@ def work(worker_name):
         return
     gv.worker[worker_name].state = 'Running'
     try:
+        btitle = '{}{}'.format(cf.BACKUP, worker_name)
         while gv.redis.exists(worker_name):
             if gv.worker[worker_name].event.isSet():
                 break
             try:
                 gv.worker[worker_name].table = gv.redis.blpop(worker_name)[1]
-                gv.redis.lpush('{}{}'.format(cf.BACKUP, worker_name), gv.worker[worker_name].table)
+                gv.redis.lpush(btitle, gv.worker[worker_name].table)
 
                 if not crawler_list[worker_name].parse(gv.worker[worker_name].table):
                     gv.crawlerstatis[worker_name] += 1
