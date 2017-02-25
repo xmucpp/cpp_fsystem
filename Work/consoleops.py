@@ -118,7 +118,7 @@ def collective(order):
     order.pop(1)
     message = ';'.join([str(e) for e in order])
     results = ''
-    if order[1].upper == 'JSINFO':
+    if order[0].upper == 'JSINFO':
         return jsinfo(message, target_list)
     for target in target_list:
         try:
