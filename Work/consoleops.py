@@ -91,10 +91,12 @@ def jsinfo(message, target_list):
                     results['Wsl'][gv.serverlist[target].getpeername()[0]] = temp['sl']
                 results['cl'] += temp['cl']
                 results['ul'] += temp['ul']
+                results['wk'][gv.serverlist[target].getpeername()[0]] = {}
                 for work in temp['wk']:
                     results['wk'][gv.serverlist[target].getpeername()[0]][work] = \
                         {'s': temp['wk'][work]['s'], 't': temp['wk'][work]['t']}
                     results['st'][work] += temp['wk'][work]['c']
+                results['Wms'][gv.serverlist[target].getpeername()[0]] = {}
                 for mission in temp['ms']:
                     if results['ms'][mission] != temp['ms'][mission]:
                         results['Wms'][gv.serverlist[target].getpeername()[0]][mission] = temp['ms'][mission]
