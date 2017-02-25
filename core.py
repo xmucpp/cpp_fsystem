@@ -152,6 +152,10 @@ def slave_server():
     logger.info("--------------------------------\n          SLAVE SYSTEM STARTED")
     while True:
         try:
+            if gv.order_to_close:
+                break
+            if gv.order_to_update:
+                reloading()
             message = self.recv(1024)
             respond = consoleops.server_order(message)
             if respond:
