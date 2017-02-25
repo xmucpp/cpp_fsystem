@@ -34,7 +34,7 @@ class Logger(object):
     def __init__(self, log_name, file_level, size=1024*1024, count=10):
         """init for logger"""
         self.logger = logging.getLogger(log_name)
-        self.log_name = '{}.{}.log'.format(log_name, datetime.datetime.now().strftime('%Y%m%d'))
+        self.log_name = '{}.log'.format(log_name)
         self.log_file = os.path.join(LOG_FOLDER, self.log_name)
         self.config(self.log_file, file_level, size, count)
 
@@ -86,7 +86,7 @@ class Logger(object):
 if __name__ == "__main__":
     """Test code"""
 
-    logger = Logger('crawler', 'INFO', 'INFO')
+    logger = Logger('crawler', 'INFO')
     for i in range(10):
         logger.info('error {}'.format(i))
         logger.warning('warning {}'.format(i))

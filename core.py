@@ -16,6 +16,8 @@ from Work.log import Logger
 
 
 logger = Logger('core', 'DEBUG')
+self = socket.socket()
+des_list = {'server': gv.serverlist, 'console': gv.console}
 
 
 def reloading():
@@ -35,88 +37,138 @@ def encry(password):
     return hashlib.md5(password).hexdigest()
 
 
-def main():
-    self = socket.socket()
+def save_send(sock, fileno, message):
     try:
-        self.bind((cf.HOST, cf.PORT))
-        self.listen(10)
+        sock.sendall(message)
+    except Exception:
+        logger.warning("{}: close before send.".format(fileno))
+        return 1
+    return 0
 
-        gv.epoll.register(self.fileno(), select.EPOLLIN)
-        logger.info("--------------------------------\n       SYSTEM STARTED")
 
-        while True:
-            if gv.order_to_close:
-                break
-            if gv.order_to_update:
-                reloading()
+def upgrade(fileno, des):
+    des_list[des][fileno] = gv.unidentified[fileno][1]
+    gv.unidentified.pop(fileno)
+    if save_send(des_list[des][fileno], fileno, cf.CONNECTCOMFIRM) == 1:
+        return 1
+    try:
+        logger.info('{}: {}----{} connected'.format(fileno, des_list[des][fileno].getpeername(), des))
+    except Exception:
+        logger.warning("{}: unexcepted close.".format(fileno))
+    return 0
 
-            events = gv.epoll.poll(20)
-            for fileno, event in events:
-                if fileno == self.fileno():
-                    con, conaddr = self.accept()
-                    logger.info(' '.join([str(conaddr), "Incoming Connection"]))
-                    gv.epoll.register(con.fileno(), select.EPOLLIN)
-                    gv.unidentified[con.fileno()] = [time.time(), con]
 
-                elif fileno in gv.unidentified:
-                    try:
-                        message = gv.unidentified[fileno][1].recv(1024)
-                        if encry(message) == cf.CONNECTPASSWORD:
-                            gv.serverlist[fileno] = gv.unidentified[fileno][1]
-                            gv.unidentified.pop(fileno)
-                            gv.serverlist[fileno].send(cf.CONNECTCOMFIRM)
-                            logger.info('{}: {}----server connected'.format(fileno, gv.serverlist[fileno].getpeername()))
-                        elif encry(message) == cf.CONSOLEPASSWORD:
-                            gv.console[fileno] = gv.unidentified[fileno][1]
-                            gv.unidentified.pop(fileno)
-                            gv.console[fileno].send(cf.CONNECTCOMFIRM)
-                            logger.info('{}: {}----console connected'.format(fileno, gv.console[fileno].getpeername()))
-                        elif encry(message) == cf.WEBPASSWORD:
-                            gv.unidentified[fileno][1].send(consoleops.console_order('jsinfo'))
-                            gv.epoll.modify(fileno, 0)
-                            gv.unidentified.pop(fileno)
-                        elif message == '':
-                            logger.info('{}:----unidentified disconnected'.format(fileno))
-                            gv.epoll.modify(fileno, 0)
-                            gv.unidentified.pop(fileno)
-                        else:
-                            gv.unidentified[fileno][1].send("WRONG PASSWORD!")
-                            logger.info('{}: {}----unidentified tried a wrong password' \
-                                .format(fileno, gv.unidentified[fileno][1].getpeername()))
-                    except Exception:
-                        logger.critical(logger.traceback())
+def event_divider():
+    events = gv.epoll.poll(20)
+    for fileno, event in events:
+        if fileno == self.fileno():
+            con, conaddr = self.accept()
+            logger.info(' '.join([str(conaddr), "Incoming Connection"]))
+            gv.epoll.register(con.fileno(), select.EPOLLIN)
+            gv.unidentified[con.fileno()] = [time.time(), con]
 
-                elif fileno in gv.console:
-                    message = gv.console[fileno].recv(1024)
-                    logger.info("message from console {}:\n{}".format(fileno, message))
-                    if message == '':
-                        gv.epoll.modify(fileno, 0)
-                        gv.console.pop(fileno)
-                    else:
-                        gv.console[fileno].sendall(consoleops.console_order(message))
+        elif fileno in gv.unidentified:
+            try:
+                message = gv.unidentified[fileno][1].recv(1024)
+            except Exception:
+                message = ''
+            if message == '':
+                logger.info('{}:----unidentified disconnected'.format(fileno))
+                gv.epoll.modify(fileno, 0)
+                gv.unidentified.pop(fileno)
+            elif encry(message) == cf.CONNECTPASSWORD:
+                upgrade(fileno, 'server')
+            elif encry(message) == cf.CONSOLEPASSWORD:
+                upgrade(fileno, 'console')
+            elif encry(message) == cf.WEBPASSWORD:
+                save_send(gv.unidentified[fileno][1], fileno, consoleops.console_order('jsinfo'))
+                gv.epoll.modify(fileno, 0)
+                gv.unidentified.pop(fileno)
+            else:
+                save_send(gv.unidentified[fileno][1], fileno, "WRONG PASSWORD!")
+                try:
+                    logger.info('{}: {}----unidentified tried a wrong password' \
+                            .format(fileno, gv.unidentified[fileno][1].getpeername()))
+                except Exception:
+                    logger.warning("{}: unexcepted close.".format(fileno))
 
-                elif fileno in gv.serverlist:
-                    message = gv.serverlist[fileno].recv(1024)
-                    logger.info("message from server{}:\n{}".format(fileno, message))
-                    if message == '':
-                        gv.epoll.modify(fileno, 0)
-                        gv.serverlist.pop(fileno)
-                    else:
-                        respond = serverops.server_order(message)
-                        if respond != '':
-                            gv.serverlist[fileno].sendall(serverops.server_order(message))
+        elif fileno in gv.console:
+            try:
+                message = gv.console[fileno].recv(1024)
+            except Exception:
+                message = ''
+            logger.info("message from console {}:{}".format(fileno, message))
+            if message == '':
+                gv.epoll.modify(fileno, 0)
+                gv.console.pop(fileno)
+            else:
+                save_send(gv.console[fileno], fileno, consoleops.console_order(message))
 
-                else:
-                    logger.critical("what?")
+        elif fileno in gv.serverlist:
+            try:
+                message = gv.serverlist[fileno].recv(1024)
+            except Exception:
+                message = ''
+            logger.info("message from server{}:{}".format(fileno, message))
+            if message == '':
+                gv.epoll.modify(fileno, 0)
+                gv.serverlist.pop(fileno)
+            else:
+                respond = consoleops.server_order(message)
+                if respond != '':
+                    save_send(gv.serverlist[fileno], fileno, respond)
+        else:
+            logger.critical("what?")
 
-            for (fileno, uni) in gv.unidentified.items():
-                if time.time() - uni[0] >= cf.OUTTIME:
-                    cli = uni[1]
-                    cli.send("auto disconnect\n")
-                    gv.unidentified.pop(cli.fileno())
-                    cli.close()
 
-    except Exception, e:
+def kill_out_time():
+    for (fileno, uni) in gv.unidentified.items():
+        if time.time() - uni[0] >= cf.OUTTIME:
+            cli = uni[1]
+            try:
+                cli.send("auto disconnect\n")
+            except Exception:
+                logger.warning("{}: close before send.".format(fileno))
+            gv.unidentified.pop(cli.fileno())
+            cli.close()
+
+
+def master_server():
+    self.bind((cf.HOST, cf.PORT))
+    self.listen(10)
+    gv.epoll.register(self.fileno(), select.EPOLLIN)
+    logger.info("--------------------------------\n          MASTER SYSTEM STARTED")
+    while True:
+        if gv.order_to_close:
+            break
+        if gv.order_to_update:
+            reloading()
+        event_divider()
+        kill_out_time()
+
+
+def slave_server():
+    self.connect(cf.master)
+    logger.info("--------------------------------\n          SLAVE SYSTEM STARTED")
+    while True:
+        try:
+            message = self.recv(1024)
+            respond = consoleops.server_order(message)
+            if respond:
+                self.send(respond)
+        except Exception:
+            logger.error(logger.traceback())
+            logger.error("Lost connection, retry in 5min")
+            time.sleep(300)
+
+
+def main():
+    try:
+        if cf.master:
+            slave_server()
+        else:
+            master_server()
+    except Exception:
         logger.error(logger.traceback())
     finally:
         logger.info("Server is shutting down......")

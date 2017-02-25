@@ -16,7 +16,7 @@ def communicate(server):
         if events:
             break
         server.send(user_input)
-        message = server.recv(1024)
+        message = server.recv(4096)
         print message
         user_input = raw_input('-->')
     server.close()
@@ -39,7 +39,7 @@ def main():
             message = server.recv(8192)
             if message == 'COMFIRM':
                 print "Connection established."
-                if(communicate(server)):
+                if communicate(server):
                     break
                 print "Disconnected."
             else:

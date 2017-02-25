@@ -4,7 +4,7 @@
 
 import json
 
-import serverops
+import serverops as sv
 import Work.globalvar as gv
 import config as cf
 from Work.log import Logger
@@ -14,6 +14,58 @@ logger = Logger('consoleops', 'DEBUG')
 
 def reloading():
     pass
+
+
+# ------------------API
+server_operation = {'SYSTEM': sv.system, 'CONNECT': sv.connect, 'INFO': sv.info, 'JSINFO': sv.jsinfo,
+                    'STATISTICS': sv.statistics, 'CRAWLER': sv.crawler,
+                    'SHUTDOWN': sv.shutdown, 'UPDATE': sv.update, 'MISSION': sv.mission, 'CANCEL': sv.cancel}
+arguments_number = {'SYSTEM': 2, 'CONNECT': 4, 'INFO': 1, 'JSINFO': 1,
+                    'STATISTICS': 1, 'CRAWLER': 2,
+                    'SHUTDOWN': 1, 'UPDATE': 1, 'MISSION': 5, 'CANCEL': 2}
+Collective = lambda x: x
+Allin = lambda x: x.insert(1, 'ALL')
+Local = lambda x: x.insert(1, '-1')
+
+operation = {
+    'SYSTEM': Collective,
+    'CONNECT': Allin,
+    'INFO': Collective,
+    'STATISTICS': Allin,
+    'CRAWLER': Collective,
+    'SHUTDOWN': Collective,
+    'UPDATE': Collective,
+    'CANCEL': Collective,
+    'MISSION': Collective,
+    'JSINFO': Allin,
+    'HELP': 0
+}
+
+help_list = '--------Caution: All servers are specified by its fileno\n' \
+            '--------Lowercase part needs to be replaced.\n' \
+            'SYSTEM;server;order                        ----Execute System(linux) order on specified server\n' \
+            'CONNECT;ip;port;password                   ----Connect to specified new server\n' \
+            'INFO;server                                ----Obtain detailed information of specified server\n' \
+            'STATISTICS                                 ----Obtain briefings of all servers\n' \
+            'CRAWLER;server;crawlername                 ----Start selected Crawler on specified server\n' \
+            'SHUTDOWN;server                            ----Shutdown specified server\n' \
+            'UPDATE;server                              ----Self-update from git\n' \
+            'MISSION;server;crawler;order;hour;min      ----Time crawler to automatically run at hour:min every day\n' \
+            'CANCEL;server;crawler                      ----Cancel a running crawler\n' \
+            'HELP                                       ----Ask for the current page\n'
+
+
+def server_order(message):
+    if message.find(cf.ORDER) == -1:
+        order = [message]
+    else:
+        order = message.split(cf.ORDER)
+    if order[0] not in server_operation.keys():
+        logger.error('what are you talking about:{}'.format(order[0]))
+        return
+    if len(order) != arguments_number[order[0]]:
+        return "wrong arguments"
+    return server_operation[order[0]](order)
 
 
 def collective(order):
@@ -69,7 +121,7 @@ def collective(order):
         try:
             results += '-----------------------------------\n'
             if target == -1:
-                results += 'local(-1):  {}\n'.format(serverops.server_order(message))
+                results += 'local(-1):  {}\n'.format(server_order(message))
             else:
                 gv.serverlist[target].send(message)
                 results += '{}:  {}\n'.format(target, gv.serverlist[target].recv(1024))
@@ -77,37 +129,6 @@ def collective(order):
             results += '{}:Error!  {}\n'.format(target, e)
 
     return results
-
-Collective = lambda x: x
-Allin = lambda x: x.insert(1, 'ALL')
-Local = lambda x: x.insert(1, '-1')
-
-operation = {
-    'SYSTEM': Collective,
-    'CONNECT': Allin,
-    'INFO': Collective,
-    'STATISTICS': Allin,
-    'CRAWLER': Collective,
-    'SHUTDOWN': Collective,
-    'UPDATE': Collective,
-    'CANCEL': Collective,
-    'MISSION': Collective,
-    'JSINFO': Allin,
-    'HELP': 0
-}
-
-help_list = '--------Caution: All servers are specified by its fileno\n' \
-            '--------Lowercase part needs to be replaced.\n' \
-            'SYSTEM;server;order                        ----Execute System(linux) order on specified server\n' \
-            'CONNECT;ip;port;password                   ----Connect to specified new server\n' \
-            'INFO;server                                ----Obtain detailed information of specified server\n' \
-            'STATISTICS                                 ----Obtain briefings of all servers\n' \
-            'CRAWLER;server;crawlername                 ----Start selected Crawler on specified server\n' \
-            'SHUTDOWN;server                            ----Shutdown specified server\n' \
-            'UPDATE;server                              ----Self-update from git\n' \
-            'MISSION;server;crawler;order;hour;min      ----Time crawler to automatically run at hour:min every day\n' \
-            'CANCEL;server;crawler                      ----Cancel a running crawler\n' \
-            'HELP                                       ----Ask for the current page\n'
 
 
 def console_order(message):
