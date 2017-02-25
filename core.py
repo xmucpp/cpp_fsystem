@@ -165,6 +165,8 @@ def slave_server():
             respond = consoleops.server_order(message)
             if respond:
                 self.send(respond)
+            else:
+                self.send("empty")
         except Exception:
             logger.error(logger.traceback())
             logger.error("Lost connection, retry in 5min")
