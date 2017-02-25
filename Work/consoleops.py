@@ -77,7 +77,8 @@ def jsinfo(message, target_list):
                'st': {work: gv.crawlerstatis[work] for work in gv.worker.keys()},
                'ms': {mission: {'s': gv.mission_list[mission].state,
                      'h': gv.mission_list[mission].hour, 'm': gv.mission_list[mission].minute}
-                      for mission in gv.mission_list.keys()}
+                      for mission in gv.mission_list.keys()},
+               'Wsl': {}, 'Wms': {}
                }
     for target in target_list:
         try:
