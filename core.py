@@ -102,7 +102,9 @@ def main():
                         gv.epoll.modify(fileno, 0)
                         gv.serverlist.pop(fileno)
                     else:
-                        gv.serverlist[fileno].sendall(serverops.server_order(message))
+                        respond = serverops.server_order(message)
+                        if respond != '':
+                            gv.serverlist[fileno].sendall(serverops.server_order(message))
 
                 else:
                     logger.critical("what?")
