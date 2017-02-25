@@ -154,7 +154,7 @@ def slave_server():
     else:
         self.connect((sys.argv[2], int(sys.argv[3])))
     logger.info("--------------------------------\n          SLAVE SYSTEM STARTED")
-    self.send(sys.argv[4])
+    self.send(sys.argv[1])
     while True:
         try:
             if gv.order_to_close:
