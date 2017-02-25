@@ -16,6 +16,7 @@ RedisServer = '123.207.93.47'
 HOST = ''
 PORT = 9813
 # ------link method--------
+master = ''
 # -------Constant----------
 OUTTIME = 60
 # -------Code--------------
