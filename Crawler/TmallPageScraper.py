@@ -9,10 +9,13 @@ import json
 
 import requests
 
-from config import PRESENT_DAY, PATH
+import config as cf
 from Work.globalvar import USER_AGENTS
 from Work.log import Logger
 logger = Logger('Tmall', 'DEBUG')
+
+PRESENT_DAY = cf.PRESENT_DAY
+PATH = cf.PATH
 
 
 def get_json(url):
@@ -119,10 +122,13 @@ def write_csv(data_list, page, category_name):
             writer.writerow(data)
 
     # return indicator
-    return [itemid['goodsID'] for itemid in data_list]
+    return
 
 
 def parse(fake_url):
+    global PRESENT_DAY, PATH
+    PRESENT_DAY = cf.PRESENT_DAY
+    PATH = cf.PATH
     try:
         url = fake_url.split('&*')[0]
         page = url.split('no=')[1]
@@ -137,4 +143,4 @@ def parse(fake_url):
     
 
 if __name__ == '__main__':
-    parse('https://list.tmall.com/m/search_items.htm?q=%CD%E0%D7%D3&page_no=1&*name*\u889c\u5b50')
+    parse('https://list.tmall.com/m/search_items.htm?q=%CD%E0%D7%D3&page_no=1&*name*\xe8\xa2\x9c\xe5\xad\x90')
