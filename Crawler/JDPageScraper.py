@@ -12,13 +12,16 @@ import json
 
 from bs4 import BeautifulSoup
 
-from config import PRESENT_DAY, PATH
+import config as cf
 from Work.globalvar import USER_AGENTS
 from Work.log import Logger
 logger = Logger('JD', 'DEBUG')
 
+PRESENT_DAY = cf.PRESENT_DAY
+PATH = cf.PATH
 
 # Unit Function
+
 
 def get_html(url):
     """
@@ -223,6 +226,9 @@ def structure(category_name, page_num=2):
 
 
 def parse(url):
+    global PRESENT_DAY, PATH
+    PRESENT_DAY = cf.PRESENT_DAY
+    PATH = cf.PATH
     try:
         page_num, cat1, cat2, cat3, sort = split_url(url)
         paras = '{},{},{}'.format(cat1, cat2, cat3)
