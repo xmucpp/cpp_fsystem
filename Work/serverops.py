@@ -23,7 +23,7 @@ logger = Logger('serverops', 'DEBUG')
 
 
 def reloading():
-    pass
+    reload(TmallPageScraper)
 
 
 # -----------info type
