@@ -128,6 +128,7 @@ def update(order):
 def work(worker_name):
     logger.info('{}:worker start!'.format(worker_name))
     if worker_name == 'REFRESHER':
+        logger.info('change time from {} to {}.'.format(cf.PRESENT_DAY, str(time.strftime('%Y-%m-%d', time.localtime(time.time())))))
         cf.PRESENT_DAY = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
         for work in gv.worker.keys():
             logger.info('{} number:{}'.format(work, gv.crawlerstatis[work]))
