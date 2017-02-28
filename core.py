@@ -150,6 +150,7 @@ def master_server():
 
 
 def slave_server():
+    global self
     if len(sys.argv) == 2:
         self.connect(cf.master)
     else:
@@ -173,6 +174,7 @@ def slave_server():
             logger.error(logger.traceback())
             logger.error("Lost connection, retry in 5min")
             time.sleep(300)
+            self = socket.socket()
 
 
 def main():
