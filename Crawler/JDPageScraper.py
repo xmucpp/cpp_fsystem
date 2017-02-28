@@ -242,14 +242,6 @@ def parse(url):
 
 
 if __name__ == '__main__':
-    categoryName = u'list.jd.com/list.html?cat=1315,1343,9718'
-    urlParameter = {}
-    for n in structure(categoryName, **urlParameter):
-        print n
-        p, c1, c2, c3, s = split_url(n)
-
-        parse(n)
-
-    # url = 'http://list.jd.com/list.html?cat=9987,653,655&page=1'
-    # parse(url)
+    url = 'http://list.jd.com/list.html?cat=9987,653,655&page=2&sort=sort_totalsales15_desc'
+    parse(url)
 

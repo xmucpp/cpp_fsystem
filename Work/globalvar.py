@@ -7,7 +7,7 @@ import redis
 from config import RedisServer
 
 redis = redis.Redis(RedisServer)
-epoll = select.epoll()
+# epoll = select.epoll()
 serverlist = {}
 console = {}
 unidentified = {}
@@ -20,7 +20,7 @@ class Worker:
         self.table = table
         self.state = state
 
-crawlerstatis = {'TMALL': 0, 'FAKE': 0}
+crawlerstatis = {'TMALL': 0, 'FAKE': 0, 'JD': 0}
 
 
 class Mission:
