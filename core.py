@@ -65,36 +65,39 @@ def upgrade(fileno, des):
 def outside_listen():
     events = gv.outside.poll(20)
     for fileno, event in events:
-        if fileno == self.fileno():
-            con, conaddr = self.accept()
-            logger.info(' '.join([str(conaddr), "Incoming Connection"]))
-            gv.outside.register(con.fileno(), select.EPOLLIN)
-            gv.unidentified[con.fileno()] = [time.time(), con]
+        try:
+            if fileno == self.fileno():
+                con, conaddr = self.accept()
+                logger.info(' '.join([str(conaddr), "Incoming Connection"]))
+                gv.outside.register(con.fileno(), select.EPOLLIN)
+                gv.unidentified[con.fileno()] = [time.time(), con]
 
-        elif fileno in gv.unidentified:
-            try:
-                message = gv.unidentified[fileno][1].recv(1024)
-            except Exception:
-                message = ''
-            if message == '':
-                logger.info('{}:----unidentified disconnected'.format(fileno))
-                gv.outside.modify(fileno, 0)
-                gv.unidentified.pop(fileno)
-            elif encry(message) == cf.CONNECTPASSWORD:
-                upgrade(fileno, 'server')
-            elif encry(message) == cf.CONSOLEPASSWORD:
-                upgrade(fileno, 'console')
-            elif encry(message) == cf.WEBPASSWORD:
-                save_send(gv.unidentified[fileno][1], fileno, consoleops.console_order('jsinfo'))
-                gv.outside.modify(fileno, 0)
-                gv.unidentified.pop(fileno)
-            else:
-                save_send(gv.unidentified[fileno][1], fileno, "WRONG PASSWORD!")
+            elif fileno in gv.unidentified:
                 try:
-                    logger.info('{}: {}----unidentified tried a wrong password' \
-                                .format(fileno, gv.unidentified[fileno][1].getpeername()))
+                    message = gv.unidentified[fileno][1].recv(1024)
                 except Exception:
-                    logger.warning("{}: unexcepted close.".format(fileno))
+                    message = ''
+                if message == '':
+                    logger.info('{}:----unidentified disconnected'.format(fileno))
+                    gv.outside.modify(fileno, 0)
+                    gv.unidentified.pop(fileno)
+                elif encry(message) == cf.CONNECTPASSWORD:
+                    upgrade(fileno, 'server')
+                elif encry(message) == cf.CONSOLEPASSWORD:
+                    upgrade(fileno, 'console')
+                elif encry(message) == cf.WEBPASSWORD:
+                    save_send(gv.unidentified[fileno][1], fileno, consoleops.console_order('jsinfo'))
+                    gv.outside.modify(fileno, 0)
+                    gv.unidentified.pop(fileno)
+                else:
+                    save_send(gv.unidentified[fileno][1], fileno, "WRONG PASSWORD!")
+                    try:
+                        logger.info('{}: {}----unidentified tried a wrong password' \
+                                    .format(fileno, gv.unidentified[fileno][1].getpeername()))
+                    except Exception:
+                        logger.warning("{}: unexcepted close.".format(fileno))
+        except Exception:
+            logger.error(logger.traceback())
 
 
 def event_divider():
