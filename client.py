@@ -19,7 +19,7 @@ def communicate(server):
         message = server.recv(4096)
         print message
         user_input = raw_input('-->')
-        while user_input == '\n':
+        while user_input == '\r':
             user_input = raw_input('-->')
     server.close()
     if user_input == 'exit':
