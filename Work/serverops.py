@@ -180,7 +180,7 @@ def crawler(order):
         return "REFRESHING!"
     if order[1] not in crawler_list.keys():
         return "No such cralwer!\n" \
-               "Current cralwer:{}".format(str(crawler_list[1:-1]))
+               "Current cralwer:{}".format(str(crawler_list.keys()[1:-1]))
     if order[1] in gv.worker.keys() and gv.worker[order[1]].state == 'Running':
         return "Crawler {} is already running!".format(order[1])
     if order[1] not in gv.worker.keys():
