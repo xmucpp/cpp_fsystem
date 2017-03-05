@@ -7,7 +7,8 @@ import redis
 from config import RedisServer
 
 redis = redis.Redis(RedisServer)
-# epoll = select.epoll()
+epoll = select.epoll()
+outside = select.epoll()
 serverlist = {}
 console = {}
 unidentified = {}

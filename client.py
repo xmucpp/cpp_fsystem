@@ -19,6 +19,8 @@ def communicate(server):
         message = server.recv(4096)
         print message
         user_input = raw_input('-->')
+        while user_input == '\n':
+            user_input = raw_input('-->')
     server.close()
     if user_input == 'exit':
         return 1

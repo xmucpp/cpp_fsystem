@@ -8,6 +8,7 @@ import select
 import socket
 import time
 import sys
+import threading
 
 import Work.consoleops as consoleops
 import Work.serverops as serverops
@@ -50,6 +51,8 @@ def save_send(sock, fileno, message):
 def upgrade(fileno, des):
     des_list[des][fileno] = gv.unidentified[fileno][1]
     gv.unidentified.pop(fileno)
+    gv.epoll.register(fileno, select.EPOLLIN)
+    gv.outside.modify(fileno, 0)
     if save_send(des_list[des][fileno], fileno, cf.CONNECTCOMFIRM) == 1:
         return 1
     try:
@@ -59,13 +62,13 @@ def upgrade(fileno, des):
     return 0
 
 
-def event_divider():
-    events = gv.epoll.poll(20)
+def outside_listen():
+    events = gv.outside.poll(20)
     for fileno, event in events:
         if fileno == self.fileno():
             con, conaddr = self.accept()
             logger.info(' '.join([str(conaddr), "Incoming Connection"]))
-            gv.epoll.register(con.fileno(), select.EPOLLIN)
+            gv.outside.register(con.fileno(), select.EPOLLIN)
             gv.unidentified[con.fileno()] = [time.time(), con]
 
         elif fileno in gv.unidentified:
@@ -75,7 +78,7 @@ def event_divider():
                 message = ''
             if message == '':
                 logger.info('{}:----unidentified disconnected'.format(fileno))
-                gv.epoll.modify(fileno, 0)
+                gv.outside.modify(fileno, 0)
                 gv.unidentified.pop(fileno)
             elif encry(message) == cf.CONNECTPASSWORD:
                 upgrade(fileno, 'server')
@@ -83,17 +86,21 @@ def event_divider():
                 upgrade(fileno, 'console')
             elif encry(message) == cf.WEBPASSWORD:
                 save_send(gv.unidentified[fileno][1], fileno, consoleops.console_order('jsinfo'))
-                gv.epoll.modify(fileno, 0)
+                gv.outside.modify(fileno, 0)
                 gv.unidentified.pop(fileno)
             else:
                 save_send(gv.unidentified[fileno][1], fileno, "WRONG PASSWORD!")
                 try:
                     logger.info('{}: {}----unidentified tried a wrong password' \
-                            .format(fileno, gv.unidentified[fileno][1].getpeername()))
+                                .format(fileno, gv.unidentified[fileno][1].getpeername()))
                 except Exception:
                     logger.warning("{}: unexcepted close.".format(fileno))
 
-        elif fileno in gv.console:
+
+def event_divider():
+    events = gv.epoll.poll(20)
+    for fileno, event in events:
+        if fileno in gv.console:
             try:
                 message = gv.console[fileno].recv(1024)
             except Exception:
@@ -131,6 +138,7 @@ def kill_out_time():
             except Exception:
                 logger.warning("{}: close before send.".format(fileno))
             gv.unidentified.pop(cli.fileno())
+            gv.outside.modify(cli.fileno(), 0)
             cli.close()
 
 
@@ -138,7 +146,8 @@ def master_server():
     socket.setdefaulttimeout(cf.timeout)
     self.bind((cf.HOST, cf.PORT))
     self.listen(10)
-    gv.epoll.register(self.fileno(), select.EPOLLIN)
+    gv.outside.register(self.fileno(), select.EPOLLIN)
+    threading.Thread(target=outside_listen, args=[]).start()
     logger.info("--------------------------------\n          MASTER SYSTEM STARTED")
     while True:
         if gv.order_to_close:
