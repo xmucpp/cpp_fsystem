@@ -4,9 +4,9 @@
 
 import select
 import redis
-from config import RedisServer
+import config as cf
 
-redis = redis.Redis(RedisServer)
+redis = redis.Redis(cf.RedisServer, port=cf.RedisPort, password=cf.RedisPass)
 epoll = select.epoll()
 outside = select.epoll()
 serverlist = {}

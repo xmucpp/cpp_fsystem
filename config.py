@@ -11,6 +11,8 @@ import time
 timeout = 20
 # ------Redis main server--
 RedisServer = '123.207.93.47'
+RedisPort = ''
+RedisPass = ''
 # ------Local ip-----------
 HOST = ''
 PORT = 9813
