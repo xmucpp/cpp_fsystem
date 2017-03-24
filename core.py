@@ -40,6 +40,7 @@ from Work.log import Logger
 
 logger = Logger('core', 'DEBUG')
 password_list = dict(zip(cf.user_password.values(), cf.user_password.keys()))
+self = socket.socket()
 # punish_list is record of times of wrong password, being used to avoid someone try the password too many times.
 # link_list is record of times of connection of one ip address, also being used to anti-attack.
 punish_list = {}
@@ -114,12 +115,13 @@ def upgrade(fileno, level):
     :return:
     """
     gv.connections[fileno].level = level
-    gv.epoll.register(fileno, select.EPOLLIN)
+    gv.inside.register(fileno, select.EPOLLIN)
     gv.outside.modify(fileno, 0)
     if save_send(fileno, cf.CONNECTSUCCESS) == 1:
         return 1
     try:
-        logger.info('{}: {}----{} connected'.format(fileno, gv.connections[fileno].socket.getpeername()))
+        logger.info('{}: {}----{} connected'.format(
+            fileno, gv.connections[fileno].socket.getpeername(), gv.connections[fileno].level))
     except Exception:
         logger.warning("{}: unexcepted close.".format(fileno))
         disconnect(fileno)
@@ -142,7 +144,7 @@ def punishment(fileno):
         disconnect(fileno)
 
 
-def addcount(fileno, the_list):
+def add_count(fileno, the_list):
     if fileno in the_list:
         the_list[fileno] += 1
     else:
@@ -173,7 +175,7 @@ def outside_listen():
                     con, conaddr = self.accept()
                     if link_list[conaddr[0]] <= 20:
                         logger.info(' '.join([str(conaddr), "Incoming Connection"]))
-                        addcount(fileno, link_list)
+                        add_count(fileno, link_list)
                         gv.outside.register(con.fileno(), select.EPOLLIN)
                         gv.connections[con.fileno()] = gv.connections(con, time.time())
                 else:
@@ -186,10 +188,10 @@ def outside_listen():
                     elif encry(message) in password_list:
                         upgrade(fileno, password_list[encry(message)])
                     else:
-                        addcount(fileno, punish_list)
+                        add_count(fileno, punish_list)
                         threading.Thread(target=punishment, args=[fileno]).start()
                         try:
-                            logger.info('{}: {}----unidentified tried a wrong password' \
+                            logger.info('{}: {}----unidentified tried a wrong password'
                                         .format(fileno, gv.connections[fileno].socket.getpeername()))
                         except Exception:
                             logger.warning("{}: unexcepted close.".format(fileno))
@@ -217,27 +219,23 @@ def event_divider():
 
 
 def master_server():
-
-    self = socket.socket()
-    try:
-        socket.setdefaulttimeout(cf.timeout)
-        self.bind((cf.HOST, cf.PORT))
-        self.listen(10)
-        gv.outside.register(self.fileno(), select.EPOLLIN)
-        threading.Thread(target=outside_listen, args=[]).start()
-        logger.info("--------------------------------\n          MASTER SYSTEM STARTED")
-        while True:
-            if gv.order_to_close:
-                break
-            if gv.order_to_update:
-                reloading()
-            event_divider()
-            kill_out_time()
-    finally:
-        self.close()
+    socket.setdefaulttimeout(cf.timeout)
+    self.bind((cf.HOST, cf.PORT))
+    self.listen(10)
+    gv.outside.register(self.fileno(), select.EPOLLIN)
+    threading.Thread(target=outside_listen, args=[]).start()
+    logger.info("--------------------------------\n          MASTER SYSTEM STARTED")
+    while True:
+        if gv.order_to_close:
+            break
+        if gv.order_to_update:
+            reloading()
+        event_divider()
+        kill_out_time()
 
 
 def soldier_server():
+    global self
     while True:
         self = socket.socket()
         if len(sys.argv) == 2:
@@ -282,6 +280,7 @@ def main():
         logger.info("Server is shutting down......")
         for fileno in gv.connections:
             disconnect(fileno)
+        self.close()
     return 0
 
 
