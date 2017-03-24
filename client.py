@@ -2,6 +2,12 @@
 # @Author: FSOL
 # @File  : client.py
 
+"""
+client.py
+==================
+Used as a default console to connect and control server.
+Will only connect to local's server.
+"""
 import socket
 import readline
 import select

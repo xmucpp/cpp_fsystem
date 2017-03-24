@@ -3,6 +3,7 @@
 # @File  : globalvar.py
 
 import select
+import time
 import os
 import redis
 import config as cf
@@ -18,7 +19,6 @@ class Connection:
         self.socket = socket
         self.level = level
         self.time = time
-    def
 
 connections = {}
 worker = {}

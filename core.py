@@ -39,7 +39,6 @@ from Work.log import Logger
 
 
 logger = Logger('core', 'DEBUG')
-self = socket.socket()
 password_list = dict(zip(cf.user_password.values(), cf.user_password.keys()))
 # punish_list is record of times of wrong password, being used to avoid someone try the password too many times.
 # link_list is record of times of connection of one ip address, also being used to anti-attack.
@@ -218,50 +217,57 @@ def event_divider():
 
 
 def master_server():
-    socket.setdefaulttimeout(cf.timeout)
-    self.bind((cf.HOST, cf.PORT))
-    self.listen(10)
-    gv.outside.register(self.fileno(), select.EPOLLIN)
-    threading.Thread(target=outside_listen, args=[]).start()
-    logger.info("--------------------------------\n          MASTER SYSTEM STARTED")
-    while True:
-        if gv.order_to_close:
-            break
-        if gv.order_to_update:
-            reloading()
-        event_divider()
-        kill_out_time()
 
-
-def soldier_server():
-    global self
-    if len(sys.argv) == 2:
-        self.connect(cf.master)
-    else:
-        self.connect((sys.argv[2], int(sys.argv[3])))
-    logger.info("--------------------------------\n          SOLDIER SYSTEM STARTED")
-    self.send(sys.argv[1])
-    message = self.recv(1024)
-    logger.info(message)
-    if message != cf.CONNECTSUCCESS:
-        return 0
-    while True:
-        try:
+    self = socket.socket()
+    try:
+        socket.setdefaulttimeout(cf.timeout)
+        self.bind((cf.HOST, cf.PORT))
+        self.listen(10)
+        gv.outside.register(self.fileno(), select.EPOLLIN)
+        threading.Thread(target=outside_listen, args=[]).start()
+        logger.info("--------------------------------\n          MASTER SYSTEM STARTED")
+        while True:
             if gv.order_to_close:
                 break
             if gv.order_to_update:
                 reloading()
-            message = self.recv(1024)
-            respond = distributor.server_order(message)
-            if respond:
-                self.send(respond)
-            else:
-                self.send("empty")
-        except Exception:
-            logger.error(logger.traceback())
-            logger.error("Lost connection, retry in 5min")
-            time.sleep(300)
-            self = socket.socket()
+            event_divider()
+            kill_out_time()
+    finally:
+        self.close()
+
+
+def soldier_server():
+    while True:
+        self = socket.socket()
+        if len(sys.argv) == 2:
+            self.connect(cf.master)
+        else:
+            self.connect((sys.argv[2], int(sys.argv[3])))
+        logger.info("--------------------------------\n          SOLDIER SYSTEM STARTED")
+        self.send(sys.argv[1])
+        message = self.recv(1024)
+        logger.info(message)
+        if message != cf.CONNECTSUCCESS:
+            return 0
+        while True:
+            try:
+                if gv.order_to_close:
+                    break
+                if gv.order_to_update:
+                    reloading()
+                message = self.recv(1024)
+                respond = distributor.server_order(message)
+                if respond:
+                    self.send(respond)
+                else:
+                    self.send("empty")
+            except Exception:
+                logger.error(logger.traceback())
+                logger.error("Lost connection, retry in 5min")
+                self.close()
+                time.sleep(300)
+                break
 
 
 def main():
@@ -276,7 +282,6 @@ def main():
         logger.info("Server is shutting down......")
         for fileno in gv.connections:
             disconnect(fileno)
-        self.close()
     return 0
 
 
