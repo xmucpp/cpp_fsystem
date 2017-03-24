@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author: FSOL
-# @File  : consoleops.py
+# @File  : distributor.py
 
 import json
 
@@ -42,7 +42,7 @@ operation = {
 }
 
 help_list = '--------Caution: All servers are specified by its fileno\n' \
-            '--------Lowercase part needs to be replaced.\n' \
+            '--------Words in lowercase needs to be replaced.\n' \
             'SYSTEM;server;order                        ----Execute System(linux) order on specified server\n' \
             'CONNECT;ip;port;password                   ----Connect to specified new server\n' \
             'INFO;server                                ----Obtain detailed information of specified server\n' \

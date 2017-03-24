@@ -160,6 +160,7 @@ def work(worker_name):
                     logger.warning(gv.worker[worker_name].table)
             except Exception, e:
                 logger.error(logger.traceback())
+            time.sleep(1)
     except Exception as e:
         logger.error(logger.traceback())
     finally:

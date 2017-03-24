@@ -3,15 +3,24 @@
 # @File  : globalvar.py
 
 import select
+import os
 import redis
 import config as cf
 
 redis = redis.Redis(cf.RedisServer, port=cf.RedisPort, password=cf.RedisPass)
-epoll = select.epoll()
+# listeners
+inside = select.epoll()
 outside = select.epoll()
-serverlist = {}
-console = {}
-unidentified = {}
+
+
+class Connection:
+    def __init__(self, socket, time, level='Unidentified'):
+        self.socket = socket
+        self.level = level
+        self.time = time
+    def
+
+connections = {}
 worker = {}
 
 
@@ -59,3 +68,8 @@ USER_AGENTS = [
     'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)',
 
 ]
+
+# -------Path---------------
+PATH = os.path.abspath(os.path.dirname(__file__))
+# -------time
+PRESENT_DAY = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
