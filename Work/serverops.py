@@ -73,55 +73,7 @@ def statistics(order):
     return info_data
 
 
-# ------------system type
-def system(order):
-    status, results = commands.getstatusoutput(order[1])
-    if status == 0 and results != '':
-        return results
-    elif status == 0 and results == '':
-        return "Success!\n"
-    else:
-        return 'ERROR:{}\n{}\n'.format(status, results)
 
-
-def connect(order):
-    try:
-        order[2] = int(order[2])
-    except Exception as e:
-        return "port Error!{}".format(e)
-
-    so = socket.socket()
-    so.settimeout(5)
-    try:
-        so.connect((order[1], order[2]))
-    except Exception as e:
-        return 'IP Error!\n{}'.format(e)
-    so.send(order[3])
-    message = so.recv(1024)
-    if message == cf.CONNECTCOMFIRM:
-        so.settimeout(cf.timeout)
-        gv.serverlist[so.fileno()] = so
-        gv.epoll.register(so.fileno(), select.EPOLLIN)
-        return cf.CONNECTSUCCESS
-    else:
-        so.close()
-        return message
-
-
-def shutdown(order):
-    if [i.state for i in gv.worker.values()].count('Running'):
-        return "Please kill all running work before shut down the server!"
-    gv.order_to_close = True
-    return "Server is shutting down."
-
-
-def update(order):
-    status, results = commands.getstatusoutput('git pull')
-    if status == 0:
-        gv.order_to_update = True
-        return results
-    else:
-        return 'Update failed...\n{}  {}'.format(status, results)
 
 
 # -------------job part
@@ -190,45 +142,61 @@ def crawler(order):
     return "Crawler started!"
 
 
-def deltatime(hour, min, sec=0):
-    target_time = datetime.datetime(2017, 2, 18, hour, min, sec)
-    current_time = datetime.datetime.now()
-    return 86400 - ((current_time - target_time).seconds % 86400)
+# -*- coding: utf-8 -*-
+# @Time  : 2017/3/25 11:16
+# @Author: FSOL
+# @File  : basic_fuctions.py
 
 
-def waiter(order):
-    timetowake = deltatime(int(order[3]), int(order[4]))
-    while True:
-        gv.mission_list[order[1]].event.wait(timetowake)
-        if gv.mission_list[order[1]].event.isSet():
-            break
-        else:
-            crawler(order)
-            time.sleep(66)
-            timetowake = deltatime(int(order[3]), int(order[4]))
-    gv.mission_list[order[1]].event.clear()
-    gv.mission_list[order[1]].state = 'Unsettled'
-    return
-
-
-def mission(order):
-    if order[1] not in crawler_list and order[1] != "REFRESHER":
-        return "No such cralwer!\n" \
-               "Current cralwer:{}".format(str(crawler_list[1:-1]))
-    if order[2].upper() == 'SET':
-        if order[1] in gv.mission_list.keys() and gv.mission_list[order[1]].state == 'Settled':
-            return "Mission has already settled"
-        gv.mission_list[order[1]] = gv.Mission('Settled', order[3], order[4], threading.Event())
-        threading.Thread(target=waiter, args=[order]).start()
-        return "Successfully settled"
-    elif order[2].upper() == 'CANCEL':
-        if order[1] not in gv.mission_list.keys() or gv.mission_list[order[1]].state == 'Unsettled':
-            return "Mission isn't running"
-        gv.mission_list[order[1]].event.set()
-        return "Successfully canceled"
+def system(order):
+    status, results = commands.getstatusoutput(order[1])
+    if status == 0 and results != '':
+        return results
+    elif status == 0 and results == '':
+        return "Success!\n"
     else:
-        return "No such order!\n" \
-               "you can set, cancel a mission."
+        return 'ERROR:{}\n{}\n'.format(status, results)
+
+
+def connect(order):
+    try:
+        order[2] = int(order[2])
+    except Exception as e:
+        return "port Error!{}".format(e)
+
+    so = socket.socket()
+    so.settimeout(5)
+    try:
+        so.connect((order[1], order[2]))
+    except Exception as e:
+        return 'IP Error!\n{}'.format(e)
+    so.send(order[3])
+    message = so.recv(1024)
+    if message == cf.CONNECTCOMFIRM:
+        so.settimeout(cf.timeout)
+        gv.serverlist[so.fileno()] = so
+        gv.epoll.register(so.fileno(), select.EPOLLIN)
+        return cf.CONNECTSUCCESS
+    else:
+        so.close()
+        return message
+
+
+def shutdown(order):
+    if [i.state for i in gv.worker.values()].count('Running'):
+        return "Please kill all running work before shut down the server!"
+    gv.order_to_close = True
+    return "Server is shutting down."
+
+
+def update(order):
+    status, results = commands.getstatusoutput('git pull')
+    if status == 0:
+        gv.order_to_update = True
+        return results
+    else:
+        return 'Update failed...\n{}  {}'.format(status, results)
+
 
 
 def cancel(order):

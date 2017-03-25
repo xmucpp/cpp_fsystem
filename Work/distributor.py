@@ -8,8 +8,26 @@ import serverops as sv
 import Work.globalvar as gv
 import config as cf
 from Work.log import Logger
+from Work.Classes import Function
 
-logger = Logger('consoleops', 'DEBUG')
+logger = Logger('Distributor', 'DEBUG')
+
+
+functions = {}
+
+import basic_functions as b_f
+import additional_jobs as a_f
+file_list = b_f.file_list
+file_list.extend(a_f.file_list)
+for m_file in file_list:
+    try:
+        cwm = __import__(m_file)
+        for (func, real_func) in cwm.functions.items():
+            functions[func] = real_func
+            functions[func].module = cwm
+    except Exception:
+        logger.error("Failed to import {}:".format(m_file))
+        logger.error(logger.traceback())
 
 
 def reloading():
@@ -41,18 +59,7 @@ operation = {
     'HELP': 0
 }
 
-help_list = '--------Caution: All servers are specified by its fileno\n' \
-            '--------Words in lowercase needs to be replaced.\n' \
-            'SYSTEM;server;order                        ----Execute System(linux) order on specified server\n' \
-            'CONNECT;ip;port;password                   ----Connect to specified new server\n' \
-            'INFO;server                                ----Obtain detailed information of specified server\n' \
-            'STATISTICS                                 ----Obtain briefings of all servers\n' \
-            'CRAWLER;server;crawlername                 ----Start selected Crawler on specified server\n' \
-            'SHUTDOWN;server                            ----Shutdown specified server\n' \
-            'UPDATE;server                              ----Self-update from git\n' \
-            'MISSION;server;crawler;order;hour;min      ----Time crawler to automatically run at hour:min every day\n' \
-            'CANCEL;server;crawler                      ----Cancel a running crawler\n' \
-            'HELP                                       ----Ask for the current page\n'
+help_list = '--------Caution: All servers are specified by its fileno\n'
 
 
 def server_order(message):
