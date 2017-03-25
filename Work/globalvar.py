@@ -13,33 +13,12 @@ redis = redis.Redis(cf.RedisServer, port=cf.RedisPort, password=cf.RedisPass)
 inside = select.epoll()
 outside = select.epoll()
 
-
-class Connection:
-    def __init__(self, socket, time, level='Unidentified'):
-        self.socket = socket
-        self.level = level
-        self.time = time
-
 connections = {}
 worker = {}
-
-
-class Worker:
-    def __init__(self, event, table, state):
-        self.event = event
-        self.table = table
-        self.state = state
+mission_list = {}
 
 crawlerstatis = {'TMALL': 0, 'FAKE': 0, 'JD': 0}
 
-
-class Mission:
-    def __init__(self, state, hour, minute, event):
-        self.state = state
-        self.hour = hour
-        self.minute = minute
-        self.event = event
-mission_list = {}
 order_to_close = False
 order_to_update = False
 
@@ -66,9 +45,7 @@ USER_AGENTS = [
     'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; 360SE)',
     'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Avant Browser)',
     'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)',
-
 ]
-
 # -------Path---------------
 PATH = os.path.abspath(os.path.dirname(__file__))
 # -------time

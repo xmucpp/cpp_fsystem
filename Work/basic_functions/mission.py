@@ -5,11 +5,9 @@
 
 from Work.Classes import Function
 
-
-# {fuction's name: [arguments number, distribution mode(0 for allin, 1 for normal, 2 for local)]}
 functions = {
     'mission': Function(5, 1,
-            'MISSION;server;crawler;order;hour;min      ----Time crawler to automatically run at hour:min every day')
+            'MISSION;server;crawler;order;hour;min','Time crawler to automatically run at hour:min every day')
 }
 
 

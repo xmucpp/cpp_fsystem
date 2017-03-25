@@ -12,9 +12,8 @@ from Work.Classes import Function
 
 logger = Logger('Distributor', 'DEBUG')
 
-
+# {fuction's name: [arguments number, distribution mode(0 for allin, 1 for normal, 2 for local)]}
 functions = {}
-
 import basic_functions as b_f
 file_list = map(lambda x: 'Work.basic_functions.{}'.format(x), b_f.file_list)
 import additional_functions as a_f

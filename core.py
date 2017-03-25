@@ -22,7 +22,7 @@ If password is wrong, it will exit. Except for that, it will start to wait for o
 (Both can use nohup or & or ...)
 
     Be aware that I use fileno to identify a connection,
-    and the connections are stored in the globalvar.py.
+    and connections are stored in the globalvar.py.
 """
 import hashlib
 import select
@@ -72,60 +72,6 @@ def encry(password):
     :return: md5(password)
     """
     return hashlib.md5(password).hexdigest()
-
-
-def disconnect(fileno):
-    """
-    Standard way to disconnect and clean all stuff without risk.
-    :param fileno:
-    :return:
-    """
-    logger.info('{}:----{} disconnected'.format(gv.connections[fileno].level, fileno))
-    if gv.connections[fileno].level == 'Unidentified':
-        gv.outside.modify(fileno, 0)
-    else:
-        gv.inside.modify(fileno, 0)
-    gv.connections[fileno].socket.close()
-    gv.connections.pop(fileno)
-    punish_list[fileno] = 0
-
-
-def save_send(fileno, message):
-    """
-    Standard way to send message.
-    Avoid the risk of socket closed before send.(In that case, log and disconnect with it)
-    :param fileno:
-    :param message:
-    :return: 0 for normal and 1 for error.
-    """
-    try:
-        gv.connections[fileno].socket.sendall(message)
-    except Exception:
-        logger.warning("{}: close before send.".format(fileno))
-        disconnect(fileno)
-        return 1
-    return 0
-
-
-def upgrade(fileno, level):
-    """
-    Give the connection level after received corresponding password.(Disconnect if it closed while logging or sending)
-    :param fileno:
-    :param level:
-    :return:
-    """
-    gv.connections[fileno].level = level
-    gv.inside.register(fileno, select.EPOLLIN)
-    gv.outside.modify(fileno, 0)
-    if save_send(fileno, cf.CONNECTSUCCESS) == 1:
-        return 1
-    try:
-        logger.info('{}: {}----{} connected'.format(
-            fileno, gv.connections[fileno].socket.getpeername(), gv.connections[fileno].level))
-    except Exception:
-        logger.warning("{}: unexcepted close.".format(fileno))
-        disconnect(fileno)
-    return 0
 
 
 def punishment(fileno):
