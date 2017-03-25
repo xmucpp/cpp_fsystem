@@ -33,20 +33,80 @@ import sys
 import threading
 
 import Work.distributor as distributor
-import Work.serverops as serverops
 import Work.globalvar as gv
 import config as cf
 
-from Work.Classes import Logger
+from Work.log import Logger
 
 
-logger = Logger('core', 'DEBUG')
+logger = Logger('connection', 'DEBUG')
 password_list = dict(zip(cf.user_password.values(), cf.user_password.keys()))
 self = socket.socket()
 # punish_list is record of times of wrong password, being used to avoid someone try the password too many times.
 # link_list is record of times of connection of one ip address, also being used to anti-attack.
 punish_list = {}
 link_list = {}
+
+
+class Connection:
+    logger = Logger('connection', 'DEBUG')
+
+    def __init__(self, fileno, socket, time, level='Unidentified'):
+        self.fileno = fileno
+        self.socket = socket
+        self.level = level
+        self.time = time
+
+    def disconnect(self):
+        """
+        Standard way to disconnect and clean all stuff without risk.
+        :param self:
+        :return:
+        """
+        self.logger.info('{}:----{} disconnected'.format(self.fileno, self.level))
+        if self.level == 'Unidentified':
+            gv.outside.modify(self.fileno, 0)
+        else:
+            gv.inside.modify(self.fileno, 0)
+        self.socket.close()
+        gv.connections.pop(self.fileno)
+        punish_list[self.fileno] = 0
+
+    def save_send(self, message):
+        """
+        Standard way to send message.
+        Avoid the risk of socket closed before send.(In that case, log and disconnect with it)
+        :param self:
+        :param message:
+        :return: 0 for normal and 1 for error.
+        """
+        try:
+            self.socket.sendall(message)
+        except Exception:
+            self.logger.warning("{}: close before send.".format(self.fileno))
+            self.disconnect()
+            return 1
+        return 0
+
+    def upgrade(self, level):
+        """
+        Give the connection level after received corresponding password.(Disconnect if it closed while logging or sending)
+        :param self:
+        :param level:
+        :return:
+        """
+        self.level = level
+        gv.inside.register(self.fileno, select.EPOLLIN)
+        gv.outside.modify(self.fileno, 0)
+        if self.save_send(cf.CONNECTSUCCESS) == 1:
+            return 1
+        try:
+            self.logger.info('{}: {}----{} connected'.format(
+                self.fileno, self.socket.getpeername(), self.level))
+        except Exception:
+            self.logger.warning("{}: unexcepted close.".format(self.fileno))
+            self.disconnect()
+        return 0
 
 
 def reloading():
@@ -56,8 +116,6 @@ def reloading():
     :return:
     """
     try:
-        reload(serverops)
-        serverops.reloading()
         reload(distributor)
         distributor.reloading()
         reload(cf)

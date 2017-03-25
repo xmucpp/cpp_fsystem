@@ -3,6 +3,7 @@
 # @Author: FSOL
 # @File  : mission.py
 
+import datetime
 from Work.Classes import Function
 
 functions = {
@@ -11,7 +12,12 @@ functions = {
 }
 
 
-import datetime
+class Mission:
+    def __init__(self, state, hour, minute, event):
+        self.state = state
+        self.hour = hour
+        self.minute = minute
+        self.event = event
 
 
 def deltatime(hour, min, sec=0):
