@@ -149,12 +149,14 @@ def console_order(message):
         order = [message]
     else:
         order = message.split(cf.ORDER)
-    if order[0].upper() not in operation:
-        return "No such service\n" \
+    order[0] = order[0].upper()
+    if order[0] not in functions:
+        return "No such function\n" \
                "Do you need 'HELP'?"
-    elif order[0].upper() == 'HELP':
-        return help_list
+    elif order[0] == 'HELP':
+        return str(functions.keys())[1:-1]
+    elif order[0] == 'MAN':
+        return man(order)
     else:
-        order[0] = order[0].upper()
-        operation[order[0]](order)
+        operation[functions[order[0]].dis_mode](order)
         return collective(order)
