@@ -16,9 +16,9 @@ logger = Logger('Distributor', 'DEBUG')
 functions = {}
 
 import basic_functions as b_f
-import additional_jobs as a_f
-file_list = b_f.file_list
-file_list.extend(a_f.file_list)
+file_list = map(lambda x: 'Work.basic_functions.{}'.format(x), b_f.file_list)
+import additional_functions as a_f
+file_list.extend(map(lambda x: 'Work.additional_functions.{}'.format(x), a_f.file_list))
 for m_file in file_list:
     try:
         cwm = __import__(m_file)
