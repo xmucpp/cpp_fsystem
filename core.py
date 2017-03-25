@@ -1,4 +1,3 @@
-# git clone https://github.com/sinnfashen/New_web
 # -*- coding: utf-8 -*-
 # @Author: FSOL
 # @File  : core.py
@@ -23,6 +22,8 @@ If password is wrong, it will exit. Except for that, it will start to wait for o
 
     Be aware that I use fileno to identify a connection,
     and connections are stored in the globalvar.py.
+
+url to this system: https://github.com/sinnfashen/New_web
 """
 import hashlib
 import select
@@ -35,7 +36,8 @@ import Work.distributor as distributor
 import Work.serverops as serverops
 import Work.globalvar as gv
 import config as cf
-from Work.log import Logger
+
+from Work.Classes import Logger
 
 
 logger = Logger('core', 'DEBUG')
@@ -74,27 +76,27 @@ def encry(password):
     return hashlib.md5(password).hexdigest()
 
 
-def punishment(fileno):
+def punishment(conn):
     """
     If fileno entered x times wrong password, it has to wait x^2 seconds to be heard again,
     but if x is bigger than 10, just disconnect.
-    :param fileno:
+    :param conn: connection
     :return:
     """
-    gv.outside.modify(fileno, 0)
-    if punish_list[fileno] <= 10:
-        time.sleep(punish_list[fileno]*punish_list[fileno])
-        save_send(fileno, "WRONG PASSWORD!")
+    gv.outside.modify(conn.fileno, 0)
+    if punish_list[conn.fileno] <= 10:
+        time.sleep(punish_list[conn.fileno]*punish_list[conn.fileno])
+        conn.save_send("WRONG PASSWORD!")
     else:
-        save_send(fileno, "Enough!")
-        disconnect(fileno)
+        conn.save_send("Enough!")
+        conn.disconnect()
 
 
-def add_count(fileno, the_list):
-    if fileno in the_list:
-        the_list[fileno] += 1
+def add_count(number, the_list):
+    if number in the_list:
+        the_list[number] += 1
     else:
-        the_list[fileno] = 1
+        the_list[number] = 1
 
 
 def kill_out_time():
@@ -102,10 +104,10 @@ def kill_out_time():
     Check all connections and disconnect with those being unidentified for too long(OUTTIME in config).
     :return:
     """
-    for (fileno, conn) in gv.connections.items():
+    for conn in gv.connections:
         if conn.level == 'Unidentified' and time.time() - conn.time >= cf.OUTTIME:
-            save_send(fileno, "auto disconnect\n")
-            disconnect(fileno)
+            conn.save_send("auto disconnect\n")
+            conn.disconnect()
 
 
 def outside_listen():
@@ -125,23 +127,24 @@ def outside_listen():
                         gv.outside.register(con.fileno(), select.EPOLLIN)
                         gv.connections[con.fileno()] = gv.connections(con, time.time())
                 else:
+                    conn = gv.connections[fileno]
                     try:
-                        message = gv.connections[fileno].socket.recv(1024)
+                        message = conn.socket.recv(1024)
                     except Exception:
                         message = ''
                     if message == '':
-                        disconnect(fileno)
+                        conn.disconnect()
                     elif encry(message) in password_list:
-                        upgrade(fileno, password_list[encry(message)])
+                        conn.upgrade(password_list[encry(message)])
                     else:
                         add_count(fileno, punish_list)
-                        threading.Thread(target=punishment, args=[fileno]).start()
+                        threading.Thread(target=punishment, args=[conn]).start()
                         try:
                             logger.info('{}: {}----unidentified tried a wrong password'
-                                        .format(fileno, gv.connections[fileno].socket.getpeername()))
+                                        .format(fileno, conn.socket.getpeername()))
                         except Exception:
                             logger.warning("{}: unexcepted close.".format(fileno))
-                            disconnect(fileno)
+                            conn.disconnect()
             except Exception:
                 logger.error(logger.traceback())
 
@@ -153,15 +156,16 @@ def event_divider():
     """
     events = gv.inside.poll(20)
     for fileno, event in events:
+        conn = gv.connections[fileno]
         try:
-            message = gv.connections[fileno].socket.recv(1024)
+            message = conn.socket.recv(1024)
         except Exception:
             message = ''
-        logger.info("message from {} {}:{}".format(gv.connections[fileno].level, fileno, message))
+        logger.info("message from {} {}:{}".format(conn.level, fileno, message))
         if message == '':
-            disconnect(fileno)
+            conn.disconnect()
         else:
-            save_send(fileno, distributor.console_order(message))
+            conn.save_send(distributor.console_order(message))
 
 
 def master_server():
@@ -225,7 +229,7 @@ def main():
     finally:
         logger.info("Server is shutting down......")
         for fileno in gv.connections:
-            disconnect(fileno)
+            gv.connections[fileno].disconnect(fileno)
         self.close()
     return 0
 
