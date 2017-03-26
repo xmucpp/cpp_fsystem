@@ -9,7 +9,8 @@ As its name, the core.py is the center of the whole system.
 It is mainly in charge of connection management.(i.e. receive connection requests and messages and reply)
 
 It has 2 modes(for now） to start: soldier and king.
-(more information about modes or others can be found in the link in read_me)
+    (just as the slave and master model,
+    I name them like this just for fun and some possible update about connection model.)
 
 To start in king mode, just type 'python core.py' and it will use the localhost in config to listen
 preparing to receive connections or else.
@@ -32,11 +33,15 @@ import time
 import sys
 import threading
 
-import Work.distributor as distributor
 import Work.globalvar as gv
 import config as cf
-
 from Work.log import Logger
+
+# Initialize
+import Work.basic_functions
+import Work.additional_functions
+import User
+
 
 
 logger = Logger('connection', 'DEBUG')
@@ -68,9 +73,9 @@ class Connection:
         gv.user_list[self.level]['leave']()
         self.logger.info('{}:----{} disconnected'.format(self.fileno, self.level))
         if self.level == 'Unidentified':
-            gv.outside.modify(self.fileno, 0)
+            outside.modify(self.fileno, 0)
         else:
-            gv.inside.modify(self.fileno, 0)
+            inside.modify(self.fileno, 0)
         self.socket.close()
         gv.connections.pop(self.fileno)
         punish_list[self.fileno] = 0
@@ -93,14 +98,14 @@ class Connection:
 
     def upgrade(self, level):
         """
-        Give the connection level after received corresponding password.(Disconnect if it closed while logging or sending)
+        Give the connection level after received corresponding password.(Disconnect if it closed)
         :param self:
         :param level:
         :return:
         """
         self.level = level
-        gv.inside.register(self.fileno, select.EPOLLIN)
-        gv.outside.modify(self.fileno, 0)
+        inside.register(self.fileno, select.EPOLLIN)
+        outside.modify(self.fileno, 0)
         if self.save_send(cf.CONNECTSUCCESS) == 1:
             return 1
         try:
@@ -113,6 +118,10 @@ class Connection:
         return 0
 
     def save_receive(self):
+        """
+        Standard way to receive a message.
+        :return:
+        """
         try:
             message = self.socket.recv(2048)
         except Exception:
@@ -128,13 +137,11 @@ class Connection:
 
 def reloading():
     """
-    reload files after update to keep all files are up-to-date.
-    (Won't reload globalvar client and log)
+    Reload files after update to keep all files are up-to-date.
+    (Won't reload globalvar, client and log)
     :return:
     """
     try:
-        reload(distributor)
-        distributor.reloading()
         reload(cf)
     except Exception as e:
         logger.error('Reload after update error!{}'.format(e))
@@ -153,12 +160,14 @@ def encry(password):
 
 def punishment(conn):
     """
-    If fileno entered x times wrong password, it has to wait x^2 seconds to be heard again,
+    If fileno has given x times wrong password, it has to wait x^2 seconds to be heard again,
     but if x is bigger than 10, just disconnect.
+
+    This function is operated in a single threading so that won't affect other requests.
     :param conn: connection
     :return:
     """
-    gv.outside.modify(conn.fileno, 0)
+    outside.modify(conn.fileno, 0)
     if punish_list[conn.fileno] <= 10:
         time.sleep(punish_list[conn.fileno]*punish_list[conn.fileno])
         conn.save_send("WRONG PASSWORD!")
@@ -168,6 +177,12 @@ def punishment(conn):
 
 
 def add_count(number, the_list):
+    """
+    Small function to make sure list start from 0.
+    :param number:
+    :param the_list:
+    :return:
+    """
     if number in the_list:
         the_list[number] += 1
     else:
@@ -223,9 +238,10 @@ def outside_listen():
 def event_divider():
     """
     Listen from identified connections.
+    Be aware that unlike soldier, king won't respond if there is nothing to say.
     :return:
     """
-    events = gv.inside.poll(20)
+    events = inside.poll(20)
     for fileno, event in events:
         conn = gv.connections[fileno]
         message = conn.save_receive()
@@ -233,7 +249,14 @@ def event_divider():
             conn.save_send(conn.pre_process(message))
 
 
-def master_server():
+def king_server():
+    """
+    Server starting in king mode will split one threading to receive unidentified connections
+        and handle the others itself.
+    How long will one loop be depends on any information received, which will cause a immediately flush.
+    But it will finished at least in 20s.
+    :return:
+    """
     socket.setdefaulttimeout(cf.timeout)
     self.bind((cf.HOST, cf.PORT))
     self.listen(10)
@@ -250,16 +273,33 @@ def master_server():
 
 
 def soldier_server():
+    """
+    Since soldier should only maintain one connection with king, there is no need for a object of connection or epoll.
+    If only password was passed in, connect default_king set in config.py.
+    Otherwise connect the ip:port passed in.
+    Soldier will stop trying only when the password was rejected.
+
+    Whether the order is correct(which should be in most cases), soldier will respond one time for one order, where
+        respond can be 'empty' for 'nothing to say'.
+    :return:
+    """
     global self
     while True:
         self = socket.socket()
-        if len(sys.argv) == 2:
-            self.connect(cf.master)
-        else:
-            self.connect((sys.argv[2], int(sys.argv[3])))
-        logger.info("--------------------------------\n          SOLDIER SYSTEM STARTED")
-        self.send(sys.argv[1])
-        message = self.recv(1024)
+        try:
+            if len(sys.argv) == 2:
+                self.connect(cf.default_king)
+            else:
+                self.connect((sys.argv[2], int(sys.argv[3])))
+            logger.info("--------------------------------\n          SOLDIER SYSTEM STARTED")
+            self.send(sys.argv[1])
+            message = self.recv(1024)
+        except Exception:
+            logger.error(logger.traceback())
+            logger.error("Lost connection, retry in 5min")
+            self.close()
+            time.sleep(300)
+            continue
         logger.info(message)
         if message != cf.CONNECTSUCCESS:
             return 0
@@ -270,7 +310,7 @@ def soldier_server():
                 if gv.order_to_update:
                     reloading()
                 message = self.recv(1024)
-                respond = distributor.server_order(message)
+                respond = gv.user_list['server']['receive'](message)
                 if respond:
                     self.send(respond)
                 else:
@@ -284,11 +324,17 @@ def soldier_server():
 
 
 def main():
+    """
+    Choose the mode.
+    The arguments are like this:
+    python core.py[0] password[1] ip[2] port[3]
+    :return:
+    """
     try:
         if len(sys.argv) != 1:
             soldier_server()
         else:
-            master_server()
+            king_server()
     except Exception:
         logger.error(logger.traceback())
     finally:

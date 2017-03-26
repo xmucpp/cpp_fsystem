@@ -24,5 +24,5 @@ user_password = {
     'console': ''
 }
 # ------default master--------
-master = ('', 9813)
+default_king = ('', 9813)
 
