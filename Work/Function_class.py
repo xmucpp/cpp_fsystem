@@ -8,6 +8,14 @@ import globalvar as gv
 
 class Function:
     def __init__(self, entry, argu_num, dis_mode, way_to_use='', help_info='', collect=None):
+        """
+        :param entry: entry of function.
+        :param argu_num: number of arguments.(Not include its name and appointing part)
+        :param dis_mode: way to distribute the function(3 choices).
+        :param way_to_use: format of order (like: 'SYSTEM;server;order' for system function)
+        :param help_info: introduction of this function.
+        :param collect: function to collect receives(default as below 'collective')
+        """
         self.entry = entry
         self.argu_num = argu_num
         self.dis_mode = dis_mode
@@ -20,7 +28,7 @@ class Function:
 
     def collective(self, message, server_list):
         """
-        Default way to collect receiving respond.
+        Default way to send out and collect receiving respond.
         :param message:
         :param server_list:list of fileno
         :return:

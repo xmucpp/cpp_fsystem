@@ -141,8 +141,12 @@ def reloading():
     (Won't reload globalvar, client and log)
     :return:
     """
+    gv.function_list.clear()
+    gv.user_list.clear()
     try:
-        reload(cf)
+        reload(Work.basic_functions)
+        reload(Work.additional_functions)
+        reload(User)
     except Exception as e:
         logger.error('Reload after update error!{}'.format(e))
     finally:

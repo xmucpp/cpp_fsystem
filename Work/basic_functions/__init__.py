@@ -9,6 +9,7 @@ import sys
 import Work.globalvar as gv
 from Work.log import Logger
 logger = Logger.logger('Process', 'DEBUG')
+
 temp_list = os.listdir(os.path.join(os.getcwd(), 'Work', 'basic_functions'))
 file_list = []
 for m_file in temp_list:
@@ -17,6 +18,7 @@ for m_file in temp_list:
         file_list.append(m_file)
 file_list.remove('__init__.py')
 file_list = map(lambda x: 'Work.basic_functions.{}'.format(x), file_list)
+
 for m_file in file_list:
     try:
         if m_file in sys.modules:
