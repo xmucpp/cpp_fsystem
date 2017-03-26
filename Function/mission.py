@@ -3,21 +3,22 @@
 # @Author: FSOL
 # @File  : mission.py
 
+import time
 import datetime
-from Work.Function_class import Function
-
-functions = {
-    'mission': Function(5, 1,
-            'MISSION;server;crawler;order;hour;min','Time crawler to automatically run at hour:min every day')
-}
+import threading
+import Work.globalvar as gv
+from Work.log import Logger
+logger = Logger('Function', 'DEBUG')
 
 
 class Mission:
     def __init__(self, state, hour, minute, event):
         self.state = state
-        self.hour = hour
-        self.minute = minute
+        self.hour = int(hour)
+        self.minute = int(minute)
         self.event = event
+
+mission_list = {}
 
 
 def deltatime(hour, min, sec=0):
@@ -27,35 +28,48 @@ def deltatime(hour, min, sec=0):
 
 
 def waiter(order):
-    timetowake = deltatime(int(order[3]), int(order[4]))
-    while True:
-        gv.mission_list[order[1]].event.wait(timetowake)
-        if gv.mission_list[order[1]].event.isSet():
-            break
-        else:
-            crawler(order)
-            time.sleep(66)
-            timetowake = deltatime(int(order[3]), int(order[4]))
-    gv.mission_list[order[1]].event.clear()
-    gv.mission_list[order[1]].state = 'Unsettled'
+    try:
+        timetowake = deltatime(int(order[1]), int(order[2]))
+        while True:
+            mission_list[order[3]].event.wait(timetowake)
+            if mission_list[order[3]].event.isSet():
+                break
+            else:
+                gv.function_list[order[3]].entry(order[4:])
+                time.sleep(66)
+                timetowake = deltatime(int(order[1]), int(order[2]))
+        mission_list[order[3]].event.clear()
+        mission_list[order[3]].state = 'Unsettled'
+    except Exception:
+        logger.traceback()
     return
 
 
 def mission(order):
-    if order[1] not in crawler_list and order[1] != "REFRESHER":
-        return "No such cralwer!\n" \
-               "Current cralwer:{}".format(str(crawler_list[1:-1]))
-    if order[2].upper() == 'SET':
-        if order[1] in gv.mission_list.keys() and gv.mission_list[order[1]].state == 'Settled':
+    if order[3] not in gv.function_list:
+        return "No such function!"
+
+    if order[0].upper() == 'SET':
+        if order[3] in mission_list.keys() and mission_list[order[3]].state == 'Settled':
             return "Mission has already settled"
-        gv.mission_list[order[1]] = gv.Mission('Settled', order[3], order[4], threading.Event())
-        threading.Thread(target=waiter, args=[order]).start()
-        return "Successfully settled"
-    elif order[2].upper() == 'CANCEL':
-        if order[1] not in gv.mission_list.keys() or gv.mission_list[order[1]].state == 'Unsettled':
+        else:
+            mission_list[order[3]] = Mission('Settled', order[3], order[3], threading.Event())
+            threading.Thread(target=waiter, args=[order]).start()
+            return "Successfully settled"
+
+    elif order[0].upper() == 'CANCEL':
+        if order[3] not in mission_list.keys() or mission_list[order[3]].state == 'Unsettled':
             return "Mission isn't running"
-        gv.mission_list[order[1]].event.set()
-        return "Successfully canceled"
+        else:
+            mission_list[order[3]].event.set()
+            return "Successfully canceled"
     else:
         return "No such order!\n" \
-               "you can set, cancel a mission."
+               "you can either set or cancel a mission."
+
+functions = {
+    'mission': {'entry': mission, 'argu_num': -1, 'dis_mode': 1,
+                'way_to_use': 'MISSION;server;act;hour;min;func;func_argus',
+                'help_info': 'act = SET/CANCEL and func = name of function, it will run every day at hour:min if set.',
+                'collect': None}
+}

@@ -36,7 +36,7 @@ def console_receive(message):
                "Do you need 'HELP'?"
     elif order[0] == 'HELP':
         return str(gv.function_list.keys())[1:-1]
-    elif gv.function_list[order[0]].argu_num+(2 if gv.function_list[order[0]].dis_mode == 1 else 1) != len(order):
+    elif gv.function_list[order[0]] != -1 and gv.function_list[order[0]].argu_num+(2 if gv.function_list[order[0]].dis_mode == 1 else 1) != len(order):
         # 1 for function name itself and another one for appointing.
         return "Wrong number of arguments."
     else:

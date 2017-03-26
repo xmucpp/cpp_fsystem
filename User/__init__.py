@@ -28,7 +28,7 @@ def default_receive(self, message):
     if order[0] not in gv.function_list.keys():
         logger.error('what are you talking about:{}'.format(order[0]))
         return
-    if len(order) != gv.function_list[order[0]].argu_num + 1:
+    if gv.function_list[order[0]].argu_num !=-1 and len(order) != gv.function_list[order[0]].argu_num + 1:
         return "wrong arguments"
     return gv.function_list[order[0]].entry(order[1:])
 

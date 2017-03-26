@@ -3,15 +3,16 @@
 # @Author: FSOL
 # @File  : shutdown.py
 
-from Work.Classes import Function
+import Work.globalvar as gv
 
-functions = {
-    'shutdown': Function(5, 1,
-            'SHUTDOWN;server','Shutdown specified server')
-}
 
 def shutdown(order):
-    if [i.state for i in gv.worker.values()].count('Running'):
-        return "Please kill all running work before shut down the server!"
     gv.order_to_close = True
     return "Server is shutting down."
+
+functions = {
+    'shutdown': {'entry': shutdown, 'argu_num': 0, 'dis_mode': 1,
+                 'way_to_use': 'SHUTDOWN;server',
+                 'help_info': 'Shut down appointed servers.',
+                 'collect': None}
+}

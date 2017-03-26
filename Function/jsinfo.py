@@ -3,6 +3,11 @@
 # @Author: FSOL
 # @File  : jsinfo.py
 
+import json
+
+import Work.globalvar as gv
+from Work.log import Logger
+logger = Logger('Function', 'DEBUG')
 
 def jsinfo(order):
     info_data = json.dumps({'sl': len(gv.serverlist),
@@ -52,3 +57,10 @@ def collect(message, target_list):
         except Exception:
             logger.error(logger.traceback())
     return json.dumps(results)
+
+functions = {
+    'jsinfo': {'entry': jsinfo, 'argu_num': 0, 'dis_mode': 0,
+               'way_to_use': 'jsinfo',
+               'help_info': 'Return state account in json.',
+               'collect': collect}
+}
