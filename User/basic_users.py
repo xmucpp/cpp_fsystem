@@ -8,26 +8,14 @@ import config as cf
 from Work.log import Logger
 logger = Logger('User', 'DEBUG')
 
+import json
 Collective = lambda x: x
 Allin = lambda x: x.insert(1, 'ALL')
 Local = lambda x: x.insert(1, '-1')
 operation = {0: Allin, 1: Collective, 2: Local}
 
 
-def server_receive(message):
-    if message.find(cf.ORDER) == -1:
-        order = [message]
-    else:
-        order = message.split(cf.ORDER)
-    if order[0] not in gv.function_list.keys():
-        logger.error('what are you talking about:{}'.format(order[0]))
-        return
-    if len(order) != gv.function_list[order[0]].argu_num + 1:
-        return "wrong arguments"
-    return gv.function_list[order[0]].entry(order[1:])
-
-
-def console_order(message):
+def console_receive(message):
     """
     Transfer the message for further execution.
     Split the order message into arguments list.
@@ -70,5 +58,6 @@ def console_order(message):
 
 
 Users = {
-    'server': {'entry':console_order, 'receive':server_receive, 'leave':},
+    'server': {},
+    'console': {'receive': console_receive}
 }

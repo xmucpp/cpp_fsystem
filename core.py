@@ -122,8 +122,8 @@ class Connection:
         else:
             return message
 
-    def pre_process(self, message):
-        return gv.user_list[self.level]['receive'](message)
+    def process(self, message):
+        return gv.user_list[self.level]['receive'](self, message)
 
 
 def reloading():
