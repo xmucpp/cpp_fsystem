@@ -11,7 +11,7 @@ class Function:
         """
         :param entry: entry of function.
         :param argu_num: number of arguments.(Not include its name and appointing part)
-        :param dis_mode: way to distribute the function(3 choices).
+        :param dis_mode: way to distribute the function(0 for allin, 1 for collective, 2 for local).
         :param way_to_use: format of order (like: 'SYSTEM;server;order' for system function)
         :param help_info: introduction of this function.
         :param collect: function to collect receives(default as below 'collective')

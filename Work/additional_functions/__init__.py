@@ -8,6 +8,7 @@ import sys
 
 import Work.globalvar as gv
 from Work.log import Logger
+from Work.Function_class import Function
 logger = Logger.logger('Process', 'DEBUG')
 
 temp_list = os.listdir(os.path.join(os.getcwd(), 'Work', 'additional_functions'))
@@ -25,8 +26,17 @@ for m_file in file_list:
             cwm = reload(m_file)
         else:
             cwm = __import__(m_file)
-        for (func, real_func) in cwm.functions.items():
-            gv.function_list[func] = real_func
+        for (func, rf) in cwm.functions.items():
+            if 'entry' not in rf or 'argu_num' not in rf or 'dis_mode' not in rf:
+                raise
+            if 'way_to_use' not in rf:
+                rf['way_to_use'] = ''
+            if 'help' not in rf:
+                rf['help'] = ''
+            if 'collect' not in rf:
+                rf['collect'] = None
+            gv.function_list[func] = Function(rf['entry'], rf['argu_num'], rf['dis_mode'],
+                                              rf['way_to_use'], rf['help_info'], rf['collect'])
     except Exception:
         logger.error("Failed to import additional.{}:".format(m_file))
         logger.error(logger.traceback())
