@@ -3,6 +3,10 @@
 # @Author: FSOL
 # @File  : system.py
 
+"""
+Execute some system order.
+"""
+
 import commands
 
 

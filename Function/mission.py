@@ -3,6 +3,10 @@
 # @Author: FSOL
 # @File  : mission.py
 
+"""
+Set timed task.
+"""
+
 import time
 import datetime
 import threading

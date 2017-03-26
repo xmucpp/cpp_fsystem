@@ -3,6 +3,9 @@
 # @Author: FSOL
 # @File  : shutdown.py
 
+"""
+Shutdown this program on some server.
+"""
 import Work.globalvar as gv
 
 

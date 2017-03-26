@@ -3,15 +3,13 @@
 # @Author: FSOL
 # @File  : man.py
 
+"""
+Introduce a function.
+"""
 import Work.globalvar as gv
 
 
 def man(order):
-    """
-    Introduce a function.
-    :param order:
-    :return: the way to use the order and info.
-    """
     if order[0] in gv.function_list:
         return '%-20s          %-40s' % (gv.function_list[order[0]].how_to_use, gv.function_list[order[0]].help_info)
     else:
