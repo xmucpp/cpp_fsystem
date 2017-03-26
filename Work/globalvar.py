@@ -2,7 +2,6 @@
 # @Author: FSOL
 # @File  : globalvar.py
 
-import select
 import time
 import os
 import redis
@@ -10,12 +9,13 @@ import config as cf
 
 redis = redis.Redis(cf.RedisServer, port=cf.RedisPort, password=cf.RedisPass)
 # listeners
-inside = select.epoll()
-outside = select.epoll()
+
 
 connections = {}
 worker = {}
 mission_list = {}
+user_list = {}
+function_list = {}
 
 crawlerstatis = {'TMALL': 0, 'FAKE': 0, 'JD': 0}
 

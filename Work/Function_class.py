@@ -13,13 +13,16 @@ class Function:
         self.dis_mode = dis_mode
         self.way_to_use = way_to_use
         self.help_info = help_info
-        self.collect = collect
+        if not collect:
+            self.collect = self.collective
+        else:
+            self.collect = collect
 
     def collective(self, message, server_list):
         """
-
+        Default way to collect receiving respond.
         :param message:
-        :param server_list:
+        :param server_list:list of fileno
         :return:
         """
         results = ''

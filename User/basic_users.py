@@ -1,34 +1,12 @@
 # -*- coding: utf-8 -*-
+# @Time  : 2017/3/26 10:29
 # @Author: FSOL
-# @File  : distributor.py
-
-import json
+# @File  : basic_users.py
 
 import Work.globalvar as gv
 import config as cf
 from Work.log import Logger
-
-logger = Logger('Distributor', 'DEBUG')
-
-
-# {fuction's name: [arguments number, distribution mode(0 for allin, 1 for normal, 2 for local)]}
-functions = {}
-import basic_functions as b_f
-file_list = map(lambda x: 'Work.basic_functions.{}'.format(x), b_f.file_list)
-import additional_functions as a_f
-file_list.extend(map(lambda x: 'Work.additional_functions.{}'.format(x), a_f.file_list))
-for m_file in file_list:
-    try:
-        cwm = __import__(m_file)
-        for (func, real_func) in cwm.functions.items():
-            functions[func] = real_func
-    except Exception:
-        logger.error("Failed to import {}:".format(m_file))
-        logger.error(logger.traceback())
-
-
-def reloading():
-    pass
+logger = Logger('User', 'DEBUG')
 
 Collective = lambda x: x
 Allin = lambda x: x.insert(1, 'ALL')
@@ -36,29 +14,17 @@ Local = lambda x: x.insert(1, '-1')
 operation = {0: Allin, 1: Collective, 2: Local}
 
 
-def server_order(message):
+def server_receive(message):
     if message.find(cf.ORDER) == -1:
         order = [message]
     else:
         order = message.split(cf.ORDER)
-    if order[0] not in server_operation.keys():
+    if order[0] not in gv.function_list.keys():
         logger.error('what are you talking about:{}'.format(order[0]))
         return
-    if len(order) != arguments_number[order[0]]:
+    if len(order) != gv.function_list[order[0]].argu_num + 1:
         return "wrong arguments"
-    return server_operation[order[0]](order)
-
-
-def man(order):
-    """
-    Introduce a function.
-    :param order:
-    :return: the way to use the order and info.
-    """
-    if order[1] in functions:
-        return '%-20s          %-40s' % (functions[order[1]].how_to_use, functions[order[1]].help_info)
-    else:
-        return 'No such function'
+    return gv.function_list[order[0]].entry(order[1:])
 
 
 def console_order(message):
@@ -68,7 +34,7 @@ def console_order(message):
     Check whether the order is correct,
         i.e whether the function exists, whether number of arguments matches.
     Unify the appointing part.
-    Except help and man, if it has its collect function, use it, otherwise use the default collect function.
+    Except help, if it has its collect function, use it, otherwise use the default collect function.
     :param message:
     :return:
     """
@@ -77,18 +43,16 @@ def console_order(message):
     else:
         order = message.split(cf.ORDER)
     order[0] = order[0].upper()
-    if order[0] not in functions:
+    if order[0] not in gv.function_list:
         return "No such function\n" \
                "Do you need 'HELP'?"
     elif order[0] == 'HELP':
-        return str(functions.keys())[1:-1]
-    elif order[0] == 'MAN':
-        return man(order)
-    elif functions[order[0]].argu_num+(2 if functions[order[0]].dis_mode == 1 else 1):
+        return str(gv.function_list.keys())[1:-1]
+    elif gv.function_list[order[0]].argu_num+(2 if gv.function_list[order[0]].dis_mode == 1 else 1) != len(order):
         # 1 for function name itself and another one for appointing.
         return "Wrong number of arguments."
     else:
-        operation[functions[order[0]].dis_mode](order)
+        operation[gv.function_list[order[0]].dis_mode](order)
         try:
             if order[1].upper() != 'ALL':
                 server_list = json.loads('[{}]'.format(order[1]))
@@ -102,7 +66,9 @@ def console_order(message):
                    "{}".format(e)
         func = order[0]
         message = ';'.join([str(e) for e in order[2:]])
-        if functions[func].collect:
-            return functions[func].collect(message, server_list)
-        else:
-            return functions[func].collective(message, server_list)
+        return gv.function_list[func].collect(message, server_list)
+
+
+Users = {
+    'server': {'entry':console_order, 'receive':server_receive, 'leave':},
+}

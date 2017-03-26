@@ -40,6 +40,8 @@ from Work.log import Logger
 
 
 logger = Logger('connection', 'DEBUG')
+inside = select.epoll()
+outside = select.epoll()
 password_list = dict(zip(cf.user_password.values(), cf.user_password.keys()))
 self = socket.socket()
 # punish_list is record of times of wrong password, being used to avoid someone try the password too many times.
@@ -63,6 +65,7 @@ class Connection:
         :param self:
         :return:
         """
+        gv.user_list[self.level]['leave']()
         self.logger.info('{}:----{} disconnected'.format(self.fileno, self.level))
         if self.level == 'Unidentified':
             gv.outside.modify(self.fileno, 0)
@@ -101,12 +104,26 @@ class Connection:
         if self.save_send(cf.CONNECTSUCCESS) == 1:
             return 1
         try:
+            gv.user_list[self.level]['entry']()
             self.logger.info('{}: {}----{} connected'.format(
                 self.fileno, self.socket.getpeername(), self.level))
         except Exception:
-            self.logger.warning("{}: unexcepted close.".format(self.fileno))
+            self.logger.warning("{}: {} unexcepted close.".format(self.fileno, self.level))
             self.disconnect()
         return 0
+
+    def save_receive(self):
+        try:
+            message = self.socket.recv(2048)
+        except Exception:
+            message = ''
+        if message == '':
+            self.disconnect()
+        else:
+            return message
+
+    def pre_process(self, message):
+        return gv.user_list[self.level]['receive'](message)
 
 
 def reloading():
@@ -181,28 +198,24 @@ def outside_listen():
                     con, conaddr = self.accept()
                     if link_list[conaddr[0]] <= 20:
                         logger.info(' '.join([str(conaddr), "Incoming Connection"]))
-                        add_count(fileno, link_list)
+                        add_count(conaddr[0], link_list)
                         gv.outside.register(con.fileno(), select.EPOLLIN)
                         gv.connections[con.fileno()] = gv.connections(con, time.time())
                 else:
                     conn = gv.connections[fileno]
-                    try:
-                        message = conn.socket.recv(1024)
-                    except Exception:
-                        message = ''
-                    if message == '':
-                        conn.disconnect()
-                    elif encry(message) in password_list:
-                        conn.upgrade(password_list[encry(message)])
-                    else:
-                        add_count(fileno, punish_list)
-                        threading.Thread(target=punishment, args=[conn]).start()
-                        try:
-                            logger.info('{}: {}----unidentified tried a wrong password'
+                    message = conn.save_receive()
+                    if message:
+                        if encry(message) in password_list:
+                            conn.upgrade(password_list[encry(message)])
+                        else:
+                            add_count(fileno, punish_list)
+                            threading.Thread(target=punishment, args=[conn]).start()
+                            try:
+                                logger.info('{}: {}----unidentified tried a wrong password'
                                         .format(fileno, conn.socket.getpeername()))
-                        except Exception:
-                            logger.warning("{}: unexcepted close.".format(fileno))
-                            conn.disconnect()
+                            except Exception:
+                                logger.warning("{}: unexcepted close.".format(fileno))
+                                conn.disconnect()
             except Exception:
                 logger.error(logger.traceback())
 
@@ -215,15 +228,9 @@ def event_divider():
     events = gv.inside.poll(20)
     for fileno, event in events:
         conn = gv.connections[fileno]
-        try:
-            message = conn.socket.recv(1024)
-        except Exception:
-            message = ''
-        logger.info("message from {} {}:{}".format(conn.level, fileno, message))
-        if message == '':
-            conn.disconnect()
-        else:
-            conn.save_send(distributor.console_order(message))
+        message = conn.save_receive()
+        if message:
+            conn.save_send(conn.pre_process(message))
 
 
 def master_server():

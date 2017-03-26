@@ -4,7 +4,7 @@
 # @File  : mission.py
 
 import datetime
-from Work.Classes import Function
+from Work.Function_class import Function
 
 functions = {
     'mission': Function(5, 1,
