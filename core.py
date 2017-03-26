@@ -38,11 +38,8 @@ import config as cf
 from Work.log import Logger
 
 # Initialize
-import Work.basic_functions
-import Work.additional_functions
 import User
-
-
+import Function
 
 logger = Logger('connection', 'DEBUG')
 inside = select.epoll()
@@ -144,8 +141,7 @@ def reloading():
     gv.function_list.clear()
     gv.user_list.clear()
     try:
-        reload(Work.basic_functions)
-        reload(Work.additional_functions)
+        reload(Function)
         reload(User)
     except Exception as e:
         logger.error('Reload after update error!{}'.format(e))
@@ -210,7 +206,7 @@ def outside_listen():
     :return:
     """
     while True:
-        events = gv.outside.poll(20)
+        events = outside.poll(20)
         for fileno, event in events:
             try:
                 if fileno == self.fileno():
@@ -218,7 +214,7 @@ def outside_listen():
                     if link_list[conaddr[0]] <= 20:
                         logger.info(' '.join([str(conaddr), "Incoming Connection"]))
                         add_count(conaddr[0], link_list)
-                        gv.outside.register(con.fileno(), select.EPOLLIN)
+                        outside.register(con.fileno(), select.EPOLLIN)
                         gv.connections[con.fileno()] = gv.connections(con, time.time())
                 else:
                     conn = gv.connections[fileno]
@@ -264,7 +260,7 @@ def king_server():
     socket.setdefaulttimeout(cf.timeout)
     self.bind((cf.HOST, cf.PORT))
     self.listen(10)
-    gv.outside.register(self.fileno(), select.EPOLLIN)
+    outside.register(self.fileno(), select.EPOLLIN)
     threading.Thread(target=outside_listen, args=[]).start()
     logger.info("--------------------------------\n          MASTER SYSTEM STARTED")
     while True:

@@ -3,6 +3,11 @@
 # @Author: FSOL
 # @File  : __init__.py.py
 
+"""
+__init__.py
+==========================
+Will count all user and write it into globalvar.user_list.
+"""
 import config as cf
 import Work.globalvar as gv
 from Work.log import Logger

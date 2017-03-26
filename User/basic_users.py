@@ -3,8 +3,8 @@
 # @Author: FSOL
 # @File  : basic_users.py
 
-import Work.globalvar as gv
 import config as cf
+import Work.globalvar as gv
 from Work.log import Logger
 logger = Logger('User', 'DEBUG')
 

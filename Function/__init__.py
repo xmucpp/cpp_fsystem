@@ -3,6 +3,11 @@
 # @Author: FSOL
 # @File  : __init__.py.py
 
+"""
+__init__.py
+=======================
+Will count all functions and write them into globalvar.function_list
+"""
 import os
 import sys
 
