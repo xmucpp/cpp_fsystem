@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Time  : 2017/3/26 16:13
 # @Author: FSOL
-# @File  : fab.py
+# @File  : fabfile.py
 
 """
 Thanks for my senior xjlin's fab file! I made a little change.
@@ -61,11 +61,18 @@ def remove(project=PROJECT):
             run('rm -rf /home/ubuntu/{}'.format(project))
 
 
-def start():
-    sh_folder = '/'.join((PATH, 'ShellServer'))
+def king_start():
+    sh_folder = '/'.join((PATH, 'Tools', 'fabs'))
     with settings(warn_only=True):
         with cd(sh_folder):
-            run('screen -d -m bash start.sh', pty=False)
+            run('screen -d -m bash king_start.sh', pty=False)
+
+
+def soldier_start():
+    sh_folder = '/'.join((PATH, 'Tools', 'fabs'))
+    with settings(warn_only=True):
+        with cd(sh_folder):
+            run('screen -d -m bash soldier_start.sh', pty=False)
 
 
 def install_config(project=PROJECT):
@@ -74,7 +81,7 @@ def install_config(project=PROJECT):
 
 
 def kill():
-    sh_folder = '/'.join((PATH, 'ShellServer'))
+    sh_folder = '/'.join((PATH, 'Tools', 'fabs'))
     with settings(warn_only=True):
         with cd(sh_folder):
             run('./kill.sh')
