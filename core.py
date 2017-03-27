@@ -38,8 +38,8 @@ import config as cf
 from Work.log import Logger
 
 # Initialize
-import User
 import Function
+import User
 
 logger = Logger('connection', 'DEBUG')
 inside = select.epoll()

@@ -9,7 +9,7 @@ __init__.py
 Will count all user and write it into globalvar.user_list.
 """
 import config as cf
-import Work.globalvar as gv
+import Function
 from Work.log import Logger
 import os
 import sys
@@ -25,12 +25,12 @@ def default_receive(self, message):
         order = [message]
     else:
         order = message.split(cf.ORDER)
-    if order[0] not in gv.function_list.keys():
+    if order[0] not in Function.function_list.keys():
         logger.error('what are you talking about:{}'.format(order[0]))
         return
-    if gv.function_list[order[0]].argu_num !=-1 and len(order) != gv.function_list[order[0]].argu_num + 1:
+    if Function.function_list[order[0]].argu_num !=-1 and len(order) != gv.function_list[order[0]].argu_num + 1:
         return "wrong arguments"
-    return gv.function_list[order[0]].entry(order[1:])
+    return Function.function_list[order[0]].entry(order[1:])
 
 
 def default_leave(self):
@@ -45,6 +45,8 @@ for m_file in temp_list:
 file_list.remove('__init__.py')
 file_list = map(lambda x: 'User.{}'.format(x), file_list)
 
+user_list = {}
+
 for m_file in file_list:
     try:
         if m_file in sys.modules:
@@ -53,17 +55,17 @@ for m_file in file_list:
             cwm = __import__(m_file)
         for (name, way) in cwm.Users.items():
             if 'entry' in way:
-                gv.user_list[name]['entry'] = way['entry']
+                user_list[name]['entry'] = way['entry']
             else:
-                gv.user_list[name]['entry'] = default_entry
+                user_list[name]['entry'] = default_entry
             if 'receive' in way:
-                gv.user_list[name]['receive'] = way['receive']
+                user_list[name]['receive'] = way['receive']
             else:
-                gv.user_list[name]['receive'] = default_receive
+                user_list[name]['receive'] = default_receive
             if 'leave' in way:
-                gv.user_list[name]['leave'] = way['leave']
+                user_list[name]['leave'] = way['leave']
             else:
-                gv.user_list[name]['leave'] = default_leave
+                user_list[name]['leave'] = default_leave
     except Exception:
         logger.error("Failed to load user.{}:".format(m_file))
         logger.error(logger.traceback())

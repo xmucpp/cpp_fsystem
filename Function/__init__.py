@@ -67,6 +67,8 @@ for m_file in temp_list:
 file_list.remove('__init__.py')
 file_list = map(lambda x: 'Work.basic_functions.{}'.format(x), file_list)
 
+function_list = {}
+
 for m_file in file_list:
     try:
         if m_file in sys.modules:
@@ -82,7 +84,7 @@ for m_file in file_list:
                 rf['help'] = ''
             if 'collect' not in rf:
                 rf['collect'] = None
-            gv.function_list[func] = Function(rf['entry'], rf['argu_num'], rf['dis_mode'],
+            function_list[func] = Function(rf['entry'], rf['argu_num'], rf['dis_mode'],
                                               rf['way_to_use'], rf['help_info'], rf['collect'])
     except Exception:
         logger.error("Failed to import basic.{}:".format(m_file))

@@ -7,8 +7,6 @@ import os
 
 
 connections = {}
-user_list = {}
-function_list = {}
 
 order_to_close = False
 order_to_update = False
