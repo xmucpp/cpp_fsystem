@@ -10,7 +10,7 @@ Will count all functions and write them into globalvar.function_list
 """
 import os
 import sys
-
+import importlib
 import Work.globalvar as gv
 from Work.log import Logger
 logger = Logger('Function', 'DEBUG')
@@ -74,7 +74,7 @@ for m_file in file_list:
         if m_file in sys.modules:
             cwm = reload(m_file)
         else:
-            cwm = __import__(m_file)
+            cwm = importlib.import_module(m_file)
         for (func, rf) in cwm.functions.items():
             if 'entry' not in rf or 'argu_num' not in rf or 'dis_mode' not in rf:
                 raise

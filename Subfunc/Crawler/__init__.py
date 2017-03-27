@@ -5,6 +5,7 @@
 
 import os
 import sys
+import importlib
 from Work.log import Logger
 
 logger = Logger('Crawler', 'DEBUG')
@@ -25,7 +26,7 @@ for m_file in file_list:
         if m_file in sys.modules:
             cwm = reload(m_file)
         else:
-            cwm = __import__(m_file)
+            cwm = importlib.import_module(m_file)
         for (name, way) in cwm.crawler.items():
             crawler_list[name] = way
     except Exception:

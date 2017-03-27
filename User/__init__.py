@@ -13,6 +13,7 @@ import Function
 from Work.log import Logger
 import os
 import sys
+import importlib
 logger = Logger('User', 'DEBUG')
 
 
@@ -52,7 +53,7 @@ for m_file in file_list:
         if m_file in sys.modules:
             cwm = reload(m_file)
         else:
-            cwm = __import__(m_file)
+            cwm = importlib.import_module(m_file)
         for (name, way) in cwm.Users.items():
             if 'entry' in way:
                 user_list[name]['entry'] = way['entry']
