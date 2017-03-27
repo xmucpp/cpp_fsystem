@@ -55,6 +55,8 @@ for m_file in file_list:
         else:
             cwm = importlib.import_module(m_file)
         for (name, way) in cwm.Users.items():
+            if name not in user_list:
+                user_list[name] = {}
             if 'entry' in way:
                 user_list[name]['entry'] = way['entry']
             else:
