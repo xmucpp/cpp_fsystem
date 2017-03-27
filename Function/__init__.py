@@ -58,14 +58,14 @@ class Function:
         return results
 
 
-temp_list = os.listdir(os.path.join(os.getcwd(), 'Work', 'basic_functions'))
+temp_list = os.listdir(os.path.join(os.getcwd(), 'Function'))
 file_list = []
 for m_file in temp_list:
     x = m_file.rfind('.')
     if x != -1 and m_file[x:] == '.py':
         file_list.append(m_file)
 file_list.remove('__init__.py')
-file_list = map(lambda x: 'Work.basic_functions.{}'.format(x), file_list)
+file_list = map(lambda x: 'Function.{}'.format(x), file_list)
 
 function_list = {}
 
@@ -87,5 +87,5 @@ for m_file in file_list:
             function_list[func] = Function(rf['entry'], rf['argu_num'], rf['dis_mode'],
                                               rf['way_to_use'], rf['help_info'], rf['collect'])
     except Exception:
-        logger.error("Failed to import basic.{}:".format(m_file))
+        logger.error("Failed to import function.{}:".format(m_file))
         logger.error(logger.traceback())
