@@ -41,7 +41,7 @@ def main():
         server = socket.socket()
         try:
             if len(sys.argv) != 1:
-                server.connect(('127.0.0.1', sys.argv[1]))
+                server.connect(('127.0.0.1', int(sys.argv[1])))
             else:
                 server.connect(('127.0.0.1', 9813))
             user_input = raw_input("Please input the password to server(exit to close):")
