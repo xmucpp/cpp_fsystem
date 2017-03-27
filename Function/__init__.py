@@ -13,7 +13,7 @@ import sys
 
 import Work.globalvar as gv
 from Work.log import Logger
-logger = Logger.logger('Process', 'DEBUG')
+logger = Logger('Process', 'DEBUG')
 
 
 class Function:
