@@ -13,7 +13,7 @@ import sys
 
 import Work.globalvar as gv
 from Work.log import Logger
-logger = Logger('Process', 'DEBUG')
+logger = Logger('Function', 'DEBUG')
 
 
 class Function:
@@ -63,8 +63,8 @@ file_list = []
 for m_file in temp_list:
     x = m_file.rfind('.')
     if x != -1 and m_file[x:] == '.py':
-        file_list.append(m_file)
-file_list.remove('__init__.py')
+        file_list.append(m_file[:-3])
+file_list.remove('__init__')
 file_list = map(lambda x: 'Function.{}'.format(x), file_list)
 
 function_list = {}
