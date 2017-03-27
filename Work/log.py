@@ -35,7 +35,6 @@ class Logger(object):
         self.logger = logging.getLogger(log_name)
         self.log_name = '{}.log'.format(log_name)
         self.log_file = os.path.join(LOG_FOLDER, self.log_name)
-        makedir(self.log_file)
         self.config(self.log_file, file_level, size, count)
 
     def config(self, log_file, file_level, size, count):

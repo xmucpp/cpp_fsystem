@@ -12,6 +12,6 @@ order_to_close = False
 order_to_update = False
 
 # -------Path---------------
-PATH = os.path.abspath(os.path.dirname(__file__))
+PATH = os.getcwd()
 # -------time
 PRESENT_DAY = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
