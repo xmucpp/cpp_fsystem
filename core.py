@@ -100,6 +100,7 @@ class Connection:
         :param level:
         :return:
         """
+        link_list[self.socket.getpeername()] -= 1
         self.level = level
         inside.register(self.fileno, select.EPOLLIN)
         outside.modify(self.fileno, 0)
@@ -211,7 +212,7 @@ def outside_listen():
             try:
                 if fileno == self.fileno():
                     con, conaddr = self.accept()
-                    if link_list[conaddr[0]] <= 20:
+                    if conaddr in link_list and link_list[conaddr[0]] <= 20:
                         logger.info(' '.join([str(conaddr), "Incoming Connection"]))
                         add_count(conaddr[0], link_list)
                         outside.register(con.fileno(), select.EPOLLIN)
