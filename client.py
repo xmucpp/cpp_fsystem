@@ -10,6 +10,7 @@ Will only connect to local's server.
 """
 import socket
 import readline
+import sys
 import select
 
 
@@ -39,7 +40,10 @@ def main():
     while user_input != 'n':
         server = socket.socket()
         try:
-            server.connect(('127.0.0.1', 9813))
+            if len(sys.argv) != 1:
+                server.connect(('127.0.0.1', sys.argv[1]))
+            else:
+                server.connect(('127.0.0.1', 9813))
             user_input = raw_input("Please input the password to server(exit to close):")
             server.send(user_input)
             if user_input == 'exit':
