@@ -225,7 +225,9 @@ def outside_listen():
                             conn.upgrade(password_list[encry(message)])
                         else:
                             add_count(fileno, punish_list)
-                            threading.Thread(target=punishment, args=[conn]).start()
+                            temp = threading.Thread(target=punishment, args=[conn])
+                            temp.setDaemon(True)
+                            temp.start()
                             try:
                                 logger.info('{}: {}----unidentified tried a wrong password'
                                         .format(fileno, conn.socket.getpeername()))
@@ -262,7 +264,9 @@ def king_server():
     self.bind((cf.HOST, cf.PORT))
     self.listen(10)
     outside.register(self.fileno(), select.EPOLLIN)
-    threading.Thread(target=outside_listen, args=[]).start()
+    tout = threading.Thread(target=outside_listen, args=[])
+    tout.setDaemon(True)
+    tout.start()
     logger.info("--------------------------------\n          MASTER SYSTEM STARTED")
     while True:
         if gv.order_to_close:
