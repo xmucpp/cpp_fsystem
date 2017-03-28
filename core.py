@@ -107,7 +107,7 @@ class Connection:
         if self.save_send(cf.CONNECTSUCCESS) == 1:
             return 1
         try:
-            User.user_list[self.level]['entry']()
+            User.user_list[self.level]['entry'](self)
             self.logger.info('{}: {}----{} connected'.format(
                 self.fileno, self.socket.getpeername()[0], self.level))
         except Exception:
