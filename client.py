@@ -35,6 +35,7 @@ def communicate(server):
 
 
 def main():
+    flag = False
     print "---------------------------\n      Initializing....\n"
     user_input = ''
     while user_input != 'n':
@@ -44,21 +45,25 @@ def main():
                 server.connect(('127.0.0.1', int(sys.argv[1])))
             else:
                 server.connect(('127.0.0.1', 9813))
-            user_input = raw_input("Please input the password to server(exit to close):")
-            if user_input == 'exit':
-                break
-            server.send(user_input)
-            message = server.recv(8192)
-            if message == 'Connection established':
-                print "Connection established."
-                if communicate(server):
+            while True:
+                user_input = raw_input("Please input the password to server(exit to close):")
+                if user_input == 'exit':
                     break
-                print "Disconnected."
-            else:
-                print "Connection refused."
+                server.send(user_input)
+                message = server.recv(8192)
+                if message == 'Connection established':
+                    print "Connection established."
+                    if communicate(server):
+                        flag = True
+                        break
+                    print "Disconnected."
+                else:
+                    print "Connection refused."
+            if flag:
+                break
         except Exception as e:
             print e
-            user_input = raw_input("Wanna retry? n to exit")
+            user_input = raw_input("Connection broke, wanna retry? n to exit")
     print 'Console terminated.'
 
 if __name__ == '__main__':
