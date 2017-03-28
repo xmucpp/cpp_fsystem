@@ -67,7 +67,7 @@ class Connection:
         :param self:
         :return:
         """
-        User.user_list[self.level]['leave']()
+        User.user_list[self.level]['leave'](self)
         self.logger.info('{}:----{} disconnected'.format(self.fileno, self.level))
         if self.level == 'Unidentified':
             outside.modify(self.fileno, 0)
