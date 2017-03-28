@@ -195,7 +195,7 @@ def kill_out_time():
     Check all connections and disconnect with those being unidentified for too long(OUTTIME in config).
     :return:
     """
-    for conn in gv.connections:
+    for conn in gv.connections.values():
         if conn.level == 'Unidentified' and time.time() - conn.time >= cf.OUTTIME:
             conn.save_send("auto disconnect\n")
             conn.disconnect()
