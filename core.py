@@ -67,7 +67,7 @@ class Connection:
         :param self:
         :return:
         """
-        gv.user_list[self.level]['leave']()
+        User.user_list[self.level]['leave']()
         self.logger.info('{}:----{} disconnected'.format(self.fileno, self.level))
         if self.level == 'Unidentified':
             outside.modify(self.fileno, 0)
@@ -107,7 +107,7 @@ class Connection:
         if self.save_send(cf.CONNECTSUCCESS) == 1:
             return 1
         try:
-            gv.user_list[self.level]['entry']()
+            User.user_list[self.level]['entry']()
             self.logger.info('{}: {}----{} connected'.format(
                 self.fileno, self.socket.getpeername(), self.level))
         except Exception:
@@ -130,7 +130,7 @@ class Connection:
             return message
 
     def process(self, message):
-        return gv.user_list[self.level]['receive'](self, message)
+        return User.user_list[self.level]['receive'](self, message)
 
 
 def reloading():
@@ -316,7 +316,7 @@ def soldier_server():
                 if gv.order_to_update:
                     reloading()
                 message = self.recv(1024)
-                respond = gv.user_list['server']['receive'](message)
+                respond = User.user_list['server']['receive'](message)
                 if respond:
                     self.send(respond)
                 else:
