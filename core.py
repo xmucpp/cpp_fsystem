@@ -100,7 +100,7 @@ class Connection:
         :param level:
         :return:
         """
-        link_list[self.socket.getpeername()] -= 1
+        link_list[self.socket.getpeername()[0]] -= 1
         self.level = level
         inside.register(self.fileno, select.EPOLLIN)
         outside.modify(self.fileno, 0)
