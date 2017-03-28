@@ -49,7 +49,7 @@ def main():
             if user_input == 'exit':
                 break
             message = server.recv(8192)
-            if message == 'COMFIRM':
+            if message == 'Connection established':
                 print "Connection established."
                 if communicate(server):
                     break
