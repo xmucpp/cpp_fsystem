@@ -48,6 +48,7 @@ def main():
             while True:
                 user_input = raw_input("Please input the password to server(exit to close):")
                 if user_input == 'exit':
+                    flag = True
                     break
                 server.send(user_input)
                 message = server.recv(8192)
