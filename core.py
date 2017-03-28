@@ -109,7 +109,7 @@ class Connection:
         try:
             User.user_list[self.level]['entry']()
             self.logger.info('{}: {}----{} connected'.format(
-                self.fileno, self.socket.getpeername(), self.level))
+                self.fileno, self.socket.getpeername()[0], self.level))
         except Exception:
             self.logger.warning("{}: {} unexcepted close.".format(self.fileno, self.level))
             self.disconnect()
