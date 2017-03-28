@@ -169,7 +169,6 @@ def punishment(conn):
     :return:
     """
     outside.modify(conn.fileno, 0)
-    print punish_list
     if punish_list[conn.fileno] <= 10:
         time.sleep(punish_list[conn.fileno]*punish_list[conn.fileno])
         conn.save_send("WRONG PASSWORD!")
@@ -217,7 +216,7 @@ def outside_listen():
                         add_count(conaddr[0], link_list)
                         logger.info(' '.join([str(conaddr), "Incoming Connection"]))
                         outside.register(con.fileno(), select.EPOLLIN)
-                        gv.connections[con.fileno()] = Connection(fileno, con, time.time())
+                        gv.connections[con.fileno()] = Connection(con.fileno(), con, time.time())
                 else:
                     conn = gv.connections[fileno]
                     message = conn.save_receive()
