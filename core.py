@@ -139,8 +139,8 @@ def reloading():
     (Won't reload globalvar, client and log)
     :return:
     """
-    gv.function_list.clear()
-    gv.user_list.clear()
+    Function.function_list.clear()
+    User.user_list.clear()
     try:
         reload(Function)
         reload(User)
@@ -169,6 +169,7 @@ def punishment(conn):
     :return:
     """
     outside.modify(conn.fileno, 0)
+    print punish_list
     if punish_list[conn.fileno] <= 10:
         time.sleep(punish_list[conn.fileno]*punish_list[conn.fileno])
         conn.save_send("WRONG PASSWORD!")
@@ -345,7 +346,7 @@ def main():
     finally:
         logger.info("Server is shutting down......")
         for fileno in gv.connections:
-            gv.connections[fileno].disconnect(fileno)
+            gv.connections[fileno].disconnect()
         self.close()
     return 0
 
