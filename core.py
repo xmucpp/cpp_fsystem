@@ -216,7 +216,7 @@ def outside_listen():
                         add_count(conaddr[0], link_list)
                         logger.info(' '.join([str(conaddr), "Incoming Connection"]))
                         outside.register(con.fileno(), select.EPOLLIN)
-                        gv.connections[con.fileno()] = gv.connections(con, time.time())
+                        gv.connections[con.fileno()] = Connection(fileno, con, time.time())
                 else:
                     conn = gv.connections[fileno]
                     message = conn.save_receive()
