@@ -6,12 +6,12 @@
 """
 Introduce a function.
 """
-import Work.globalvar as gv
+import Function
 
 
 def man(order):
-    if order[0] in gv.function_list:
-        return '%-20s          %-40s' % (gv.function_list[order[0]].how_to_use, gv.function_list[order[0]].help_info)
+    if order[0] in Function.function_list:
+        return '%-20s          %-40s' % (Function.function_list[order[0]].how_to_use, Function.function_list[order[0]].help_info)
     else:
         return 'No such function.'
 
