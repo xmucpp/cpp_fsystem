@@ -11,7 +11,7 @@ import Function
 
 def man(order):
     if order[0] in Function.function_list:
-        return '%-20s          %-40s' % (Function.function_list[order[0]].how_to_use, Function.function_list[order[0]].help_info)
+        return '%-20s          %-40s' % (Function.function_list[order[0]].way_to_use, Function.function_list[order[0]].help_info)
     else:
         return 'No such function.'
 
