@@ -45,9 +45,9 @@ def main():
             else:
                 server.connect(('127.0.0.1', 9813))
             user_input = raw_input("Please input the password to server(exit to close):")
-            server.send(user_input)
             if user_input == 'exit':
                 break
+            server.send(user_input)
             message = server.recv(8192)
             if message == 'Connection established':
                 print "Connection established."
