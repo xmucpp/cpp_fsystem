@@ -212,9 +212,9 @@ def outside_listen():
             try:
                 if fileno == self.fileno():
                     con, conaddr = self.accept()
-                    if conaddr in link_list and link_list[conaddr[0]] <= 20:
-                        logger.info(' '.join([str(conaddr), "Incoming Connection"]))
+                    if conaddr not in link_list or link_list[conaddr[0]] <= 20:
                         add_count(conaddr[0], link_list)
+                        logger.info(' '.join([str(conaddr), "Incoming Connection"]))
                         outside.register(con.fileno(), select.EPOLLIN)
                         gv.connections[con.fileno()] = gv.connections(con, time.time())
                 else:
