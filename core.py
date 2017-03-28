@@ -249,7 +249,7 @@ def event_divider():
         conn = gv.connections[fileno]
         message = conn.save_receive()
         if message:
-            conn.save_send(conn.pre_process(message))
+            conn.save_send(conn.process(message))
 
 
 def king_server():
