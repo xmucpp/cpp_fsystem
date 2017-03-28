@@ -60,5 +60,5 @@ def console_receive(message):
 Users = {
     'server': {},
     'console': {'receive': console_receive},
-    'unidentified': {}
+    'Unidentified': {}
 }
