@@ -8,7 +8,7 @@ __init__.py
 ==========================
 Will count all user and write it into globalvar.user_list.
 """
-import config as cf
+import Work.globalvar as gv
 import Function
 from Work.log import Logger
 import os
@@ -22,10 +22,7 @@ def default_entry(self):
 
 
 def default_receive(self, message):
-    if message.find(cf.ORDER) == -1:
-        order = [message]
-    else:
-        order = message.split(cf.ORDER)
+    order = gv.order_handler(message)
     if order[0] not in Function.function_list.keys():
         logger.error('what are you talking about:{}'.format(order[0]))
         return
