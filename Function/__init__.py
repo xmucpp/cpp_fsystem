@@ -45,12 +45,12 @@ class Function:
         """
         results = ''
         for fileno in server_list:
-            conn = gv.connections[fileno]
             try:
                 results += '-----------------------------------\n'
                 if fileno == -1:
                     results += 'local(-1):  {}\n'.format(self.entry(message))
                 else:
+                    conn = gv.connections[fileno]
                     conn.save_send(message)
                     results += '{}:  {}\n'.format(fileno, conn.recv(1024))
             except Exception as e:
