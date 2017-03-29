@@ -10,6 +10,7 @@ import Function
 
 
 def man(order):
+    order[0] = order[0].upper()
     if order[0] in Function.function_list:
         return '%-20s          %-40s' % (Function.function_list[order[0]].way_to_use, Function.function_list[order[0]].help_info)
     else:
