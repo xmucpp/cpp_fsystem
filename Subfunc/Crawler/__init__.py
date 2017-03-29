@@ -24,7 +24,7 @@ crawler_list = {}
 for m_file in file_list:
     try:
         if m_file in sys.modules:
-            cwm = reload(m_file)
+            cwm = reload(sys.modules[m_file])
         else:
             cwm = importlib.import_module(m_file)
         for (name, way) in cwm.crawler.items():
