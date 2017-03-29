@@ -4,6 +4,7 @@
 # @File  : basic_users.py
 
 import config as cf
+import Function
 import Work.globalvar as gv
 from Work.log import Logger
 logger = Logger('User', 'DEBUG')
@@ -15,7 +16,7 @@ Local = lambda x: x.insert(1, '-1')
 operation = {0: Allin, 1: Collective, 2: Local}
 
 
-def console_receive(message):
+def console_receive(self, message):
     """
     Transfer the message for further execution.
     Split the order message into arguments list.
@@ -31,16 +32,16 @@ def console_receive(message):
     else:
         order = message.split(cf.ORDER)
     order[0] = order[0].upper()
-    if order[0] not in gv.function_list:
+    if order[0] not in Function.function_list:
         return "No such function\n" \
                "Do you need 'HELP'?"
     elif order[0] == 'HELP':
-        return str(gv.function_list.keys())[1:-1]
-    elif gv.function_list[order[0]] != -1 and gv.function_list[order[0]].argu_num+(2 if gv.function_list[order[0]].dis_mode == 1 else 1) != len(order):
+        return str(Function.function_list.keys())[1:-1]
+    elif Function.function_list[order[0]] != -1 and Function.function_list[order[0]].argu_num+(2 if Function.function_list[order[0]].dis_mode == 1 else 1) != len(order):
         # 1 for function name itself and another one for appointing.
         return "Wrong number of arguments."
     else:
-        operation[gv.function_list[order[0]].dis_mode](order)
+        operation[Function.function_list[order[0]].dis_mode](order)
         try:
             if order[1].upper() != 'ALL':
                 server_list = json.loads('[{}]'.format(order[1]))
@@ -54,7 +55,7 @@ def console_receive(message):
                    "{}".format(e)
         func = order[0]
         message = ';'.join([str(e) for e in order[2:]])
-        return gv.function_list[func].collect(message, server_list)
+        return Function.function_list[func].collect(message, server_list)
 
 
 Users = {
