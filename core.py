@@ -70,9 +70,9 @@ class Connection:
         User.user_list[self.level]['leave'](self)
         self.logger.info('{}:----{} disconnected'.format(self.fileno, self.level))
         if self.level == 'Unidentified':
-            outside.modify(self.fileno, 0)
+            outside.unregister(self.fileno)
         else:
-            inside.modify(self.fileno, 0)
+            inside.unregister(self.fileno)
         self.socket.close()
         gv.connections.pop(self.fileno)
         punish_list[self.fileno] = 0
@@ -103,7 +103,7 @@ class Connection:
         link_list[self.socket.getpeername()[0]] -= 1
         self.level = level
         inside.register(self.fileno, select.EPOLLIN)
-        outside.modify(self.fileno, 0)
+        outside.unregister(self.fileno)
         if self.save_send(cf.CONNECTSUCCESS) == 1:
             return 1
         try:
@@ -168,7 +168,7 @@ def punishment(conn):
     :param conn: connection
     :return:
     """
-    outside.modify(conn.fileno, 0)
+    outside.unregister(conn.fileno)
     if punish_list[conn.fileno] <= 10:
         time.sleep(punish_list[conn.fileno]*punish_list[conn.fileno])
         conn.save_send("WRONG PASSWORD!")
