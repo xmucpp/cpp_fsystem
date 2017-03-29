@@ -172,6 +172,7 @@ def punishment(conn):
     if punish_list[conn.fileno] <= 10:
         time.sleep(punish_list[conn.fileno]*punish_list[conn.fileno])
         conn.save_send("WRONG PASSWORD!")
+        outside.register(conn.fileno, select.EPOLLIN)
     else:
         conn.save_send("Enough!")
         conn.disconnect()
