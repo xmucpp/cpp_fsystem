@@ -76,6 +76,7 @@ for m_file in file_list:
         else:
             cwm = importlib.import_module(m_file)
         for (func, rf) in cwm.functions.items():
+            func = func.upper()
             if 'entry' not in rf or 'argu_num' not in rf or 'dis_mode' not in rf:
                 raise
             if 'way_to_use' not in rf:
