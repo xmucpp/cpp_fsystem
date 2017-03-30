@@ -64,12 +64,12 @@ def crawler(order):
     if order[0].upper() == 'START':
         if order[1] not in worker_list:
             worker_list[order[1]] = Worker(threading.Event(), '------', 'Stopped')
-            threading.Thread(target=work, args=(order[1])).start()
+            threading.Thread(target=work, args=(order[1],)).start()
             return "Successfully settled"
         elif worker_list[order[1]].state == 'Running':
             return "Crawler {} is already running!".format(order[1])
         else:
-            threading.Thread(target=work, args=(order[1])).start()
+            threading.Thread(target=work, args=(order[1],)).start()
             return "Successfully settled"
 
     elif order[0].upper() == 'STOP':
