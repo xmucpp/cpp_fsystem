@@ -36,7 +36,7 @@ def work(worker_name):
                 worker_list[worker_name].table = my_redis.blpop(worker_name)[1]
                 my_redis.lpush(btitle, worker_list[worker_name].table)
 
-                results = Crawler.crawler_list[worker_name].parse(worker_list[worker_name].table)
+                results = Crawler.crawler_list[worker_name](worker_list[worker_name].table)
                 if not results:
                     worker_list[worker_name].count += 1
                 else:
