@@ -7,25 +7,53 @@ import Work.globalvar as gv
 import mission as ms
 import crawler
 
+from Work.log import Logger
+logger = Logger('Function', 'DEBUG')
+
+def conn_info():
+    try:
+        info_data = 'Connections:{}\n'.format(len(gv.connections))
+        for (fileno, conn) in gv.connections:
+            peername = conn.socket.getpeername()
+            info_data += "%-4d      %-12s     %-5d     %-10s     %-6s\n" % \
+                         (fileno, peername[0], peername[1], conn.level, time.asctime(time.localtime(conn.time)))
+        return info_data
+    except Exception:
+        logger.error(logger.traceback())
+        return ''
+
+
+def crawler_info():
+    try:
+        info_data = '\n---Current worker:{}\n'.format(len(crawler.worker_list))
+        for (name, worker) in crawler.worker_list:
+            info_data += "%-8s      %-8s     %-40s     %-8d\n" % \
+                        (name, worker.state, worker.table, worker.count)
+        return info_data
+    except Exception:
+        logger.error(logger.traceback())
+        return ''
+
+
+def mission_info():
+    try:
+        info_data = '\n---Current mission:{}\n'.format(len(ms.mission_list))
+        for (name, mission) in ms.mission_list:
+            info_data += "%-8s      %-2s:%-2s     %-10s\n" %\
+                         (name, mission.hour, mission.minute, mission.order)
+        return info_data
+    except Exception:
+        logger.error(logger.traceback())
+        return ''
+
 
 def info(order):
-    info_data = 'Connections:{}\n'.format(len(gv.connections))
-    for (fileno, conn) in gv.connections:
-        peername = conn.socket.getpeername()
-        info_data += "%-4d      %-12s     %-5d     %-10s     %-6s\n" % \
-                     (fileno, peername[0], peername[1], conn.level, time.asctime(time.localtime(conn.time)))
-
-    info_data += '\n---Current worker:{}\n'.format(len(crawler.worker_list))
-    for (name, worker) in crawler.worker_list:
-        info_data += "%-8s      %-8s     %-40s     %-8d\n" % \
-                    (name, worker.state, worker.table, worker.count)
-
-    info_data += '\n---Current mission:{}\n'.format(len(ms.mission_list))
-    for (name, mission) in ms.mission_list:
-        info_data += "%-8s      %-2s:%-2s     %-10s\n" %\
-                     (name, mission.hour, mission.minute, mission.order)
-
+    info_data = ''
+    info_data += conn_info()
+    info_data += mission_info()
+    info_data += crawler_info()
     return info_data
+
 
 functions = {
     'info': {'entry': info, 'argu_num': 0, 'dis_mode': 1,
