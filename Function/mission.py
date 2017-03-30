@@ -16,11 +16,11 @@ logger = Logger('Function', 'DEBUG')
 
 
 class Mission:
-    def __init__(self, state, hour, minute, event):
-        self.state = state
+    def __init__(self, hour, minute, event, order):
         self.hour = int(hour)
         self.minute = int(minute)
         self.event = event
+        self.order = order
 
 mission_list = {}
 
@@ -43,7 +43,7 @@ def waiter(order):
                 time.sleep(66)
                 timetowake = deltatime(int(order[1]), int(order[2]))
         mission_list[order[3]].event.clear()
-        mission_list[order[3]].state = 'Unsettled'
+        mission_list.pop(order[3])
     except Exception:
         logger.traceback()
     return
@@ -58,18 +58,19 @@ def mission(order):
         return "No such function!"
 
     if order[0].upper() == 'SET':
-        if order[3] in mission_list.keys() and mission_list[order[3]].state == 'Settled':
+        if order[3] in mission_list.keys():
             return "Mission has already settled"
         else:
-            mission_list[order[3]] = Mission('Settled', order[1], order[2], threading.Event())
+            mission_list[order[3]] = Mission(order[1], order[2], threading.Event(), ';'.join([str(e) for e in order[3:]]))
             threading.Thread(target=waiter, args=[order]).start()
             return "Successfully settled"
 
     elif order[0].upper() == 'CANCEL':
-        if order[3] not in mission_list.keys() or mission_list[order[3]].state == 'Unsettled':
+        if order[3] not in mission_list.keys():
             return "Mission isn't running"
         else:
             mission_list[order[3]].event.set()
+            mission_list.pop(order[3])
             return "Successfully canceled"
     else:
         return "No such order!\n" \
