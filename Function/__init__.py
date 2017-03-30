@@ -52,7 +52,7 @@ class Function:
                 else:
                     conn = gv.connections[fileno]
                     conn.save_send(message)
-                    results += '{}:  {}\n'.format(fileno, conn.recv(1024))
+                    results += '{}:  {}\n'.format(fileno, conn.save_receive())
             except Exception as e:
                 results += '{}:Error!  {}\n'.format(fileno, e)
         return results
