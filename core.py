@@ -345,8 +345,9 @@ def main():
         logger.error(logger.traceback())
     finally:
         logger.info("Server is shutting down......")
-        for fileno in gv.connections:
-            gv.connections[fileno].disconnect()
+        temp = gv.connections
+        for fileno in temp:
+            temp[fileno].disconnect()
         self.close()
     return 0
 
