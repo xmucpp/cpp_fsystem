@@ -10,7 +10,7 @@ Set timed task.
 import time
 import datetime
 import threading
-import Work.globalvar as gv
+import Function
 from Work.log import Logger
 logger = Logger('Function', 'DEBUG')
 
@@ -39,7 +39,7 @@ def waiter(order):
             if mission_list[order[3]].event.isSet():
                 break
             else:
-                gv.function_list[order[3]].entry(order[4:])
+                Function.function_list[order[3]].entry(order[4:])
                 time.sleep(66)
                 timetowake = deltatime(int(order[1]), int(order[2]))
         mission_list[order[3]].event.clear()
@@ -50,7 +50,7 @@ def waiter(order):
 
 
 def mission(order):
-    if order[3] not in gv.function_list:
+    if order[3] not in Function.function_list:
         return "No such function!"
 
     if order[0].upper() == 'SET':
