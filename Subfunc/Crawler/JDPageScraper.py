@@ -12,6 +12,7 @@ import json
 
 from bs4 import BeautifulSoup
 
+from Subfunc.Crawler import USER_AGENTS
 from Work.log import Logger
 logger = Logger('JD', 'DEBUG')
 
@@ -30,6 +31,7 @@ def get_html(url):
     -------
 
     """
+    user_agent = random.choice(USER_AGENTS)
     headers = {
         'Accept': 'text/html',
         'Accept-Encoding': 'gzip,deflate,sdch',
@@ -38,6 +40,7 @@ def get_html(url):
         'Connection': 'keep-alive',
         'Host': 'search.jd.com',
         'Referer': 'http://www.jd.com/',
+        'user-agent': user_agent,
     }
 
     try:
