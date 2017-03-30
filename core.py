@@ -317,7 +317,7 @@ def soldier_server():
                 if gv.order_to_update:
                     reloading()
                 message = self.recv(1024)
-                respond = User.user_list['server']['receive'](message)
+                respond = User.user_list['server']['receive'](self, message)
                 if respond:
                     self.send(respond)
                 else:
