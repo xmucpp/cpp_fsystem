@@ -33,7 +33,7 @@ def console_receive(self, message):
     elif order[0] not in Function.function_list:
         return "No such function\n" \
                "Do you need 'HELP'?"
-    elif Function.function_list[order[0]] != -1 and Function.function_list[order[0]].argu_num+(2 if Function.function_list[order[0]].dis_mode == 1 else 1) != len(order):
+    elif Function.function_list[order[0]].argu_num != -1 and Function.function_list[order[0]].argu_num+(2 if Function.function_list[order[0]].dis_mode == 1 else 1) != len(order):
         # 1 for function name itself and another one for appointing.
         return "Wrong number of arguments."
     else:
