@@ -32,18 +32,19 @@ def deltatime(hour, min, sec=0):
 
 
 def waiter(order):
+    message = (';'.join([str(e) for e in order[3:]])).upper()
     try:
         timetowake = deltatime(int(order[1]), int(order[2]))
         while True:
-            mission_list[order[3]].event.wait(timetowake)
-            if mission_list[order[3]].event.isSet():
+            mission_list[message].event.wait(timetowake)
+            if mission_list[message].event.isSet():
                 break
             else:
                 Function.function_list[order[3]].entry(order[4:])
                 time.sleep(66)
                 timetowake = deltatime(int(order[1]), int(order[2]))
-        mission_list[order[3]].event.clear()
-        mission_list.pop(order[3])
+        mission_list[message].event.clear()
+        mission_list.pop(message)
     except Exception:
         logger.traceback()
     return
@@ -56,21 +57,21 @@ def mission(order):
     """
     if order[3] not in Function.function_list:
         return "No such function!"
-
+    message = (';'.join([str(e) for e in order[3:]])).upper()
     if order[0].upper() == 'SET':
-        if order[3] in mission_list.keys():
+        if message in mission_list.keys():
             return "Mission has already settled"
         else:
-            mission_list[order[3]] = Mission(order[1], order[2], threading.Event(), ';'.join([str(e) for e in order[3:]]))
+            mission_list[message] = Mission(order[1], order[2], threading.Event(), message)
             threading.Thread(target=waiter, args=[order]).start()
             return "Successfully settled"
 
     elif order[0].upper() == 'CANCEL':
-        if order[3] not in mission_list.keys():
+        if message not in mission_list.keys():
             return "Mission isn't running"
         else:
-            mission_list[order[3]].event.set()
-            mission_list.pop(order[3])
+            mission_list[message].event.set()
+            mission_list.pop(message)
             return "Successfully canceled"
     else:
         return "No such order!\n" \
