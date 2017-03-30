@@ -144,6 +144,7 @@ def reloading():
     try:
         reload(Function)
         reload(User)
+        reload(cf)
     except Exception as e:
         logger.error('Reload after update error!{}'.format(e))
     finally:
