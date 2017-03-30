@@ -3,10 +3,11 @@
 # @Author: FSOL
 # @File  : crawler.py
 
-import Subfunc.Crawler as Crawler
+
 import threading
 import redis
-
+import Subfunc.Crawler as Crawler
+reload(Crawler)
 
 import config as cf
 from Work.log import Logger
