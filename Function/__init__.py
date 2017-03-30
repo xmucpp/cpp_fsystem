@@ -39,7 +39,7 @@ class Function:
     def collective(self, message, server_list):
         """
         Default way to send out and collect receiving respond.
-        :param message:
+        :param message:Will be the order without the server part
         :param server_list:list of fileno
         :return:
         """

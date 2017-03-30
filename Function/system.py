@@ -11,7 +11,7 @@ import commands
 
 
 def system(order):
-    status, results = commands.getstatusoutput(order[0])
+    status, results = commands.getstatusoutput(order[1])
     if status == 0 and results != '':
         return results
     elif status == 0 and results == '':

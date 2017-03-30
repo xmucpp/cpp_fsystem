@@ -50,7 +50,8 @@ def console_receive(self, message):
                    "Use 'ALL'(no case insensitive) or 1,3,4(fileno of server)\n" \
                    "{}".format(e)
         func = order[0]
-        message = ';'.join([str(e) for e in order[2:]])
+        order.pop(1)
+        message = ';'.join([str(e) for e in order])
         return Function.function_list[func].collect(message, server_list)
 
 
