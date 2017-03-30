@@ -3,7 +3,10 @@
 # @Author: FSOL
 # @File  : config.py
 
-
+# ------redis--------------
+# RedisServer = ''
+# RedisPort =
+# RedisPass = ''
 # ------Socket timeout-----
 timeout = 20
 # -------Server timeout----------
