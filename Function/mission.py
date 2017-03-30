@@ -33,39 +33,43 @@ def deltatime(hour, min, sec=0):
 
 def waiter(order):
     try:
-        timetowake = deltatime(int(order[2]), int(order[3]))
+        timetowake = deltatime(int(order[1]), int(order[2]))
         while True:
-            mission_list[order[4]].event.wait(timetowake)
-            if mission_list[order[4]].event.isSet():
+            mission_list[order[3]].event.wait(timetowake)
+            if mission_list[order[3]].event.isSet():
                 break
             else:
-                Function.function_list[order[4]].entry(order[5:])
+                Function.function_list[order[3]].entry(order[4:])
                 time.sleep(66)
-                timetowake = deltatime(int(order[2]), int(order[3]))
-        mission_list[order[4]].event.clear()
-        mission_list[order[4]].state = 'Unsettled'
+                timetowake = deltatime(int(order[1]), int(order[2]))
+        mission_list[order[3]].event.clear()
+        mission_list[order[3]].state = 'Unsettled'
     except Exception:
         logger.traceback()
     return
 
 
 def mission(order):
-    if order[4] not in Function.function_list:
+    """
+    :param order:order[0]:set/cancel order[1]:order[2] hour:minute order[3]:func order[4:]:arguments
+    :return:
+    """
+    if order[3] not in Function.function_list:
         return "No such function!"
 
-    if order[1].upper() == 'SET':
-        if order[4] in mission_list.keys() and mission_list[order[3]].state == 'Settled':
+    if order[0].upper() == 'SET':
+        if order[3] in mission_list.keys() and mission_list[order[3]].state == 'Settled':
             return "Mission has already settled"
         else:
-            mission_list[order[4]] = Mission('Settled', order[3], order[3], threading.Event())
+            mission_list[order[3]] = Mission('Settled', order[1], order[2], threading.Event())
             threading.Thread(target=waiter, args=[order]).start()
             return "Successfully settled"
 
-    elif order[1].upper() == 'CANCEL':
-        if order[4] not in mission_list.keys() or mission_list[order[3]].state == 'Unsettled':
+    elif order[0].upper() == 'CANCEL':
+        if order[3] not in mission_list.keys() or mission_list[order[3]].state == 'Unsettled':
             return "Mission isn't running"
         else:
-            mission_list[order[4]].event.set()
+            mission_list[order[3]].event.set()
             return "Successfully canceled"
     else:
         return "No such order!\n" \

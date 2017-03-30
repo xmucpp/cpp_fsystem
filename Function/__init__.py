@@ -48,7 +48,7 @@ class Function:
             try:
                 results += '-----------------------------------\n'
                 if fileno == -1:
-                    results += 'local(-1):  {}\n'.format(self.entry(gv.order_handler(message)))
+                    results += 'local(-1):  {}\n'.format(self.entry(gv.order_handler(message)[1:]))
                 else:
                     conn = gv.connections[fileno]
                     conn.save_send(message)
