@@ -27,7 +27,7 @@ def conn_info():
 def crawler_info():
     try:
         info_data = '\n---Current worker:{}\n'.format(len(crawler.worker_list))
-        for (name, worker) in crawler.worker_list:
+        for (name, worker) in crawler.worker_list.items():
             info_data += "%-8s      %-8s     %-40s     %-8d\n" % \
                         (name, worker.state, worker.table, worker.count)
         return info_data
@@ -39,7 +39,7 @@ def crawler_info():
 def mission_info():
     try:
         info_data = '\n---Current mission:{}\n'.format(len(ms.mission_list))
-        for (name, mission) in ms.mission_list:
+        for (name, mission) in ms.mission_list.items():
             info_data += "%-8s      %-2s:%-2s     %-10s\n" %\
                          (name, mission.hour, mission.minute, mission.order)
         return info_data
