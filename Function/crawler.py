@@ -86,9 +86,10 @@ def crawler(order):
 
 
 def refresher(order):
-    logger.info('--------Changing date from {} to {}---------'.format(cf.PRESENT_DAY,
+    PRESENT_DAY = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
+    logger.info('--------Changing date from {} to {}---------'.format(PRESENT_DAY,
                                                     str(time.strftime('%Y-%m-%d', time.localtime(time.time())))))
-    cf.PRESENT_DAY = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
+    PRESENT_DAY = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
     for work in worker_list.keys():
         logger.info('{} number:{}'.format(work, worker_list[work].count))
         worker_list[work].count = 0
