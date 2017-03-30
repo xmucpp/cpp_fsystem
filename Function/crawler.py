@@ -7,12 +7,14 @@
 import threading
 import redis
 import Subfunc.Crawler as Crawler
+import time
 reload(Crawler)
 
 import config as cf
 from Work.log import Logger
 logger = Logger('Crawler', 'DEBUG')
 my_redis = redis.Redis(cf.RedisServer, port=cf.RedisPort, password=cf.RedisPass)
+
 
 class Worker:
     def __init__(self, event, table, state, count=0):
@@ -82,9 +84,34 @@ def crawler(order):
         return "No such order!\n" \
                "you can either start or cancel a crawler."
 
+
+def refresher(order):
+    logger.info('--------Changing date from {} to {}---------'.format(cf.PRESENT_DAY,
+                                                    str(time.strftime('%Y-%m-%d', time.localtime(time.time())))))
+    cf.PRESENT_DAY = str(time.strftime('%Y-%m-%d', time.localtime(time.time())))
+    for work in worker_list.keys():
+        logger.info('{} number:{}'.format(work, worker_list[work].count))
+        worker_list[work].count = 0
+    for title in Crawler.crawler_list:
+        try:
+            if my_redis.exists(title):
+                logger.error("{} still have {} unfinished data!".format(title, my_redis.llen(title)))
+            btitle = '{}{}'.format(cf.BACKUP, title)
+            while my_redis.exists(btitle):
+                my_redis.lpush(title, my_redis.blpop(btitle)[1])
+        except Exception:
+            logger.error(logger.traceback())
+    logger.info("Refreshing end.")
+    return
+
+
 functions = {
     'crawler': {'entry': crawler, 'argu_num': 2, 'dis_mode': 1,
             'way_to_use': 'CRAWLER;server;order;crawler',
             'help_info': 'Start/Stop a cralwer one some machines.',
-            'collect': None}
+            'collect': None},
+    'crawler_refresher': {'entry': refresher, 'argu_num': 0, 'dis_mode': 1,
+                          'way_to_use': ' CRAWLER_REFRESHER;server',
+                          'help_info': 'Clean redis and crawler count.',
+                          'collect': None}
 }
