@@ -59,7 +59,7 @@ def crawler(order):
     """
     if order[1] not in Crawler.crawler_list:
         return "No such cralwer!\n" \
-               "Current cralwer:{}".format(str(Crawler.crawler_list.keys()[1:-1]))
+               "Current cralwer:{}".format(str(Crawler.crawler_list.keys())[1:-1])
 
     if order[0].upper() == 'START':
         if order[1] not in worker_list:
