@@ -10,10 +10,11 @@ import crawler
 from Work.log import Logger
 logger = Logger('Function', 'DEBUG')
 
+
 def conn_info():
     try:
         info_data = 'Connections:{}\n'.format(len(gv.connections))
-        for (fileno, conn) in gv.connections:
+        for (fileno, conn) in gv.connections.items():
             peername = conn.socket.getpeername()
             info_data += "%-4d      %-12s     %-5d     %-10s     %-6s\n" % \
                          (fileno, peername[0], peername[1], conn.level, time.asctime(time.localtime(conn.time)))
