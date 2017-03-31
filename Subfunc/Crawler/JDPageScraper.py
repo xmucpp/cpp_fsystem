@@ -109,8 +109,8 @@ def parse_html(html, url, page_num, cate, sort):
                     raise KeyError
             except Exception, e:
                 logger.warning('{} {} {}'.format(url, 'price is None', e))
-                return ''
                 data_list[i]['price'] = None
+
 
             try:
                 if comments[i]['SkuId'] == int(data_list[i]['ID']):
@@ -236,10 +236,10 @@ def parse(url):
             write_csv(data_list, url, paras)
             return 0
         else:
-            return 1
+            return 0
     except Exception:
         logger.error(logger.traceback())
-        return 1
+        return 0
 
 
 if __name__ == '__main__':
