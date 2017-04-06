@@ -44,7 +44,7 @@ def get_html(url):
     }
 
     try:
-        r = requests.get(url, headers)
+        r = requests.get(url, headers=headers)
         if r.status_code == 302:
             logger.error('this server be banned by JD')
             time.sleep(30)
