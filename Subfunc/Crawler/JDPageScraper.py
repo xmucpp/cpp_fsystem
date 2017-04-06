@@ -16,7 +16,7 @@ from Subfunc.Crawler import USER_AGENTS
 from Work.log import Logger
 logger = Logger('JD', 'DEBUG')
 
-
+totalurl = ''
 # Unit Function
 
 
@@ -38,11 +38,13 @@ def get_html(url):
         'Accept-Language': 'zh-CN,zh;q=0.8',
         'Cache-Control': 'max-age=0',
         'Connection': 'keep-alive',
-        'Host': 'search.jd.com',
-        'Referer': 'http://www.jd.com/',
         'user-agent': user_agent,
     }
-
+    if url.find('p.3.cn'):
+        headers['Host'] = 'p.3.cn'
+        headers['Referer'] = totalurl
+    else:
+        headers['Host'] = 'list.jd.com'
     try:
         r = requests.get(url, headers=headers)
         if r.status_code == 302:
@@ -226,6 +228,8 @@ def structure(category_name, page_num=2):
 
 
 def parse(url):
+    global totalurl
+    totalurl = url
     logger.info(url)
     try:
         page_num, cat1, cat2, cat3, sort = split_url(url)
