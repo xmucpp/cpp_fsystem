@@ -73,10 +73,8 @@ class Jd_scraper(object):
         time.sleep(random.randint(1,3))
         r = requests.post(self.search_list_url,headers=headers,data=data)
         if r.status_code == 200:
-            print('Success to get html')
             return r.text
         else:
-            print('Fail to get html')
             return None
 
     #获取总面数
@@ -84,11 +82,9 @@ class Jd_scraper(object):
         html = self.get_html()
         try:
             pagenum = int(json.loads((json.loads(html)['value']))['wareList']['wareCount'])//10
-            print('Success to get page_num:',pagenum)
             return pagenum
 
         except KeyError:
-            print('Fail to get page_num')
             return None
 
     def parse(self,pagenum):
@@ -127,8 +123,6 @@ class Jd_scraper(object):
     def save_csv(self,infolist):
         with open(self.save_name, 'ab') as csvfile:
             writer = csv.writer(csvfile)
-            print(infolist)
-            print(type(infolist))
             writer.writerows(infolist)
 
     def run(self):
