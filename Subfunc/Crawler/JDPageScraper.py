@@ -148,7 +148,9 @@ def main(url):
     #销量排序
         m =Jd_scraper(url,1)
         m.run()
+        return 0
     except Exception:
+        return 1
         logger.error(logger.traceback())
 
 if __name__ == "__main__":
