@@ -39,12 +39,12 @@ def work(worker_name):
                 my_redis.lpush(btitle, worker_list[worker_name].table)
 
                 results = Crawler.crawler_list[worker_name](worker_list[worker_name].table)
-                if not results:
+                if results == 0:
                     worker_list[worker_name].count += 1
                 else:
                     logger.error(worker_list[worker_name].table)
                     break
-            except Exception, e:
+            except Exception:
                 logger.error(logger.traceback())
     except Exception as e:
         logger.error(logger.traceback())
