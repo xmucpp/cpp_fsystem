@@ -87,38 +87,41 @@ class Jd_scraper(object):
     def get_page_num(self):
         html = self.get_html()
         try:
-            pagenum = int(json.loads((json.loads(html)['value']))['wareList']['wareCount'])//10
+            pagenum = int(json.loads(html)['value']['wareList']['wareCount'])//10
             return pagenum
 
         except KeyError:
             return None
 
     def parse(self,pagenum):
-        r = self.get_html(page_num=pagenum)
-        ware_list = json.loads((json.loads(r)['value']))['wareList']['wareList']
-        wholeinfo =[]
-        for index,i in enumerate(ware_list):
-            info=[]
-            #表示在第几页第几个 如1-2表示第一页第二个
+        try:
+            r = self.get_html(page_num=pagenum)
+            ware_list = json.loads(r)['value']['wareList']['wareList']
+            wholeinfo =[]
+            for index,i in enumerate(ware_list):
+                info=[]
+                #表示在第几页第几个 如1-2表示第一页第二个
 
-            info.append(i['wname'].encode('utf8'))
-            info.append(i['wareId'].encode('utf8'))
-            info.append(i['jdPrice'].encode('utf8'))
-            info.append(i['totalCount'].encode('utf8'))
-            comment_info = self.get_comment_info(i['wareId'].encode('utf8'))
-            info.append(comment_info['AverageScore'])
-            info.append(comment_info['GoodRate'])
-            info.append(comment_info['GeneralRate'])
-            info.append(comment_info['PoorRate'])
-            info.append(self.date)
-            info.append(self.time)
-            info.append(str(pagenum) + '-' + str(index + 1))
-            info.append(self.categoryId)
-            info.append(self.sort)
-            #print(info)
+                info.append(i['wname'].encode('utf8'))
+                info.append(i['wareId'].encode('utf8'))
+                info.append(i['jdPrice'].encode('utf8'))
+                info.append(i['totalCount'].encode('utf8'))
+                comment_info = self.get_comment_info(i['wareId'].encode('utf8'))
+                info.append(comment_info['AverageScore'])
+                info.append(comment_info['GoodRate'])
+                info.append(comment_info['GeneralRate'])
+                info.append(comment_info['PoorRate'])
+                info.append(self.date)
+                info.append(self.time)
+                info.append(str(pagenum) + '-' + str(index + 1))
+                info.append(self.categoryId)
+                info.append(self.sort)
+                #print(info)
 
-            wholeinfo.append(info)
-        self.save_csv(wholeinfo)
+                wholeinfo.append(info)
+            self.save_csv(wholeinfo)
+        except Exception:
+            logger.error(logger.traceback())
 
     def create_csv(self):
         titles=['goodsName','ID','price','commentsNum','averageScore','goodrate','generalRate','poorRate','date','time','page','cate','sort']
