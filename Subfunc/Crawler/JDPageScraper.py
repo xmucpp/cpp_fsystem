@@ -37,6 +37,11 @@ class Jd_scraper(object):
         self.date = PRESENT_DAY
         self.time = PRESENT_TIME
         file_dict = os.path.join(PATH, 'Data', 'JDData', '{}{}'.format('JDData_', PRESENT_DAY))
+        try:
+            os.makedirs(file_dict)
+        except OSError, e:
+            if e.errno != 17:
+                raise e
         self.save_name = ''.join([
             file_dict, '/', 'jd_', self.date, '_', self.time, '_', self.c1, '_', self.c2, '_', self.categoryId, '_', str(self.sort)])
 
