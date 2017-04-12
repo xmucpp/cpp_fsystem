@@ -121,7 +121,7 @@ class Jd_scraper(object):
                 wholeinfo.append(info)
             self.save_csv(wholeinfo)
         except Exception:
-            print json.loads(r)['value']
+            print self.url
             logger.error(logger.traceback())
 
     def create_csv(self):
