@@ -145,8 +145,8 @@ def main(url):
         m.run()
         return 0
     except Exception:
-        return 1
         logger.error(logger.traceback())
+        return 1
 
 if __name__ == "__main__":
     url = 'https://so.m.jd.com/products/1318-12099-9755.html'
