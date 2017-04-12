@@ -135,8 +135,11 @@ class Jd_scraper(object):
         self.create_csv()
         jobs=[]
         for i in range(10):
-            threading.Thread(target=self.parse, args=(i+1,)).start()
+            jobs.append(threading.Thread(target=self.parse, args=(i+1,)))
+            jobs[i].start()
             #jobs.append(gevent.spawn(self.parse,i+1))
+        for i in range(10):
+            jobs[i].join()
         #gevent.joinall(jobs)
 
 
