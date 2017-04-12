@@ -87,7 +87,7 @@ class Jd_scraper(object):
     def get_page_num(self):
         html = self.get_html()
         try:
-            pagenum = int(json.loads(html)['value']['wareList']['wareCount'])//10
+            pagenum = int(json.loads((json.loads(html)['value']))['wareList']['wareCount'])//10
             return pagenum
 
         except KeyError:
@@ -96,7 +96,7 @@ class Jd_scraper(object):
     def parse(self,pagenum):
         try:
             r = self.get_html(page_num=pagenum)
-            ware_list = json.loads(r)['value']['wareList']['wareList']
+            ware_list = json.loads(json.loads(r)['value'])['wareList']['wareList']
             wholeinfo =[]
             for index,i in enumerate(ware_list):
                 info=[]
@@ -121,6 +121,7 @@ class Jd_scraper(object):
                 wholeinfo.append(info)
             self.save_csv(wholeinfo)
         except Exception:
+            print ware_list
             logger.error(logger.traceback())
 
     def create_csv(self):
