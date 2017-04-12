@@ -129,8 +129,9 @@ class Jd_scraper(object):
         self.create_csv()
         jobs=[]
         for i in range(10):
-            jobs.append(gevent.spawn(self.parse,i+1))
-        gevent.joinall(jobs)
+            self.parse(i+1)
+            #jobs.append(gevent.spawn(self.parse,i+1))
+        #gevent.joinall(jobs)
 
 
 def main(url):
