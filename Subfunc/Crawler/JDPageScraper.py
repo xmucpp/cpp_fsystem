@@ -10,6 +10,7 @@ import json
 import csv
 import re
 import os
+import threading
 from Work.log import Logger
 #import gevent
 #from gevent import monkey;monkey.patch_all()
@@ -134,7 +135,7 @@ class Jd_scraper(object):
         self.create_csv()
         jobs=[]
         for i in range(10):
-            self.parse(i+1)
+            threading.Thread(target=self.parse, args=(i+1,)).start()
             #jobs.append(gevent.spawn(self.parse,i+1))
         #gevent.joinall(jobs)
 
