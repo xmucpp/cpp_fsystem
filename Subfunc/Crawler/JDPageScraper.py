@@ -11,8 +11,8 @@ import csv
 import re
 import os
 from Work.log import Logger
-import gevent
-from gevent import monkey;monkey.patch_all()
+#import gevent
+#from gevent import monkey;monkey.patch_all()
 logger = Logger('JD', 'DEBUG')
 
 
