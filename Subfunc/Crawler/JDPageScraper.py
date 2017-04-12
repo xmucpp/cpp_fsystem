@@ -75,7 +75,7 @@ class Jd_scraper(object):
         'referer':self.url,
         'user-agent':'Mozilla/5.0 (Linux; U; Android 2.3; en-us) AppleWebKit/999+ (KHTML, like Gecko) Safari/999.9',
         'x-requested-with':'XMLHttpRequest'}
-        time.sleep(random.randint(1,3))
+        #time.sleep(random.randint(1,3))
         r = requests.post(self.search_list_url,headers=headers,data=data)
         if r.status_code == 200:
             return r.text
