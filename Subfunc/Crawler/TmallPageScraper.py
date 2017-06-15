@@ -54,6 +54,7 @@ def get_json(url):
     while counter != 0:
         try:
             r = requests.get(url, headers, proxies=proxies)
+            break
         except (requests.exceptions.ProxyError, requests.exceptions.ConnectionError):
             counter -= 1
             proxy_changer()
