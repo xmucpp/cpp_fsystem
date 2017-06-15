@@ -29,6 +29,7 @@ def proxy_changer():
         'http': url,
         'https': url
     }
+    logger.debug("change proxies to {}".format(url))
 
 
 def get_json(url):
