@@ -21,7 +21,7 @@ def proxy_changer():
     global proxies
     if len(proxies_pool) == 0:
         re = requests.get(
-            'http://tvp.daxiangdaili.com/ip/?tid=559959788048032&num=10&category=2&protocol=https&format=json')
+            'http://tvp.daxiangdaili.com/ip/?tid=559959788048032&num=5&category=2&protocol=https&format=json')
         proxies_pool = json.loads(re.content)
     proxy = proxies_pool.pop()
     url = 'http://{}:{}'.format(proxy['host'], proxy['port'])
@@ -33,6 +33,8 @@ def proxy_changer():
 
 
 def get_json(url):
+    if proxies == {}:
+        proxy_changer()
     user_agent = random.choice(USER_AGENTS)
     headers = {
         ':host': 'list.tmall.com',
@@ -71,7 +73,6 @@ def get_json(url):
             else:
                 proxy_changer()
     logger.error('{} {}'.format(url.encode('utf-8'), 'decode failed'))
-
 
 
 def get_item(json_data):
