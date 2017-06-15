@@ -52,7 +52,7 @@ def get_json(url):
     counter = 30
     while counter != 0:
         try:
-            r = requests.get(url, headers)
+            r = requests.get(url, headers, proxies=proxies)
             return json.loads(r.content)
         except ValueError:
             flag -= 1
