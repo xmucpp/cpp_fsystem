@@ -54,6 +54,14 @@ def get_json(url):
     while counter != 0:
         try:
             r = requests.get(url, headers, proxies=proxies)
+        except (requests.exceptions.ProxyError, requests.exceptions.ConnectionError):
+            counter -= 1
+            proxy_changer()
+    if counter == 0:
+        logger.error('{} {}'.format(url.encode('utf-8'), 'requests failed'))
+        return
+    while flag != 0:
+        try:
             return json.loads(r.content)
         except ValueError:
             flag -= 1
@@ -61,13 +69,8 @@ def get_json(url):
                 break
             else:
                 proxy_changer()
-        except (requests.exceptions.ProxyError, requests.exceptions.ConnectionError):
-            counter -= 1
-            proxy_changer()
-    if flag == 0:
-        logger.error('{} {}'.format(url.encode('utf-8'), 'decode failed'))
-    else:
-        logger.error('{} {}'.format(url.encode('utf-8'), 'requests failed'))
+    logger.error('{} {}'.format(url.encode('utf-8'), 'decode failed'))
+
 
 
 def get_item(json_data):
