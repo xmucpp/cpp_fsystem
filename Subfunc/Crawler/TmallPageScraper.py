@@ -12,6 +12,23 @@ import requests
 from Subfunc.Crawler import USER_AGENTS
 from Work.log import Logger
 logger = Logger('Tmall', 'DEBUG')
+proxies = {}
+proxies_pool = []
+
+
+def proxy_changer():
+    global proxies_pool
+    global proxies
+    if len(proxies_pool) == 0:
+        re = requests.get(
+            'http://tvp.daxiangdaili.com/ip/?tid=559959788048032&num=10&category=2&protocol=https&format=json')
+        proxies_pool = json.loads(re.content)
+    proxy = proxies_pool.pop()
+    url = 'http://{}:{}'.format(proxy['host'], proxy['port'])
+    proxies = {
+        'http': url,
+        'https': url
+    }
 
 
 def get_json(url):
@@ -31,21 +48,29 @@ def get_json(url):
     }
 
     # request for the HTML
-    try:
-        r = requests.get(url, headers)
-        if r.status_code == 302:
-            logger.error('this server be banned by Tmall')
-            time.sleep(30)
-            raise
-        else:
-            return r.content
-    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
-        logger.error('{} {}'.format(url.encode('utf-8'), 'Connect Error'))
-        raise
+    flag = 2
+    counter = 30
+    while counter != 0:
+        try:
+            r = requests.get(url, headers)
+            return json.loads(r.content)
+        except ValueError:
+            flag -= 1
+            if flag == 0:
+                break
+            else:
+                proxy_changer()
+        except (requests.exceptions.ProxyError, requests.exceptions.ConnectionError):
+            counter -= 1
+            proxy_changer()
+    if flag == 0:
+        logger.error('{} {}'.format(url.encode('utf-8'), 'decode failed'))
+    else:
+        logger.error('{} {}'.format(url.encode('utf-8'), 'requests failed'))
 
 
 def get_item(json_data):
-    js = json.loads(json_data)['item']
+    js = json_data['item']
     data_list = []
     for i in js:
         item = {}
