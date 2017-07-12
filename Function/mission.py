@@ -10,72 +10,128 @@ Set timed task.
 import time
 import datetime
 import threading
+import json
+
+import Work.globalvar as gv
 import Function
 from Work.log import Logger
+
 logger = Logger('Function', 'DEBUG')
 
 
 class Mission:
-    def __init__(self, hour, minute, event, order):
+    ids = range(1, 100, 1)
+    S_ON = 'Activated'
+    S_OFF = 'Deactivated'
+    
+    def __init__(self, id = -1, hour = 0, minute = 0, message = '', event = None, state = S_ON):
+        if id == -1:
+            if len(Mission.ids) != 0:
+                self.id = Mission.ids.pop()
+            else:
+                raise ZeroDivisionError
+        else:
+            if id in Mission.ids:
+                self.id = id
+                Mission.ids.remove(id)
+            else:
+                raise ZeroDivisionError
+
         self.hour = int(hour)
         self.minute = int(minute)
+        self.message = message
         self.event = event
-        self.order = order
+        self.state = state
+
+    def __deltatime(self, sec = 0):
+        target_time = datetime.datetime(2017, 2, 18, self.hour, self.minute, sec)
+        current_time = datetime.datetime.now()
+        return 86400 - ((current_time - target_time).seconds % 86400)
+
+    def waiter(self):
+        self.state = Mission.S_ON
+        order = gv.order_handler(self.message)
+        try:
+            timetowake = self.__deltatime()
+            while True:
+                self.event.wait(timetowake)
+                if self.event.isSet():
+                    break
+                else:
+                    Function.function_act(order)
+                    time.sleep(66)
+                    timetowake = self.__deltatime()
+        except Exception:
+            logger.traceback()
+        finally:
+            self.event.clear()
+            self.state = Mission.S_OFF
+        return
+
+    def worker(self):
+        thread = threading.Thread(target=self.waiter, args=[])
+        thread.setDaemon(True)
+        thread.start()
 
 mission_list = {}
+SAVE_DIR = 'Data/mission.sav'
 
 
-def deltatime(hour, min, sec=0):
-    target_time = datetime.datetime(2017, 2, 18, hour, min, sec)
-    current_time = datetime.datetime.now()
-    return 86400 - ((current_time - target_time).seconds % 86400)
+def writefile():
+    with open(SAVE_DIR, 'w') as f:
+        for mission in mission_list.values():
+            f.write('{}\n'.format(json.dumps([mission.id, mission.hour, mission.minute, mission.order, mission.state])))
 
 
-def waiter(order):
-    message = (';'.join([str(e) for e in order[3:]])).upper()
-    try:
-        timetowake = deltatime(int(order[1]), int(order[2]))
-        while True:
-            mission_list[message].event.wait(timetowake)
-            if mission_list[message].event.isSet():
-                break
-            else:
-                Function.function_list[order[3]].entry(order[4:])
-                time.sleep(66)
-                timetowake = deltatime(int(order[1]), int(order[2]))
-        mission_list[message].event.clear()
-        mission_list.pop(message)
-    except Exception:
-        logger.traceback()
-    return
+def readfile():
+    with open(SAVE_DIR, 'r') as f:
+        lines = f.readlines()
+    for line in lines:
+        js = json.loads(line[:-1])
+        mission_list[js[0]] = Mission(id=js[0], hour=js[1], minute=js[2], message=js[3], event=threading.Event(), state=js[4])
+        if js[4] == Mission.S_ON:
+            mission_list[js[0]].waiter()
 
 
 def mission(order):
     """
+    NEW;hour;minute;message
+    ON;mission id
+    OFF;mission id
     :param order:order[0]:set/cancel order[1]:order[2] hour:minute order[3]:func order[4:]:arguments
     :return:
     """
-    if order[3] not in Function.function_list:
-        return "No such function!"
-    message = (';'.join([str(e) for e in order[3:]])).upper()
-    if order[0].upper() == 'SET':
-        if message in mission_list.keys():
-            return "Mission has already settled"
+    order[0] = order[0].upper()
+    if order[0] == 'NEW':
+        if order[3] not in Function.function_list:
+            response = "No such function!"
         else:
-            mission_list[message] = Mission(order[1], order[2], threading.Event(), message)
-            threading.Thread(target=waiter, args=[order]).start()
-            return "Successfully settled"
-
-    elif order[0].upper() == 'CANCEL':
-        if message not in mission_list.keys():
-            return "Mission isn't running"
+            message = (';'.join([str(e) for e in order[3:]]))
+            new_mission = Mission(hour=order[1], minute=order[2], event=threading.Event(), message=message)
+            mission_list[new_mission.id] = new_mission
+            new_mission.worker()
+            response = "Successfully settled"
+    elif order[0] == 'ON':
+        if order[1] in mission_list:
+            if mission_list[order[1]].state == Mission.S_OFF:
+                mission_list[order[1]].worker()
+            response = "Successfully ON"
         else:
-            mission_list[message].event.set()
-            mission_list.pop(message)
-            return "Successfully canceled"
+            response = "No such mission!"
+    elif order[0] == 'OFF':
+        if order[1] in mission_list:
+            if mission_list[order[1]].state == Mission.S_ON:
+                mission_list[order[1]].event.set()
+            response = "Successfully OFF"
+        else:
+            response = "No such mission!"
     else:
-        return "No such order!\n" \
-               "you can either set or cancel a mission."
+        response = "No such order!\n" \
+                   "you can NEW, ON or OFF a mission."
+
+    with open(SAVE_DIR, 'w') as f:
+        f.write(json.dumps(mission_list))
+    return response
 
 functions = {
     'mission': {'entry': mission, 'argu_num': -1, 'dis_mode': 1,
@@ -83,3 +139,9 @@ functions = {
                 'help_info': 'act = SET/CANCEL and func = name of function, it will run every day at hour:min if set.',
                 'collect': None}
 }
+
+if __name__ == "__main__":
+    pass
+else:
+    readfile()
+

@@ -29,13 +29,13 @@ def console_receive(self, message):
     """
     order = gv.order_handler(message)
     if order[0] == 'HELP':
-        return str(Function.function_list.keys())[1:-1]
+        response = str(Function.function_list.keys())[1:-1]
     elif order[0] not in Function.function_list:
-        return "No such function\n" \
+        response = "No such function\n" \
                "Do you need 'HELP'?"
     elif Function.function_list[order[0]].argu_num != -1 and Function.function_list[order[0]].argu_num+(2 if Function.function_list[order[0]].dis_mode == 1 else 1) != len(order):
         # 1 for function name itself and another one for appointing.
-        return "Wrong number of arguments."
+        response = "Wrong number of arguments."
     else:
         operation[Function.function_list[order[0]].dis_mode](order)
         try:

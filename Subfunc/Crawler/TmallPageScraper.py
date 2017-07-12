@@ -20,9 +20,12 @@ def proxy_changer():
     global proxies_pool
     global proxies
     if len(proxies_pool) == 0:
-        re = requests.get(
-            'http://tvp.daxiangdaili.com/ip/?tid=559959788048032&num=5&category=2&protocol=https&format=json')
-        proxies_pool = json.loads(re.content)
+        try:
+            re = requests.get(
+                'http://tvp.daxiangdaili.com/ip/?tid=559959788048032&num=5&category=2&protocol=https&format=json')
+            proxies_pool = json.loads(re.content)
+        except Exception as e:
+            logger.error('{}:{}'.format(e, re.content))
     proxy = proxies_pool.pop()
     url = 'http://{}:{}'.format(proxy['host'], proxy['port'])
     proxies = {

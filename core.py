@@ -77,22 +77,6 @@ class Connection:
         gv.connections.pop(self.fileno)
         punish_list[self.fileno] = 0
 
-    def save_send(self, message):
-        """
-        Standard way to send message.
-        Avoid the risk of socket closed before send.(In that case, log and disconnect with it)
-        :param self:
-        :param message:
-        :return: 0 for normal and 1 for error.
-        """
-        try:
-            self.socket.sendall(message)
-        except Exception:
-            self.logger.warning("{}: close before send.".format(self.fileno))
-            self.disconnect()
-            return 1
-        return 0
-
     def upgrade(self, level):
         """
         Give the connection level after received corresponding password.(Disconnect if it closed)
@@ -113,6 +97,22 @@ class Connection:
         except Exception:
             self.logger.warning("{}: {} unexcepted close.".format(self.fileno, self.level))
             self.disconnect()
+        return 0
+
+    def save_send(self, message):
+        """
+        Standard way to send message.
+        Avoid the risk of socket closed before send.(In that case, log and disconnect with it)
+        :param self:
+        :param message:
+        :return: 0 for normal and 1 for error.
+        """
+        try:
+            self.socket.sendall(message)
+        except Exception:
+            self.logger.warning("{}: close before send.".format(self.fileno))
+            self.disconnect()
+            return 1
         return 0
 
     def save_receive(self):
