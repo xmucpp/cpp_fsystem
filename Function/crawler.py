@@ -26,26 +26,41 @@ class Worker:
 worker_list = {}
 
 
+def middle(worker_name, event):
+    btitle = '{}{}'.format(cf.BACKUP, worker_name)
+    worker_list[worker_name].table = my_redis.blpop(worker_name)[1]
+    my_redis.lpush(btitle, worker_list[worker_name].table)
+
+    results = Crawler.crawler_list[worker_name](worker_list[worker_name].table)
+
+    if results == 0:
+        worker_list[worker_name].count += 1
+    else:
+        logger.error(worker_list[worker_name].table)
+        return
+    event.set()
+
+
+def ticker(worker_name):
+    event = threading.Event()
+    thread = threading.Thread(target=middle, args=[worker_name, event])
+    thread.setDaemon(True)
+    thread.start()
+    event.wait(120)
+    if event.isSet():
+        return
+    else:
+        raise ZeroDivisionError
+
+
 def work(worker_name):
     logger.info('{}:worker start!'.format(worker_name))
     worker_list[worker_name].state = 'Running'
     try:
-        btitle = '{}{}'.format(cf.BACKUP, worker_name)
         while my_redis.exists(worker_name):
             if worker_list[worker_name].event.isSet():
                 break
-            try:
-                worker_list[worker_name].table = my_redis.blpop(worker_name)[1]
-                my_redis.lpush(btitle, worker_list[worker_name].table)
-
-                results = Crawler.crawler_list[worker_name](worker_list[worker_name].table)
-                if results == 0:
-                    worker_list[worker_name].count += 1
-                else:
-                    logger.error(worker_list[worker_name].table)
-                    break
-            except Exception:
-                logger.error(logger.traceback())
+            ticker(worker_name)
     except Exception as e:
         logger.error(logger.traceback())
     finally:
