@@ -33,9 +33,6 @@ def console_receive(self, message):
     elif order[0] not in Function.function_list:
         response = "No such function\n" \
                "Do you need 'HELP'?"
-    elif Function.function_list[order[0]].argu_num != -1 and Function.function_list[order[0]].argu_num+(2 if Function.function_list[order[0]].dis_mode == 1 else 1) != len(order):
-        # 1 for function name itself and another one for appointing.
-        response = "Wrong number of arguments."
     else:
         operation[Function.function_list[order[0]].dis_mode](order)
         try:
@@ -52,7 +49,8 @@ def console_receive(self, message):
         func = order[0]
         order.pop(1)
         message = ';'.join([str(e) for e in order])
-        return Function.function_list[func].collect(message, server_list)
+        response = Function.function_list[func].collect(message, server_list)
+    return response
 
 
 Users = {
