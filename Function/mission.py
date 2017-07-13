@@ -20,7 +20,7 @@ logger = Logger('Function', 'DEBUG')
 
 
 class Mission:
-    ids = range(1, 100, 1)
+    ids = range(100, 0, -1)
     S_ON = 'Activated'
     S_OFF = 'Deactivated'
 
@@ -89,6 +89,8 @@ def readfile():
     for line in lines:
         js = json.loads(line[:-1])
         mission_list[js[0]] = Mission(id=js[0], hour=js[1], minute=js[2], message=js[3], event=threading.Event(), state=js[4])
+        logger.debug(Mission.ids)
+        logger.debug(js[0])
         Mission.ids.remove(js[0])
         if js[4] == Mission.S_ON:
             mission_list[js[0]].waiter()
