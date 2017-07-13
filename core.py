@@ -343,7 +343,7 @@ def main():
         else:
             king_server()
     except Exception:
-        logger.error(logger.traceback())
+        logger.critical(logger.traceback())
     finally:
         logger.info("Server is shutting down......")
         temp = gv.connections.keys()

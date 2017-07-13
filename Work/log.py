@@ -81,7 +81,7 @@ class Logger(object):
         for line in lines:
             elines = line.splitlines()
             for eline in elines:
-                self.logger.critical(eline.strip())
+                self.logger.critical('----'.format(eline.strip()))
 
 if __name__ == "__main__":
     """Test code"""
