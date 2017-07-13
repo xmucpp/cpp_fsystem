@@ -51,7 +51,6 @@ class Proxy:
             'http': url,
             'https': url
         }
-        logger.debug("change proxies to {}".format(url))
         return proxies
 
 pro = Proxy()
@@ -90,6 +89,7 @@ def get_json(url):
             if r.status_code == 200:
                 break
             else:
+                logger.warning(r.status_code)
                 raise requests.exceptions.ProxyError
         except (requests.exceptions.ProxyError, requests.exceptions.ConnectionError):
             counter -= 1
