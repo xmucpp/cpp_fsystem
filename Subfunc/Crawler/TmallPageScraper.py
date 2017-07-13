@@ -42,7 +42,7 @@ class Proxy:
         try:
             Proxy.proxies_pool.remove(proxy)
         except Exception as e:
-            logger.traceback()
+            logger.warning('delete failed:{} in {}.'.format(proxy, Proxy.proxies_pool))
         self.__saveproxies()
 
     def get_proxies(self, proxy):
@@ -91,7 +91,8 @@ def get_json(url):
             else:
                 logger.warning(r.status_code)
                 raise requests.exceptions.ProxyError
-        except (requests.exceptions.ProxyError, requests.exceptions.ConnectionError):
+        except (requests.exceptions.ProxyError, requests.exceptions.ConnectionError) as e:
+            logger.warning(e)
             counter -= 1
             pro.del_proxies(proxy)
             proxy = pro.get_proxy()
