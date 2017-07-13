@@ -96,7 +96,7 @@ def readfile():
         except Exception:
             logger.traceback()
         if js[4] == Mission.S_ON:
-            mission_list[js[0]].waiter()
+            mission_list[js[0]].worker()
 
 
 def mission(order):
