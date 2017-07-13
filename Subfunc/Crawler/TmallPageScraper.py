@@ -70,7 +70,6 @@ def get_json(url):
             counter -= 1
             proxy_changer()
 
-    logger.debug(r.content)
     if counter == 0:
         logger.error('{} {}'.format(url.encode('utf-8'), 'requests failed'))
         return
@@ -80,6 +79,7 @@ def get_json(url):
     flag = 2
     while flag != 0:
         try:
+            logger.debug('{}: {}'.format(r.status_code, r.content))
             js = json.loads(r.content)
             logger.debug(js)
             return js
