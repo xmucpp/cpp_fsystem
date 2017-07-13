@@ -80,7 +80,7 @@ SAVE_DIR = 'Data/mission.sav'
 def writefile():
     with open(SAVE_DIR, 'w') as f:
         for mission in mission_list.values():
-            f.write('{}\n'.format(json.dumps([mission.id, mission.hour, mission.minute, mission.order, mission.state])))
+            f.write('{}\n'.format(json.dumps([mission.id, mission.hour, mission.minute, mission.message, mission.state])))
 
 
 def readfile():
