@@ -66,7 +66,10 @@ def get_json(url):
     while counter != 0:
         try:
             r = get_web(url)
-            break
+            if r.status_code == 200:
+                break
+            else:
+                raise requests.exceptions.ProxyError
         except (requests.exceptions.ProxyError, requests.exceptions.ConnectionError):
             counter -= 1
             proxy_changer()
