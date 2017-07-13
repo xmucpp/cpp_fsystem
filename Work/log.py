@@ -66,7 +66,7 @@ class Logger(object):
 
     def error(self, msg):
         if msg is not None:
-            self.logger.error(msg)
+            self.logger.error(msg.decode('utf8'))
 
     def critical(self, msg):
         if msg is not None:
