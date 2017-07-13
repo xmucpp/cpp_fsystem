@@ -52,7 +52,8 @@ def get_web(url):
     }
 
     logger.debug('Trying open {} with {}.'.format(url, proxies))
-    r = requests.get(url, headers, proxies=proxies)
+    r = requests.get(url=url, headers=headers, proxies=proxies)
+    logger.debug('{}: {}'.format(r.status_code, r.content))
     return r
 
 
@@ -78,7 +79,6 @@ def get_json(url):
 
     flag = 2
     while flag != 0:
-        logger.debug('{}: {}'.format(r.status_code, r.content))
         try:
             js = json.loads(r.content)
             logger.debug(js)
