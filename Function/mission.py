@@ -91,7 +91,10 @@ def readfile():
         mission_list[js[0]] = Mission(id=js[0], hour=js[1], minute=js[2], message=js[3], event=threading.Event(), state=js[4])
         logger.debug(Mission.ids)
         logger.debug(js[0])
-        Mission.ids.remove(js[0])
+        try:
+            Mission.ids.remove(js[0])
+        except Exception:
+            logger.traceback()
         if js[4] == Mission.S_ON:
             mission_list[js[0]].waiter()
 
