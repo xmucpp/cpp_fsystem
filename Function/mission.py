@@ -108,6 +108,7 @@ def mission(order):
     :return:
     """
     order[0] = order[0].upper()
+    order[1] = int(order[1])
     if order[0] == 'NEW':
         if order[3] not in Function.function_list:
             response = "No such function!"
@@ -125,7 +126,7 @@ def mission(order):
         else:
             response = "No such mission!"
     elif order[0] == 'OFF':
-        if order[1] in mission_list:
+        if order[1] in mission_list.keys():
             if mission_list[order[1]].state == Mission.S_ON:
                 mission_list[order[1]].event.set()
             response = "Successfully OFF"
