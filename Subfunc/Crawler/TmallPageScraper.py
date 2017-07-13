@@ -81,7 +81,6 @@ def get_json(url):
     while flag != 0:
         try:
             js = json.loads(r.content)
-            logger.debug(js)
             return js
         except ValueError:
             logger.traceback()
