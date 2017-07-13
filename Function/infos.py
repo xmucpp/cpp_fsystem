@@ -23,7 +23,7 @@ def conn_info():
         logger.error(logger.traceback())
         return ''
 
-#
+
 def crawler_info():
     try:
         info_data = '\n---Current worker:{}\n'.format(len(crawler.worker_list))
