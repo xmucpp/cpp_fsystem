@@ -54,23 +54,25 @@ class Logger(object):
 
     def debug(self, msg):
         if msg is not None:
-            self.logger.debug(msg.decode('utf8'))
+            self.logger.debug(msg.decode('utf-8'))
 
     def info(self, msg):
+        print type(msg)
+        print msg
         if msg is not None:
-            self.logger.info(msg.decode('utf8'))
+            self.logger.info(msg.decode('utf-8'))
 
     def warning(self, msg):
         if msg is not None:
-            self.logger.warning(msg.decode('utf8'))
+            self.logger.warning(msg.decode('utf-8'))
 
     def error(self, msg):
         if msg is not None:
-            self.logger.error(msg.decode('utf8'))
+            self.logger.error(msg.decode('utf-8'))
 
     def critical(self, msg):
         if msg is not None:
-            self.logger.critical(msg.decode('utf8'))
+            self.logger.critical(msg.decode('utf-8'))
 
     def traceback(self):
         """Log exception traceback to logger"""
