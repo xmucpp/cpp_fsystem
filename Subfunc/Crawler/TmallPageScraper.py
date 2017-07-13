@@ -12,30 +12,52 @@ import requests
 from Subfunc.Crawler import USER_AGENTS
 from Work.log import Logger
 logger = Logger('Tmall', 'DEBUG')
-proxies = {}
-proxies_pool = []
 
 
-def proxy_changer():
-    global proxies_pool
-    global proxies
-    if len(proxies_pool) == 0:
+class Proxy:
+    proxies_pool = []
+
+    def __init__(self):
+        with open('Data/proxies.sav', 'r') as f:
+            x = f.read()
+        Proxy.proxies_pool = json.loads(x)
+
+    def __saveproxies(self):
+        with open('Data/proxies.sav', 'w') as f:
+            f.write(json.dumps(Proxy.proxies_pool))
+
+    def get_proxy(self):
+        if len(Proxy.proxies_pool) < 5:
+            try:
+                re = requests.get(
+                    'http://tvp.daxiangdaili.com/ip/?tid=559959788048032&num=5&category=2&protocol=https&format=json')
+                Proxy.proxies_pool.extend(json.loads(re.content))
+                self.__saveproxies()
+            except Exception as e:
+                logger.error('{}:{}'.format(e, re.content))
+        return random.choice(Proxy.proxies_pool)
+
+    def del_proxies(self, proxy):
+        logger.debug('Deleting proxies {}'.format(proxy))
         try:
-            re = requests.get(
-                'http://tvp.daxiangdaili.com/ip/?tid=559959788048032&num=5&category=2&protocol=https&format=json')
-            proxies_pool = json.loads(re.content)
+            Proxy.proxies_pool.remove(proxy)
         except Exception as e:
-            logger.error('{}:{}'.format(e, re.content))
-    proxy = proxies_pool.pop()
-    url = 'http://{}:{}'.format(proxy['host'], proxy['port'])
-    proxies = {
-        'http': url,
-        'https': url
-    }
-    logger.debug("change proxies to {}".format(url))
+            logger.traceback()
+        self.__saveproxies()
+
+    def get_proxies(self, proxy):
+        url = 'http://{}:{}'.format(proxy['host'], proxy['port'])
+        proxies = {
+            'http': url,
+            'https': url
+        }
+        logger.debug("change proxies to {}".format(url))
+        return proxies
+
+pro = Proxy()
 
 
-def get_web(url):
+def get_web(url, proxies):
     user_agent = random.choice(USER_AGENTS)
     headers = {
         ':host': 'list.tmall.com',
@@ -58,21 +80,22 @@ def get_web(url):
 
 
 def get_json(url):
-    if proxies == {}:
-        proxy_changer()
-
     # request for the HTML
+    proxy = pro.get_proxy()
+    proxies = pro.get_proxies(proxy)
     counter = 30
     while counter != 0:
         try:
-            r = get_web(url)
+            r = get_web(url, proxies)
             if r.status_code == 200:
                 break
             else:
                 raise requests.exceptions.ProxyError
         except (requests.exceptions.ProxyError, requests.exceptions.ConnectionError):
             counter -= 1
-            proxy_changer()
+            pro.del_proxies(proxy)
+            proxy = pro.get_proxy()
+            proxies = pro.get_proxies(proxy)
 
     if counter == 0:
         logger.error('{} {}'.format(url.encode('utf-8'), 'requests failed'))
@@ -92,13 +115,13 @@ def get_json(url):
             if flag == 0:
                 break
             else:
-                proxy_changer()
-                r = get_web(url)
+                proxy = pro.get_proxy()
+                proxies = pro.get_proxies(proxy)
+                r = get_web(url, proxies)
     logger.error('{} {}'.format(url.encode('utf-8'), 'decode failed'))
 
 
 def get_item(json_data):
-    logger
     js = json_data['item']
     data_list = []
     for i in js:
