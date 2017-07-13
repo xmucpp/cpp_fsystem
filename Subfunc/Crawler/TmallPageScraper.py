@@ -158,8 +158,8 @@ def write_csv(data_list, page, category_name):
 
 
 def parse(fake_url):
-    logger.info(fake_url)
     try:
+        logger.info(fake_url)
         url = fake_url.split('&*')[0]
         page = url.split('no=')[1]
         category_name = fake_url.split('*')[-1]
