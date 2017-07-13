@@ -78,8 +78,8 @@ def get_json(url):
 
     flag = 2
     while flag != 0:
+        logger.debug('{}: {}'.format(r.status_code, r.content))
         try:
-            logger.debug('{}: {}'.format(r.status_code, r.content))
             js = json.loads(r.content)
             logger.debug(js)
             return js
