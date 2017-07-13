@@ -64,12 +64,15 @@ def get_json(url):
         except (requests.exceptions.ProxyError, requests.exceptions.ConnectionError):
             counter -= 1
             proxy_changer()
+    logger.debug(r.content)
     if counter == 0:
         logger.error('{} {}'.format(url.encode('utf-8'), 'requests failed'))
         return
     while flag != 0:
         try:
-            return json.loads(r.content)
+            js = json.loads(r.content)
+            logger.debug(js)
+            return js
         except ValueError:
             flag -= 1
             if flag == 0:
@@ -80,6 +83,7 @@ def get_json(url):
 
 
 def get_item(json_data):
+    logger
     js = json_data['item']
     data_list = []
     for i in js:
