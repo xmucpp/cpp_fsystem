@@ -63,7 +63,11 @@ def function_act(order):
     if order[0] not in function_list.keys():
         response = "No such function\n"
     else:
-        response = function_list[order[0]](order[1:])
+        if len(order) > 1:
+            response = function_list[order[0]](order[1:])
+        else:
+            response = function_list[order[0]]()
+
     return response
 
 """
