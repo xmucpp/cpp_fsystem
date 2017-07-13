@@ -51,7 +51,7 @@ def get_web(url):
         'user-agent': user_agent,
     }
 
-    logger.debug('Trying open {} with {}'.format(url, proxies))
+    logger.debug('Trying open {} with {}.'.format(url, proxies))
     r = requests.get(url, headers, proxies=proxies)
     return r
 
