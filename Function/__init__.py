@@ -64,9 +64,9 @@ def function_act(order):
         response = "No such function\n"
     else:
         if len(order) > 1:
-            response = function_list[order[0]](order[1:])
+            response = function_list[order[0]].entry(order[1:])
         else:
-            response = function_list[order[0]]()
+            response = function_list[order[0]].entry()
 
     return response
 

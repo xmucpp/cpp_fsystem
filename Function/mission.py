@@ -132,6 +132,15 @@ def mission(order):
             response = "Successfully OFF"
         else:
             response = "No such mission!"
+    elif order[0] == 'DEL':
+        if order[1] in mission_list.keys():
+            if mission_list[order[1]].state == Mission.S_ON:
+                mission_list[order[1]].event.set()
+            Mission.ids.append(order[1])
+            mission_list.pop(order[1])
+            response = "Successfully deleted"
+        else:
+            response = "No such mission!"
     else:
         response = "No such order!\n" \
                    "you can NEW, ON or OFF a mission."
