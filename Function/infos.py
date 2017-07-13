@@ -40,8 +40,8 @@ def mission_info():
     try:
         info_data = '\n---Current mission:{}\n'.format(len(ms.mission_list))
         for (name, mission) in ms.mission_list.items():
-            info_data += "%-8s      %-2s:%-2s     %-10s\n" %\
-                         (name, mission.hour, mission.minute, mission.order)
+            info_data += "%-6s      %-2s:%-2s     %-10s    %-6s\n" %\
+                         (name, mission.hour, mission.minute, mission.message, mission.state)
         return info_data
     except Exception:
         logger.error(logger.traceback())
