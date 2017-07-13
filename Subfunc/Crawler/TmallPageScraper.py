@@ -84,7 +84,7 @@ def get_json(url):
             logger.debug(js)
             return js
         except ValueError:
-            logger.debug(r.content)
+            logger.traceback()
             flag -= 1
             if flag == 0:
                 break
