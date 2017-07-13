@@ -53,26 +53,52 @@ class Logger(object):
             self.logger.addHandler(self.fh)
 
     def debug(self, msg):
-        print type(msg)
-        print msg
+        if type(msg) == str:
+            try:
+                msg = msg.decode('utf8')
+            except Exception as e:
+                print msg
+                print e
         if msg is not None:
             self.logger.debug(msg)
 
     def info(self, msg):
-        print type(msg)
-        print msg
+        if type(msg) == str:
+            try:
+                msg = msg.decode('utf8')
+            except Exception as e:
+                print msg
+                print e
         if msg is not None:
             self.logger.info(msg)
 
     def warning(self, msg):
+        if type(msg) == str:
+            try:
+                msg = msg.decode('utf8')
+            except Exception as e:
+                print msg
+                print e
         if msg is not None:
             self.logger.warning(msg)
 
     def error(self, msg):
+        if type(msg) == str:
+            try:
+                msg = msg.decode('utf8')
+            except Exception as e:
+                print msg
+                print e
         if msg is not None:
             self.logger.error(msg)
 
     def critical(self, msg):
+        if type(msg) == str:
+            try:
+                msg = msg.decode('utf8')
+            except Exception as e:
+                print msg
+                print e
         if msg is not None:
             self.logger.critical(msg)
 
