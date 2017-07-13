@@ -51,9 +51,9 @@ def mission_info():
 def info(order):
     try:
         info_data = '\n'
-        info_data += conn_info()
-        info_data += mission_info()
-        info_data += crawler_info()
+        info_data = '{}{}'.format(info_data, conn_info())
+        info_data = '{}{}'.format(info_data, mission_info())
+        info_data = '{}{}'.format(info_data, crawler_info())
     except Exception as e:
         print e
         logger.traceback()
