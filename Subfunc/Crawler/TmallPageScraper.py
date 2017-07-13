@@ -35,9 +35,7 @@ def proxy_changer():
     logger.debug("change proxies to {}".format(url))
 
 
-def get_json(url):
-    if proxies == {}:
-        proxy_changer()
+def get_web(url):
     user_agent = random.choice(USER_AGENTS)
     headers = {
         ':host': 'list.tmall.com',
@@ -53,21 +51,33 @@ def get_json(url):
         'user-agent': user_agent,
     }
 
+    logger.debug('Trying open {} with {}'.format(url, proxies))
+    r = requests.get(url, headers, proxies=proxies)
+    return r
+
+
+def get_json(url):
+    if proxies == {}:
+        proxy_changer()
+
     # request for the HTML
-    flag = 2
     counter = 30
     while counter != 0:
         try:
-            logger.debug('Trying open {} with {}'.format(url, proxies))
-            r = requests.get(url, headers, proxies=proxies)
+            r = get_web(url)
             break
         except (requests.exceptions.ProxyError, requests.exceptions.ConnectionError):
             counter -= 1
             proxy_changer()
+
     logger.debug(r.content)
     if counter == 0:
         logger.error('{} {}'.format(url.encode('utf-8'), 'requests failed'))
         return
+    else:
+        logger.debug('Prase 1 passed.')
+
+    flag = 2
     while flag != 0:
         try:
             js = json.loads(r.content)
@@ -80,6 +90,7 @@ def get_json(url):
                 break
             else:
                 proxy_changer()
+                r = get_web(url)
     logger.error('{} {}'.format(url.encode('utf-8'), 'decode failed'))
 
 
