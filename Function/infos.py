@@ -29,7 +29,7 @@ def crawler_info():
         info_data = '\n---Current worker:{}\n'.format(len(crawler.worker_list))
         for (name, worker) in crawler.worker_list.items():
             info_data += "%-8s      %-8s     %-40s     %-8d\n" % \
-                        (name, worker.state, worker.table.decode(), worker.count)
+                        (name, worker.state, worker.table, worker.count)
         return info_data
     except Exception:
         logger.error(logger.traceback())
