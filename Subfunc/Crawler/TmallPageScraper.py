@@ -53,7 +53,7 @@ def get_web(url):
 
     logger.debug('Trying open {} with {}.'.format(url, proxies))
     r = requests.get(url=url, headers=headers, proxies=proxies)
-    logger.debug('{}: {}'.format(r.status_code, r.content))
+    # logger.debug('{}: {}'.format(r.status_code, r.content))
     return r
 
 
@@ -81,6 +81,7 @@ def get_json(url):
     while flag != 0:
         try:
             js = json.loads(r.content)
+            logger.debug('Prase 2 passed.')
             return js
         except ValueError:
             logger.traceback()
