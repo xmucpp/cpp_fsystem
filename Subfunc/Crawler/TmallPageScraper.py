@@ -47,6 +47,7 @@ class Proxy:
         self.__saveproxies()
 
     def get_proxies(self, proxy):
+        logger.debug(proxy)
         url = 'http://{}:{}'.format(proxy['ip'], proxy['port'])
         proxies = {
             'http': url,
