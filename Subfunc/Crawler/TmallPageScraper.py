@@ -27,11 +27,12 @@ class Proxy:
             f.write(json.dumps(Proxy.proxies_pool))
 
     def get_proxy(self):
-        if len(Proxy.proxies_pool) < 5:
+        if len(Proxy.proxies_pool) == 0:
             try:
                 re = requests.get(
-                    'http://tvp.daxiangdaili.com/ip/?tid=559959788048032&num=5&category=2&protocol=https&format=json')
-                Proxy.proxies_pool.extend(json.loads(re.content))
+                    'http.zhimadaili.com/getip?num=1&type=2&pro=&city=0&yys=0&port=11&time=1')
+                js = json.loads(re.content)
+                Proxy.proxies_pool.extend(js['data'])
                 self.__saveproxies()
             except Exception as e:
                 logger.error('{}:{}'.format(e, re.content))
@@ -46,7 +47,7 @@ class Proxy:
         self.__saveproxies()
 
     def get_proxies(self, proxy):
-        url = 'http://{}:{}'.format(proxy['host'], proxy['port'])
+        url = 'http://{}:{}'.format(proxy['ip'], proxy['port'])
         proxies = {
             'http': url,
             'https': url
