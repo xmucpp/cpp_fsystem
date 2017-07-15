@@ -18,13 +18,19 @@ class Proxy:
     proxies_pool = None
 
     def __init__(self):
+        """
         with open('Data/proxies.sav', 'r') as f:
             x = f.read()
         Proxy.proxies_pool = json.loads(x)
+        """
+        pass
 
     def __saveproxies(self):
+        """
         with open('Data/proxies.sav', 'w') as f:
             f.write(json.dumps(Proxy.proxies_pool))
+        """
+        pass
 
     def get_proxy(self):
         if Proxy.proxies_pool == None:
