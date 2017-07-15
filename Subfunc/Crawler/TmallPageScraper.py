@@ -30,7 +30,7 @@ class Proxy:
         if len(Proxy.proxies_pool) == 0:
             try:
                 re = requests.get(
-                    'http.zhimadaili.com/getip?num=1&type=2&pro=&city=0&yys=0&port=11&time=1')
+                    'http://http.zhimadaili.com/getip?num=1&type=2&pro=&city=0&yys=0&port=11&time=1')
                 js = json.loads(re.content)
                 Proxy.proxies_pool.extend(js['data'])
                 self.__saveproxies()

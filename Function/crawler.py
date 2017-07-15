@@ -46,7 +46,7 @@ def ticker(worker_name):
     thread = threading.Thread(target=middle, args=[worker_name, event])
     thread.setDaemon(True)
     thread.start()
-    event.wait(180)
+    event.wait(120)
     if event.isSet():
         return
     else:
