@@ -43,7 +43,7 @@ class Proxy:
             except Exception as e:
                 logger.error('{}:{}'.format(e, re.content))
         logger.debug(Proxy.proxies_pool)
-        return Proxy.proxies_pool
+        return Proxy.proxies_pool[0]
         # return {'http': 'http://36.56.47.249:8852', 'https': 'http://36.56.47.249:8852'}
 
     def del_proxies(self, proxy):
