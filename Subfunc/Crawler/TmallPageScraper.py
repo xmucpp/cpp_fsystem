@@ -84,7 +84,8 @@ def get_web(url, proxies):
     }
 
     logger.debug('Trying open {} with {}.'.format(url, proxies))
-    r = requests.get(url=url, headers=headers, proxies=proxies)
+    # r = requests.get(url=url, headers=headers, proxies=proxies)
+    r = requests.get(url=url, proxies=proxies)
     # logger.debug('{}: {}'.format(r.status_code, r.content))
     return r
 
