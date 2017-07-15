@@ -27,6 +27,7 @@ class Proxy:
             f.write(json.dumps(Proxy.proxies_pool))
 
     def get_proxy(self):
+        """
         if len(Proxy.proxies_pool) == 0:
             try:
                 re = requests.get(
@@ -38,6 +39,8 @@ class Proxy:
                 logger.error('{}:{}'.format(e, re.content))
         logger.debug(Proxy.proxies_pool)
         return random.choice(Proxy.proxies_pool)
+        """
+        return {'http': 'http://36.56.47.249:8852', 'https': 'http://36.56.47.249:8852'}
 
     def del_proxies(self, proxy):
         logger.debug('Deleting proxies {}'.format(proxy))
@@ -48,6 +51,7 @@ class Proxy:
         self.__saveproxies()
 
     def get_proxies(self, proxy):
+        """
         logger.debug(proxy)
         url = 'http://{}:{}'.format(proxy['ip'], proxy['port'])
         proxies = {
@@ -55,6 +59,8 @@ class Proxy:
             'https': url
         }
         return proxies
+        """
+        return proxy
 
 pro = Proxy()
 
