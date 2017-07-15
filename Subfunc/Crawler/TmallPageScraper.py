@@ -84,7 +84,7 @@ def get_json(url):
     # request for the HTML
     proxy = pro.get_proxy()
     proxies = pro.get_proxies(proxy)
-    counter = 30
+    counter = 3
     while counter != 0:
         try:
             r = get_web(url, proxies)
