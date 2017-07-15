@@ -15,7 +15,7 @@ logger = Logger('Tmall', 'DEBUG')
 
 
 class Proxy:
-    proxies_pool = []
+    proxies_pool = None
 
     def __init__(self):
         with open('Data/proxies.sav', 'r') as f:
@@ -27,31 +27,28 @@ class Proxy:
             f.write(json.dumps(Proxy.proxies_pool))
 
     def get_proxy(self):
-        """
-        if len(Proxy.proxies_pool) == 0:
+        if Proxy.proxies_pool == None:
             try:
                 re = requests.get(
                     'http://http.zhimadaili.com/getip?num=1&type=2&pro=&city=0&yys=0&port=11&time=1')
                 js = json.loads(re.content)
-                Proxy.proxies_pool.extend(js['data'])
+                Proxy.proxies_pool = js['data']
                 self.__saveproxies()
             except Exception as e:
                 logger.error('{}:{}'.format(e, re.content))
         logger.debug(Proxy.proxies_pool)
-        return random.choice(Proxy.proxies_pool)
-        """
-        return {'http': 'http://36.56.47.249:8852', 'https': 'http://36.56.47.249:8852'}
+        return Proxy.proxies_pool
+        # return {'http': 'http://36.56.47.249:8852', 'https': 'http://36.56.47.249:8852'}
 
     def del_proxies(self, proxy):
         logger.debug('Deleting proxies {}'.format(proxy))
         try:
-            Proxy.proxies_pool.remove(proxy)
+            Proxy.proxies_pool = None
         except Exception as e:
             logger.warning('delete failed:{} in {}.'.format(proxy, Proxy.proxies_pool))
         self.__saveproxies()
 
     def get_proxies(self, proxy):
-        """
         logger.debug(proxy)
         url = 'http://{}:{}'.format(proxy['ip'], proxy['port'])
         proxies = {
@@ -59,8 +56,7 @@ class Proxy:
             'https': url
         }
         return proxies
-        """
-        return proxy
+        # return proxy
 
 pro = Proxy()
 
