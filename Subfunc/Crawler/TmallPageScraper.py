@@ -36,6 +36,7 @@ class Proxy:
                 self.__saveproxies()
             except Exception as e:
                 logger.error('{}:{}'.format(e, re.content))
+        logger.debug(Proxy.proxies_pool)
         return random.choice(Proxy.proxies_pool)
 
     def del_proxies(self, proxy):
