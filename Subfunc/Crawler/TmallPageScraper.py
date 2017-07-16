@@ -112,7 +112,7 @@ class TmallWorker():
                 js = json.loads(r.content)
                 logger.debug('Prase 2 passed.')
                 return js
-            except ValueError:
+            except (ValueError, TypeError):
                 logger.traceback()
                 flag -= 1
                 if flag == 0:
