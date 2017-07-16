@@ -70,9 +70,9 @@ class TmallWorker():
         }
 
         logger.debug('Trying open {} with {}.'.format(url, self.proxies))
-        # r = requests.get(url=url, headers=headers, proxies=proxies)
+        r = requests.get(url=url, headers=headers, proxies=self.proxies, cookies=self.cookies)
         # r = requests.get(url=url, proxies=self.proxies)
-        r = requests.get(url=url, cookies=self.cookies)
+        # r = requests.get(url=url, cookies=self.cookies)
         # logger.debug('{}: {}'.format(r.status_code, r.content))
         return r
 
