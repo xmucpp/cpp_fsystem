@@ -53,7 +53,7 @@ class TmallWorker():
         cookies = {}
         browser = webdriver.PhantomJS()
         browser.get('https://login.tmall.com/')
-        time.sleep(5)
+        time.sleep(1)
         # logger.debug(browser.get_cookies())
         cookies[u'isg'] = browser.get_cookie('isg')['value']
         cookies[u'cna'] = u""
@@ -116,11 +116,15 @@ class TmallWorker():
             except (ValueError, TypeError):
                 logger.traceback()
                 flag -= 1
-                if flag == 0:
-                    break
-                else:
+                if flag == 2:
                     self.__get_proxy()
                     r = self.__get_web(url)
+                elif flag == 1:
+                    self.__get_cookies()
+                    self.__get_proxy()
+                    r = self.__get_web(url)
+                else:
+                    break
         logger.error('{} {}'.format(url.encode('utf-8'), 'decode failed'))
 
 tmall_handler = TmallWorker()
