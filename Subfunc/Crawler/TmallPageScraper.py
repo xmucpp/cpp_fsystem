@@ -19,6 +19,7 @@ logger = Logger('Tmall', 'DEBUG')
 class TmallWorker():
     def __init__(self):
         self.cookies = None
+        self.proxies = None
         self.proxies_pool = []
 
     def __get_proxy(self):
