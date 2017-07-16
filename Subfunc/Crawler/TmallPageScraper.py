@@ -53,7 +53,7 @@ class TmallWorker():
         cookies = {}
         browser = webdriver.PhantomJS()
         browser.get('https://login.tmall.com/')
-        time.sleep(1)
+        time.sleep(2)
         # logger.debug(browser.get_cookies())
         cookies[u'isg'] = browser.get_cookie('isg')['value']
         cookies[u'cna'] = u""
