@@ -67,7 +67,7 @@ class TmallWorker():
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.8',
-            'user-agent': USER_AGENTS,
+            'user-agent': user_agent,
         }
 
         logger.debug('Trying open {} with {}.'.format(url, self.proxies))
