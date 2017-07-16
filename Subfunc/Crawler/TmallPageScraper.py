@@ -57,6 +57,7 @@ class TmallWorker():
         # logger.debug(browser.get_cookies())
         cookies[u'isg'] = browser.get_cookie('isg')['value']
         cookies[u'cna'] = u""
+        logger.debug("Switch cookies to {}".format(cookies[u'isg']))
         self.cookies = cookies
 
     def __get_web(self, url):
