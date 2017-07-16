@@ -19,18 +19,19 @@ logger = Logger('Tmall', 'DEBUG')
 class TmallWorker():
     def __init__(self):
         self.cookies = None
-        self.proxies = None
+        self.proxies_pool = []
 
     def __get_proxy(self):
-        if not self.proxies:
+        if len(self.proxies) < 2:
             try:
                 logger.debug("Asking for new proxy...")
                 re = requests.get(
-                    'http://http.zhimadaili.com/getip?num=1&type=2&pro=&city=0&yys=0&port=11&time=1')
+                    'http://http.zhimadaili.com/getip?num=3&type=2&pro=&city=0&yys=0&port=11&time=1')
                 js = json.loads(re.content)
-                self.proxies = js['data'][0]
+                self.proxies_pool.extend(js['data'])
             except Exception as e:
                 logger.error('{}:{}'.format(e, re.content))
+        self.proxies = random.choice(self.proxies_pool)
         logger.debug("Proxy switched to {}".format(self.proxies))
         url = 'http://{}:{}'.format(self.proxies['ip'], self.proxies['port'])
         proxies = {
@@ -96,7 +97,6 @@ class TmallWorker():
             except (requests.exceptions.ProxyError, requests.exceptions.ConnectionError) as e:
                 logger.warning(e)
                 counter -= 1
-                self.__del_proxies()
                 self.__get_proxy()
 
         if counter == 0:
@@ -105,7 +105,7 @@ class TmallWorker():
         else:
             logger.debug('Prase 1 passed.')
 
-        flag = 2
+        flag = 3
         while flag != 0:
             try:
                 logger.debug(r.content[:100])
@@ -118,7 +118,7 @@ class TmallWorker():
                 if flag == 0:
                     break
                 else:
-                    self.__get_cookies()
+                    self.__get_proxy()
                     r = self.__get_web(url)
         logger.error('{} {}'.format(url.encode('utf-8'), 'decode failed'))
 
