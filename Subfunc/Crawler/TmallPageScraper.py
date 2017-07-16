@@ -108,6 +108,7 @@ class TmallWorker():
         flag = 2
         while flag != 0:
             try:
+                logger.debug(r.content[:100])
                 js = json.loads(r.content)
                 logger.debug('Prase 2 passed.')
                 return js
