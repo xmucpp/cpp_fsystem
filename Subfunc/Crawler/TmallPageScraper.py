@@ -70,7 +70,7 @@ class TmallWorker():
             'user-agent': user_agent,
         }
 
-        logger.debug('Trying open {} with {}.'.format(url, self.proxies))
+        logger.debug('Trying open {} with UA:{} and proxy:{} and cookies:{}.'.format(url, headers['user-agent'], self.proxies, self.cookies))
         r = requests.get(url=url, headers=headers, proxies=self.proxies, cookies=self.cookies)
         # r = requests.get(url=url, proxies=self.proxies)
         # r = requests.get(url=url, cookies=self.cookies)
