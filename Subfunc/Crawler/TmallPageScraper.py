@@ -23,7 +23,7 @@ class TmallWorker():
         self.proxies_pool = []
 
     def __get_proxy(self):
-        if len(self.proxies) < 2:
+        if len(self.proxies_pool) < 2:
             try:
                 logger.debug("Asking for new proxy...")
                 re = requests.get(
