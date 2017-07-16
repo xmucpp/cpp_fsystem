@@ -114,8 +114,8 @@ class TmallWorker():
                 js = json.loads(r.content)
                 logger.debug('Prase 2 passed.')
                 return js
-            except (ValueError, TypeError):
-                logger.traceback()
+            except (ValueError, TypeError) as e:
+                logger.warning(e)
                 flag -= 1
                 if flag == 2:
                     self.__get_proxy()
