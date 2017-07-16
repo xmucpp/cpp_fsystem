@@ -24,13 +24,14 @@ class TmallWorker():
     def __get_proxy(self):
         if not self.proxies:
             try:
+                logger.debug("Asking for new proxy...")
                 re = requests.get(
                     'http://http.zhimadaili.com/getip?num=1&type=2&pro=&city=0&yys=0&port=11&time=1')
                 js = json.loads(re.content)
                 self.proxies = js['data'][0]
             except Exception as e:
                 logger.error('{}:{}'.format(e, re.content))
-        logger.debug(self.proxies)
+        logger.debug("Proxy switched to {}".format(self.proxies))
         url = 'http://{}:{}'.format(self.proxies['ip'], self.proxies['port'])
         proxies = {
             'http': url,
