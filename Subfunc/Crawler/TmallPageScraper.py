@@ -8,130 +8,117 @@ import random
 import json
 
 import requests
+from selenium import webdriver
 
+# from Function.crawler import Worker
 from Subfunc.Crawler import USER_AGENTS
 from Work.log import Logger
 logger = Logger('Tmall', 'DEBUG')
 
 
-class Proxy:
-    proxies_pool = None
-
+class TmallWorker():
     def __init__(self):
-        """
-        with open('Data/proxies.sav', 'r') as f:
-            x = f.read()
-        Proxy.proxies_pool = json.loads(x)
-        """
-        pass
+        self.cookies = None
+        self.proxies = None
 
-    def __saveproxies(self):
-        """
-        with open('Data/proxies.sav', 'w') as f:
-            f.write(json.dumps(Proxy.proxies_pool))
-        """
-        pass
-
-    def get_proxy(self):
-        if Proxy.proxies_pool == None:
+    def __get_proxy(self):
+        if not self.proxies:
             try:
                 re = requests.get(
                     'http://http.zhimadaili.com/getip?num=1&type=2&pro=&city=0&yys=0&port=11&time=1')
                 js = json.loads(re.content)
-                Proxy.proxies_pool = js['data']
-                self.__saveproxies()
+                self.proxies = js['data'][0]
             except Exception as e:
                 logger.error('{}:{}'.format(e, re.content))
-        logger.debug(Proxy.proxies_pool)
-        return Proxy.proxies_pool[0]
-        # return {'http': 'http://36.56.47.249:8852', 'https': 'http://36.56.47.249:8852'}
-
-    def del_proxies(self, proxy):
-        logger.debug('Deleting proxies {}'.format(proxy))
-        try:
-            Proxy.proxies_pool = None
-        except Exception as e:
-            logger.warning('delete failed:{} in {}.'.format(proxy, Proxy.proxies_pool))
-        self.__saveproxies()
-
-    def get_proxies(self, proxy):
-        logger.debug(proxy)
-        url = 'http://{}:{}'.format(proxy['ip'], proxy['port'])
+        logger.debug(self.proxies)
+        url = 'http://{}:{}'.format(self.proxies['ip'], self.proxies['port'])
         proxies = {
             'http': url,
             'https': url
         }
-        return proxies
-        # return proxy
+        self.proxies = proxies
+        # return {'http': 'http://36.56.47.249:8852', 'https': 'http://36.56.47.249:8852'}
 
-pro = Proxy()
-
-
-def get_web(url, proxies):
-    user_agent = random.choice(USER_AGENTS)
-    headers = {
-        ':host': 'list.tmall.com',
-        ':method': 'GET',
-        ':path': url,
-        ':scheme': 'https',
-        ':version': 'HTTP/1.1',
-        'accept': 'text/html',
-        'accept-encoding': 'gzip,deflate',
-        'accept-language': 'zh-CN,zh;q=0.8',
-        'cache-control': 'max-age=0',
-        'referer': 'https://list.tmall.com',
-        'user-agent': user_agent,
-    }
-
-    logger.debug('Trying open {} with {}.'.format(url, proxies))
-    # r = requests.get(url=url, headers=headers, proxies=proxies)
-    r = requests.get(url=url, proxies=proxies)
-    # logger.debug('{}: {}'.format(r.status_code, r.content))
-    return r
-
-
-def get_json(url):
-    # request for the HTML
-    proxy = pro.get_proxy()
-    proxies = pro.get_proxies(proxy)
-    counter = 3
-    while counter != 0:
+    def __del_proxies(self):
+        logger.debug('Deleting proxies {}'.format(self.proxies))
         try:
-            r = get_web(url, proxies)
-            if r.status_code == 200:
-                break
-            else:
-                logger.warning(r.status_code)
-                raise requests.exceptions.ProxyError
-        except (requests.exceptions.ProxyError, requests.exceptions.ConnectionError) as e:
-            logger.warning(e)
-            counter -= 1
-            pro.del_proxies(proxy)
-            proxy = pro.get_proxy()
-            proxies = pro.get_proxies(proxy)
+            self.proxies = None
+        except Exception as e:
+            logger.warning('delete failed. {}'.format(e))
 
-    if counter == 0:
-        logger.error('{} {}'.format(url.encode('utf-8'), 'requests failed'))
-        return
-    else:
-        logger.debug('Prase 1 passed.')
+    def __get_cookies(self):
+        cookies = {}
+        browser = webdriver.PhantomJS()
+        browser.get('https://list.tmall.com/m/search_items.htm?q=%D3%C8%BF%CB%C0%EF%C0%EF&cat=50039482&start_price=300&aldid=4LNHmpMY#J_Filter&page_no=2')
+        cookies[u'isg'] = browser.get_cookie('isg')['value']
+        cookies[u'cna'] = u""
+        self.cookies = cookies
 
-    flag = 2
-    while flag != 0:
-        try:
-            js = json.loads(r.content)
-            logger.debug('Prase 2 passed.')
-            return js
-        except ValueError:
-            logger.traceback()
-            flag -= 1
-            if flag == 0:
-                break
-            else:
-                proxy = pro.get_proxy()
-                proxies = pro.get_proxies(proxy)
-                r = get_web(url, proxies)
-    logger.error('{} {}'.format(url.encode('utf-8'), 'decode failed'))
+    def __get_web(self, url):
+        user_agent = random.choice(USER_AGENTS)
+        headers = {
+            'authority': 'list.tmall.com',
+            'method': 'GET',
+            'path': url,
+            'scheme': 'https',
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.8',
+            'user-agent': USER_AGENTS,
+        }
+
+        logger.debug('Trying open {} with {}.'.format(url, self.proxies))
+        # r = requests.get(url=url, headers=headers, proxies=proxies)
+        # r = requests.get(url=url, proxies=self.proxies)
+        r = requests.get(url=url, cookies=self.cookies)
+        # logger.debug('{}: {}'.format(r.status_code, r.content))
+        return r
+
+    def get_json(self, url):
+        # request for the HTML
+        if not self.cookies:
+            self.__get_cookies()
+        if not self.proxies:
+            self.__get_proxy()
+
+        counter = 3
+        while counter != 0:
+            try:
+                r = self.__get_web(url)
+                if r.status_code == 200:
+                    break
+                else:
+                    logger.warning(r.status_code)
+                    raise requests.exceptions.ProxyError
+            except (requests.exceptions.ProxyError, requests.exceptions.ConnectionError) as e:
+                logger.warning(e)
+                counter -= 1
+                self.__del_proxies()
+                self.__get_proxy()
+
+        if counter == 0:
+            logger.error('{} {}'.format(url.encode('utf-8'), 'requests failed'))
+            return
+        else:
+            logger.debug('Prase 1 passed.')
+
+        flag = 2
+        while flag != 0:
+            try:
+                js = json.loads(r.content)
+                logger.debug('Prase 2 passed.')
+                return js
+            except ValueError:
+                logger.traceback()
+                flag -= 1
+                if flag == 0:
+                    break
+                else:
+                    self.__get_cookies()
+                    r = self.__get_web(url)
+        logger.error('{} {}'.format(url.encode('utf-8'), 'decode failed'))
+
+tmall_handler = TmallWorker()
 
 
 def get_item(json_data):
@@ -219,7 +206,7 @@ def parse(fake_url):
         url = fake_url.split('&*')[0]
         page = url.split('no=')[1]
         category_name = fake_url.split('*')[-1]
-        json_data = get_json(url)
+        json_data = tmall_handler.get_json(url)
         data_list = get_item(json_data)
         write_csv(data_list, page, category_name)
         return 0
