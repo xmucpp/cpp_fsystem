@@ -20,6 +20,7 @@ class TmallWorker():
     def __init__(self):
         self.cookies = None
         self.proxies = None
+        self.number = 0
         self.proxies_pool = []
 
     def __get_proxy(self):
@@ -32,7 +33,8 @@ class TmallWorker():
                 self.proxies_pool.extend(js['data'])
             except Exception as e:
                 logger.error('{}:{}'.format(e, re.content))
-        self.proxies = random.choice(self.proxies_pool)
+        self.proxies = self.proxies_pool[self.number]
+        self.number = (self.number + 1) % 10
         logger.debug("Proxy switched to {}".format(self.proxies))
         url = 'http://{}:{}'.format(self.proxies['ip'], self.proxies['port'])
         proxies = {
@@ -107,7 +109,7 @@ class TmallWorker():
         else:
             logger.debug('Prase 1 passed.')
 
-        flag = 3
+        flag = 6
         while flag != 0:
             try:
                 logger.debug(r.content[:100])
@@ -117,7 +119,7 @@ class TmallWorker():
             except (ValueError, TypeError) as e:
                 logger.warning(e)
                 flag -= 1
-                if flag == 2:
+                if flag >= 2:
                     self.__get_proxy()
                     r = self.__get_web(url)
                 elif flag == 1:
