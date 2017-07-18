@@ -75,6 +75,7 @@ class TmallWorker():
             'user-agent': user_agent,
         }
         time.sleep(0.5)
+        self.__get_proxy()
         logger.debug('Trying open {} with UA:{} and proxy:{} and cookies:{}.'.format(url, headers['user-agent'], self.proxies, self.cookies))
         r = requests.get(url=url, headers=headers, proxies=self.proxies, cookies=self.cookies)
         # r = requests.get(url=url, proxies=self.proxies)
@@ -87,7 +88,8 @@ class TmallWorker():
         if not self.cookies:
             self.__get_cookies()
         if not self.proxies:
-            self.__get_proxy()
+            # self.__get_proxy()
+            pass
 
         counter = 3
         while counter != 0:
@@ -101,7 +103,7 @@ class TmallWorker():
             except (requests.exceptions.ProxyError, requests.exceptions.ConnectionError) as e:
                 logger.warning(e)
                 counter -= 1
-                self.__get_proxy()
+                # self.__get_proxy()
 
         if counter == 0:
             logger.error('{} {}'.format(url.encode('utf-8'), 'requests failed'))
@@ -120,11 +122,11 @@ class TmallWorker():
                 logger.warning(e)
                 flag -= 1
                 if flag >= 2:
-                    self.__get_proxy()
+                    # self.__get_proxy()
                     r = self.__get_web(url)
                 elif flag == 1:
                     self.__get_cookies()
-                    self.__get_proxy()
+                    # self.__get_proxy()
                     r = self.__get_web(url)
                 else:
                     break
