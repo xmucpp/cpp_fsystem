@@ -65,7 +65,7 @@ def work(worker_name):
         logger.error(logger.traceback())
     finally:
         worker_list[worker_name].event.clear()
-        logger.info("{} worker out".format(wosrker_name))
+        logger.info("{} worker out".format(worker_name))
         worker_list[worker_name].state = 'Stopped'
 
 
