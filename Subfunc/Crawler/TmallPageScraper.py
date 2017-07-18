@@ -27,7 +27,7 @@ class TmallWorker():
             try:
                 logger.debug("Asking for new proxy...")
                 re = requests.get(
-                    'http://http.zhimadaili.com/getip?num=5&type=2&pro=&city=0&yys=0&port=11&time=1')
+                    'http://http.zhimadaili.com/getip?num=10&type=2&pro=&city=0&yys=0&port=11&time=1')
                 js = json.loads(re.content)
                 self.proxies_pool.extend(js['data'])
             except Exception as e:
@@ -72,7 +72,7 @@ class TmallWorker():
             'accept-language': 'zh-CN,zh;q=0.8',
             'user-agent': user_agent,
         }
-
+        # time.sleep(0.5)
         logger.debug('Trying open {} with UA:{} and proxy:{} and cookies:{}.'.format(url, headers['user-agent'], self.proxies, self.cookies))
         r = requests.get(url=url, headers=headers, proxies=self.proxies, cookies=self.cookies)
         # r = requests.get(url=url, proxies=self.proxies)
