@@ -109,14 +109,14 @@ class TmallWorker():
         else:
             logger.debug('Prase 1 passed.')
 
-        flag = 6
+        flag = 10
         while flag != 0:
             try:
                 logger.debug(r.content[:100])
                 js = json.loads(r.content)
                 logger.debug('Prase 2 passed.')
                 return js
-            except (ValueError, TypeError) as e:
+            except (ValueError, TypeError, requests.exceptions.ProxyError, requests.exceptions.ConnectionError) as e:
                 logger.warning(e)
                 flag -= 1
                 if flag >= 2:
