@@ -91,7 +91,7 @@ class TmallWorker():
             # self.__get_proxy()
             pass
 
-        counter = 3
+        counter = 10
         while counter != 0:
             try:
                 r = self.__get_web(url)
