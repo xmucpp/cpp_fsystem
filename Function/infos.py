@@ -48,7 +48,7 @@ def mission_info():
         return ''
 
 
-def info(order):
+def info(order=''):
     try:
         info_data = '\n'
         info_data = '{}{}'.format(info_data, conn_info())

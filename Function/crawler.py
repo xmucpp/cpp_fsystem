@@ -117,6 +117,8 @@ def refresher(order):
                 my_redis.lpush(title, my_redis.blpop(btitle)[1])
         except Exception:
             logger.error(logger.traceback())
+    import Subfunc.Crawler.TmallPageScraper as TM
+    TM.tmall_handler.refresh()
     logger.info("Refreshing end.")
     return
 

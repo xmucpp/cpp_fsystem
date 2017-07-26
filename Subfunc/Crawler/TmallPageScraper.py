@@ -23,6 +23,12 @@ class TmallWorker():
         self.number = 0
         self.proxies_pool = []
 
+    def refresh(self):
+        self.cookies = None
+        self.proxies = None
+        self.proxies_pool = []
+        self.number = 0
+
     def __get_proxy(self):
         if len(self.proxies_pool) < 2:
             try:
