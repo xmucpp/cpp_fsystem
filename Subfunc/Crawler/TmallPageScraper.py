@@ -33,8 +33,9 @@ class TmallWorker():
         if len(self.proxies_pool) < 2:
             try:
                 logger.debug("Asking for new proxy...")
+                time.sleep(random.randint(1, 10))
                 re = requests.get(
-                    'http://http.zhimadaili.com/getip?num=10&type=2&pro=&city=0&yys=0&port=11&time=1')
+                    'http://http-webapi.zhimaruanjian.com/getip?num=10&type=2&pro=&city=0&yys=0&port=11&time=1&ts=1&ys=0&cs=0&lb=1&sb=0&pb=4&mr=1')
                 js = json.loads(re.content)
                 self.proxies_pool.extend(js['data'])
             except Exception as e:
