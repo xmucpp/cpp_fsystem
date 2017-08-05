@@ -22,12 +22,14 @@ class TmallWorker():
         self.proxies = None
         self.number = 0
         self.proxies_pool = []
+        self.webdriver = webdriver.PhantomJS()
 
     def refresh(self):
         self.cookies = None
         self.proxies = None
         self.proxies_pool = []
         self.number = 0
+        self.webdriver.delete_all_cookies()
 
     def __get_proxy(self):
         if len(self.proxies_pool) < 2:
@@ -60,11 +62,11 @@ class TmallWorker():
 
     def __get_cookies(self):
         cookies = {}
-        browser = webdriver.PhantomJS()
-        browser.get('https://login.tmall.com/')
+        self.webdriver.delete_all_cookies()
+        self.webdriver.get('https://login.tmall.com/')
         time.sleep(2)
         # logger.debug(browser.get_cookies())
-        cookies[u'isg'] = browser.get_cookie('isg')['value']
+        cookies[u'isg'] = self.webdriver.get_cookie('isg')['value']
         cookies[u'cna'] = u""
         logger.debug("Switch cookies to {}".format(cookies[u'isg']))
         self.cookies = cookies
